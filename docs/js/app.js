@@ -1403,7 +1403,7 @@
       '<button class="btn" type="button" data-act="export">Export JSON</button>' +
       '<button class="btn quiet danger" type="button" data-act="reset-local">Reset this phone</button></div>' +
       '<p class="footnote">Reset clears the copy on this phone and loads everything again from the Sheet. The Sheet is not changed.</p>' +
-      '<p class="footnote">Cellar ' + esc(L.VERSION) + '</p>' +
+      '<p class="footnote">Drinkventory ' + esc(L.VERSION) + '</p>' +
       '</section>';
 
     $('#settingsForm').onsubmit = function (e) {
@@ -1473,7 +1473,7 @@
       var name = 'cellar-export-' + today() + '.json';
       var file = window.File ? new File([blob], name, { type: 'application/json' }) : null;
       if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
-        navigator.share({ files: [file], title: 'Cellar export' }).catch(function () { /* cancelled */ });
+        navigator.share({ files: [file], title: 'Drinkventory export' }).catch(function () { /* cancelled */ });
         return;
       }
       var a = document.createElement('a');

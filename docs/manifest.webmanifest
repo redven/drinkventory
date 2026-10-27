@@ -1,6 +1,6 @@
 {
-  "name": "Cellar",
-  "short_name": "Cellar",
+  "name": "Drinkventory",
+  "short_name": "Drinkventory",
   "description": "Wine and spirits cellar, stored in your Google Sheet.",
   "start_url": "./#/scan",
   "scope": "./",
