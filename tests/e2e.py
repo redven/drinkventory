@@ -69,7 +69,8 @@ try:
         a.fill('input[name=age]', 'NAS')
         a.fill('input[name=abv]', '54,2')
         a.fill('#intakeForm input[name=location]', 'Cabinet')
-        a.fill('#intakeForm input[name=source]', 'Whisky fair Nuremberg')
+        a.fill('#intakeForm .tag-input', 'Whisky fair Nuremberg')
+        a.click('#intakeForm .tag-add-btn')
         a.check('input[name=keep_adding]')
         shot(a, '02-new-bottle-form', full=True)
         a.click('#intakeForm button[type=submit]')
@@ -163,8 +164,8 @@ try:
         assert [t for (bid, t, u) in ev if bid == '000777'] == ['intake', 'out', 'restore']
         prod = [x for x in snap['products'] if x['name'] == 'Victoriana'][0]
         assert prod['abv'] == 54.2 and prod['type'] == 'whisky'
-        assert [x['source'] for x in snap['bottles'] if x['bottle_id'] == '000777'] == ['Whisky fair Nuremberg']
-        assert set(snap['bottles'][0].keys()) == {'bottle_id', 'product_id', 'status', 'location', 'acquired_date', 'source', 'out_at', 'created_at', 'created_by', 'updated_at'}
+        assert [x['tags'] for x in snap['bottles'] if x['bottle_id'] == '000777'] == ['Whisky fair Nuremberg']
+        assert set(snap['bottles'][0].keys()) == {'bottle_id', 'product_id', 'status', 'location', 'acquired_date', 'tags', 'out_at', 'created_at', 'created_by', 'updated_at'}
         print('ok  Sheet contains the changes from both phones')
 
         # ---------- stats and settings ----------

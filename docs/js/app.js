@@ -23,11 +23,12 @@
     batch: null,
     batchCount: 0,
     scanMode: 'look',
-    lastSource: '',
+    lastTags: '',
     outCount: 0,
     lastProductId: '',
     signature: '',
-    cellar: { q: '', cat: 'all', status: 'stock', sort: 'name' },
+    cellar: { q: '', cat: 'all', status: 'stock', sort: 'name', mode: 'list', facet: null },
+    backendVersion: '',
     climate: { days: 14, data: null, loadedAt: 0, loading: false, error: '' },
     charts: [],
     view: ''
@@ -108,10 +109,8 @@
     return Object.keys(m).sort(function (a, b) { return m[b] - m[a]; });
   }
 
-  function sources() {
-    var m = {};
-    app.state.bottles.forEach(function (b) { if (b.source) m[b.source] = (m[b.source] || 0) + 1; });
-    return Object.keys(m).sort(function (a, b) { return m[b] - m[a]; });
+  function allTags() {
+    return S.tagCounts(app.state).map(function (x) { return x.key; });
   }
 
   function distinct(field) {
@@ -183,7 +182,12 @@
   /** Validates and applies ops locally, stores them in the outbox, then syncs. */
   function commit(ops) {
     var stamped = ops.map(function (o) {
-      return { op_id: uuid(), kind: o.kind, ts: nowIso(), user: app.settings.user || 'me', data: o.data };
+      var data = o.data;
+      // A backend older than 2.1 only knows "source"; it then keeps the tags there until it is updated.
+      if ((o.kind === 'create_bottle' || o.kind === 'update_bottle') && data && data.tags !== undefined) {
+        data = Object.assign({}, data, { source: data.tags });
+      }
+      return { op_id: uuid(), kind: o.kind, ts: nowIso(), user: app.settings.user || 'me', data: data };
     });
     var draft = cloneState(app.state);
     for (var i = 0; i < stamped.length; i++) {
@@ -308,7 +312,8 @@
     } while (rows.length);
 
     var remaining = await Store.outbox();
-    var st = last.snapshot;
+    var st = L.upgradeState(last.snapshot);
+    noteBackendVersion(last.version);
     remaining.forEach(function (row) { applyLocal(st, row.op); });
     app.state = st;
     app.pending = remaining;
@@ -330,11 +335,18 @@
     return rejectedNow.length;
   }
 
+  function noteBackendVersion(v) {
+    var warn = v && v !== L.VERSION && app.backendVersion !== v;
+    app.backendVersion = v || '';
+    if (warn) toast('The backend runs version ' + v + ', this app ' + L.VERSION + '. In Apps Script, deploy a new version so tags are saved.', { error: true });
+  }
+
   function summarizeOp(op) {
     var d = op.data || {};
     if (op.kind === 'event') return (L.EVENT_LABELS[d.type] || d.type) + ' ' + (d.bottle_id || '');
     if (op.kind === 'create_bottle') return 'add ' + (d.bottle_id || '');
     if (op.kind === 'upsert_product') return 'product ' + (d.producer || d.name || d.product_id || '');
+    if (op.kind === 'rename_tag') return (d.to ? 'rename tag ' : 'delete tag ') + (d.from || '');
     return op.kind;
   }
 
@@ -358,24 +370,60 @@
   // ==================================================================
 
   var photoMem = {};
-  function getPhoto(id) {
-    if (!id) return Promise.resolve(null);
-    if (photoMem[id]) return Promise.resolve(photoMem[id]);
-    return Store.get('photos', id).then(function (v) {
-      if (v) { photoMem[id] = v; return v; }
-      if (id.indexOf('local:') === 0 || !configured() || !navigator.onLine) return null;
-      return api('photo_get', { photo_id: id }, 30000).then(function (r) {
-        photoMem[id] = r.data;
-        return Store.put('photos', id, r.data).then(function () { return r.data; });
-      }).catch(function () { return null; });
+  var photoLoading = {};
+  var downloads = { active: 0, queue: [] };
+
+  /** Runs photo downloads from the backend at most three at a time (the label collage can ask for many). */
+  function download(fn) {
+    return new Promise(function (resolve) {
+      downloads.queue.push(function () {
+        downloads.active += 1;
+        fn().then(resolve, function () { resolve(null); }).then(function () {
+          downloads.active -= 1;
+          if (downloads.queue.length) downloads.queue.shift()();
+        });
+      });
+      if (downloads.active < 3) downloads.queue.shift()();
     });
   }
 
+  function getPhoto(id) {
+    if (!id) return Promise.resolve(null);
+    if (photoMem[id]) return Promise.resolve(photoMem[id]);
+    if (photoLoading[id]) return photoLoading[id];
+    photoLoading[id] = Store.get('photos', id).then(function (v) {
+      if (v) { photoMem[id] = v; return v; }
+      if (id.indexOf('local:') === 0 || !configured() || !navigator.onLine) return null;
+      return download(function () {
+        return api('photo_get', { photo_id: id }, 30000).then(function (r) {
+          photoMem[id] = r.data;
+          return Store.put('photos', id, r.data).then(function () { return r.data; });
+        });
+      });
+    }).catch(function () { return null; }).then(function (v) { delete photoLoading[id]; return v; });
+    return photoLoading[id];
+  }
+
+  function showPhoto(img) {
+    getPhoto(img.getAttribute('data-photo')).then(function (src) {
+      if (src) { img.src = src; img.classList.add('loaded'); }
+    });
+  }
+
+  var photoObserver = window.IntersectionObserver ? new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      photoObserver.unobserve(e.target);
+      showPhoto(e.target);
+    });
+  }, { rootMargin: '400px 0px' }) : null;
+
+  /** Fills img[data-photo]; photos already on the phone appear at once, others load when they scroll into view. */
   function hydratePhotos(root) {
     $$('img[data-photo]', root).forEach(function (img) {
-      getPhoto(img.getAttribute('data-photo')).then(function (src) {
-        if (src) { img.src = src; img.classList.add('loaded'); }
-      });
+      var id = img.getAttribute('data-photo');
+      if (photoMem[id] || !photoObserver) showPhoto(img);
+      else photoObserver.observe(img);
     });
   }
 
@@ -554,7 +602,7 @@
   function addFromBatch(code) {
     var bt = app.batch;
     commit([{ kind: 'create_bottle', data: {
-      bottle_id: code, product_id: bt.product_id, location: bt.location, acquired_date: bt.acquired_date, source: bt.source
+      bottle_id: code, product_id: bt.product_id, location: bt.location, acquired_date: bt.acquired_date, tags: bt.tags
     } }]).then(function (ok) {
       if (!ok) return;
       app.batchCount += 1;
@@ -641,6 +689,61 @@
   }
 
   // ==================================================================
+  // Tag editor (new bottle, edit bottle, bottle page)
+  // ==================================================================
+
+  /** name: form field name for a hidden input, or '' when changes are saved right away. */
+  function tagEditor(value, name) {
+    return '<div class="tag-editor">' +
+      (name ? '<input type="hidden" name="' + name + '" value="' + esc(L.normalizeList(value)) + '">' : '') +
+      '<ul class="tag-chips" aria-label="Tags"></ul>' +
+      '<div class="tag-add"><input class="tag-input" list="dl_tags" placeholder="Add a tag, e.g. vacation" aria-label="New tag" autocomplete="off" enterkeyhint="done">' +
+      '<button type="button" class="btn tag-add-btn">Add</button></div>' +
+      '<div class="chips tag-suggest"></div>' + datalist('dl_tags', allTags()) +
+      '</div>';
+  }
+
+  function bindTagEditor(root, value, onChange) {
+    var ed = $('.tag-editor', root);
+    var hidden = $('input[type=hidden]', ed);
+    var input = $('.tag-input', ed);
+    var tags = L.splitList(value);
+    function draw() {
+      $('.tag-chips', ed).innerHTML = tags.map(function (t, i) {
+        return '<li class="tag-chip">' + esc(t) + '<button type="button" class="tag-x" data-i="' + i + '" aria-label="Remove tag ' + esc(t) + '">&times;</button></li>';
+      }).join('');
+      var have = tags.map(function (t) { return t.toLowerCase(); });
+      $('.tag-suggest', ed).innerHTML = allTags().filter(function (t) { return have.indexOf(t.toLowerCase()) < 0; }).slice(0, 10).map(function (t) {
+        return '<button type="button" class="chip-btn" data-tag="' + esc(t) + '">+ ' + esc(t) + '</button>';
+      }).join('');
+    }
+    function set(next) {
+      next = L.splitList(next.join(','));
+      if (next.join(', ') === tags.join(', ')) { draw(); return; }
+      tags = next;
+      if (hidden) hidden.value = tags.join(', ');
+      draw();
+      if (onChange) onChange(tags.join(', '));
+    }
+    function addTyped() {
+      var v = input.value.trim();
+      input.value = '';
+      if (v) set(tags.concat(L.splitList(v)));
+    }
+    ed.addEventListener('click', function (e) {
+      var x = e.target.closest('.tag-x');
+      if (x) { var i = Number(x.dataset.i); set(tags.filter(function (_, j) { return j !== i; })); return; }
+      var sug = e.target.closest('[data-tag]');
+      if (sug) { set(tags.concat([sug.dataset.tag])); return; }
+      if (e.target.closest('.tag-add-btn')) addTyped();
+    });
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); addTyped(); }
+    });
+    draw();
+  }
+
+  // ==================================================================
   // Product form (shared by "new bottle" and "edit product")
   // ==================================================================
 
@@ -675,7 +778,7 @@
       field('country', 'Country', p.country, 'list="dl_country" autocapitalize="words"') +
       field('region', 'Region', p.region, 'list="dl_region" autocapitalize="words"') +
       '</div>' +
-      '<div class="only-wine">' + field('grapes', 'Grapes', p.grapes, 'autocapitalize="words" list="dl_grapes"') + '</div>' +
+      '<div class="only-wine">' + field('grapes', 'Grapes (separate with commas)', p.grapes, 'autocapitalize="words" placeholder="e.g. Merlot, Cabernet Franc"') + '</div>' +
       '<div class="only-spirit">' + field('cask', 'Cask', p.cask, 'placeholder="e.g. sherry butt"') + '</div>' +
       '<div class="grid2">' +
       field('abv', 'Alcohol (% vol)', p.abv, 'inputmode="decimal"') +
@@ -692,7 +795,6 @@
       '</div>' +
       datalist('dl_producer', distinct('producer')) + datalist('dl_distillery', distinct('distillery')) +
       datalist('dl_country', distinct('country')) + datalist('dl_region', distinct('region')) +
-      datalist('dl_grapes', distinct('grapes')) +
       '</div>';
   }
 
@@ -778,14 +880,15 @@
       field('location', 'Location', last ? lastLocationFor(last.product_id) : (locs[0] || ''), 'list="dl_loc" placeholder="e.g. Rack A, row 3"') +
       field('acquired_date', 'Acquired', today(), 'type="date"') +
       '</div>' + datalist('dl_loc', locs) +
-      field('source', 'Source (optional)', app.lastSource || '', 'list="dl_src" placeholder="shop, winery, gift from …"') + datalist('dl_src', sources()) +
       '</fieldset>' +
+      '<fieldset class="group"><legend>Tags (optional)</legend>' + tagEditor(app.lastTags || '', 'tags') + '</fieldset>' +
       '<label class="check"><input type="checkbox" name="keep_adding"> Add more bottles of this product next</label>' +
       '<div class="form-actions"><button class="btn primary" type="submit">Add bottle</button><a class="btn quiet" href="#/scan">Cancel</a></div>' +
       '</form></section>';
 
     var form = $('#intakeForm');
     bindProductFields(form);
+    bindTagEditor(form, app.lastTags || '');
     var search = $('#productSearch');
     var results = $('#productResults');
     function showResults() {
@@ -819,15 +922,15 @@
         toast('Choose a product or create a new one.', { error: true });
         return;
       }
-      var bottleData = { bottle_id: code, product_id: pid, location: fd.get('location'), acquired_date: fd.get('acquired_date'), source: fd.get('source') };
+      var bottleData = { bottle_id: code, product_id: pid, location: fd.get('location'), acquired_date: fd.get('acquired_date'), tags: fd.get('tags') };
       ops.push({ kind: 'create_bottle', data: bottleData });
       commit(ops).then(function (ok) {
         if (!ok) return;
         app.lastProductId = pid;
-        app.lastSource = bottleData.source;
+        app.lastTags = bottleData.tags;
         toast('Added ' + code);
         if (fd.get('keep_adding')) {
-          app.batch = { product_id: pid, location: bottleData.location, acquired_date: bottleData.acquired_date, source: bottleData.source };
+          app.batch = { product_id: pid, location: bottleData.location, acquired_date: bottleData.acquired_date, tags: bottleData.tags };
           app.batchCount = 1;
           go('scan');
         } else {
@@ -939,11 +1042,10 @@
       '</div></div>' +
       labelBlock(p) +
       '<div class="action-grid">' + actions + '</div>' +
+      (st !== 'void' ? '<h2>Tags</h2>' + tagEditor(b.tags, '') : '') +
       '<p class="others"><a href="#/p/' + encodeURIComponent(b.product_id) + '">' + (others ? others + ' more of this product in stock' : 'No other bottle of this product in stock') + '</a></p>' +
       '<details class="more"><summary>Details</summary>' + facts(p) +
-      ((b.acquired_date || b.source) ? '<dl class="facts">' +
-        (b.acquired_date ? '<dt>Acquired</dt><dd>' + esc(fmtDate(b.acquired_date)) + '</dd>' : '') +
-        (b.source ? '<dt>Source</dt><dd>' + esc(b.source) + '</dd>' : '') + '</dl>' : '') +
+      (b.acquired_date ? '<dl class="facts"><dt>Acquired</dt><dd>' + esc(fmtDate(b.acquired_date)) + '</dd></dl>' : '') +
       '</details>' +
       '<h2>History</h2><ol class="timeline">' + events.map(eventLine).join('') + '</ol>' +
       '<div class="quiet-actions">' +
@@ -951,6 +1053,13 @@
       (st !== 'void' ? '<a class="btn quiet" href="#/b/' + encodeURIComponent(code) + '/edit">Edit bottle</a>' : '') +
       (st !== 'void' ? '<button type="button" class="btn quiet danger" data-act="remove" data-code="' + esc(code) + '">Remove</button>' : '') +
       '</div></section>';
+    if (st !== 'void') {
+      bindTagEditor(main, b.tags, function (tags) {
+        commit([{ kind: 'update_bottle', data: { bottle_id: code, tags: tags } }]).then(function (ok) {
+          if (!ok) render();
+        });
+      });
+    }
     hydratePhotos(main);
   }
 
@@ -969,7 +1078,7 @@
     function bottleRow(b) {
       return '<li><a class="row" href="#/b/' + encodeURIComponent(b.bottle_id) + '"><span class="code-chip small">' + esc(b.bottle_id) + '</span>' +
         '<span class="row-main"><span class="row-title">' + (b.status === 'in_stock' ? esc(b.location || 'No location') : 'Taken out ' + esc(fmtDate(b.out_at))) + '</span>' +
-        ((b.acquired_date || b.source) ? '<span class="row-sub">' + [b.acquired_date ? 'Acquired ' + esc(fmtDate(b.acquired_date)) : '', b.source ? esc(b.source) : ''].filter(Boolean).join(', ') + '</span>' : '') + '</span></a></li>';
+        ((b.acquired_date || b.tags) ? '<span class="row-sub">' + [b.acquired_date ? 'Acquired ' + esc(fmtDate(b.acquired_date)) : '', esc(b.tags)].filter(Boolean).join(', ') + '</span>' : '') + '</span></a></li>';
     }
 
     main.innerHTML =
@@ -1023,14 +1132,15 @@
       }).join('') + '</select></label>' +
       '<div class="grid2">' + field('location', 'Location', b.location, 'list="dl_loc"') +
       field('acquired_date', 'Acquired', b.acquired_date, 'type="date"') + '</div>' + datalist('dl_loc', locations()) +
-      field('source', 'Source', b.source, 'list="dl_src"') + datalist('dl_src', sources()) +
+      '<div class="field"><span>Tags</span>' + tagEditor(b.tags, 'tags') + '</div>' +
       '</fieldset><div class="form-actions"><button class="btn primary" type="submit">Save bottle</button>' +
       '<a class="btn quiet" href="#/b/' + encodeURIComponent(code) + '">Cancel</a></div></form></section>';
+    bindTagEditor($('#bottleForm'), b.tags);
     $('#bottleForm').onsubmit = function (e) {
       e.preventDefault();
       var fd = new FormData(e.target);
       commit([{ kind: 'update_bottle', data: {
-        bottle_id: code, product_id: fd.get('product_id'), location: fd.get('location'), acquired_date: fd.get('acquired_date'), source: fd.get('source')
+        bottle_id: code, product_id: fd.get('product_id'), location: fd.get('location'), acquired_date: fd.get('acquired_date'), tags: fd.get('tags')
       } }]).then(function (ok) { if (ok) { toast('Saved bottle'); go('b/' + encodeURIComponent(code)); } });
     };
   }
@@ -1047,7 +1157,10 @@
     main.innerHTML =
       '<section class="page cellar">' +
       '<div class="filters">' +
-      '<input type="search" id="cellarSearch" placeholder="Search" aria-label="Search producer, name, region, location, source or sticker" value="' + esc(f.q) + '" autocomplete="off">' +
+      '<div class="seg" role="group" aria-label="View">' + seg('mode', 'list', 'List') + seg('mode', 'labels', 'Labels') + '</div>' +
+      (f.facet ? '<p class="facet-bar"><span class="facet-chip">' + esc(f.facet.label) + '</span>' +
+        '<button type="button" class="btn quiet" data-act="clear-facet">Show all</button></p>' : '') +
+      '<input type="search" id="cellarSearch" placeholder="Search" aria-label="Search producer, name, grapes, region, location, tags or sticker" value="' + esc(f.q) + '" autocomplete="off">' +
       '<div class="seg" role="group" aria-label="Category">' + seg('cat', 'all', 'All') + seg('cat', 'wine', 'Wine') + seg('cat', 'spirit', 'Spirits') + '</div>' +
       '<div class="seg" role="group" aria-label="Status">' + seg('status', 'stock', 'In stock') + seg('status', 'out', 'Taken out') + '</div>' +
       '<label class="field inline-field"><span>Sort</span><select id="cellarSort">' +
@@ -1066,12 +1179,14 @@
     var pm = {};
     app.state.products.forEach(function (p) { pm[p.product_id] = p; });
     var tokens = f.q.toLowerCase().split(/\s+/).filter(Boolean);
+    var year = new Date().getFullYear();
     var bottles = app.state.bottles.filter(function (b) {
       if (f.status === 'stock' ? b.status !== 'in_stock' : b.status !== 'out') return false;
       var p = pm[b.product_id] || {};
       if (f.cat !== 'all' && L.categoryOf(p.type) !== f.cat) return false;
+      if (f.facet && !S.matchFacet(f.facet, b, p, year)) return false;
       if (tokens.length) {
-        var hay = [p.producer, p.distillery, p.name, p.vintage, p.region, p.country, p.grapes, p.age, b.location, b.source, b.bottle_id, typeLabel(p.type)].join(' ').toLowerCase();
+        var hay = [p.producer, p.distillery, p.name, p.vintage, p.region, p.country, p.grapes, p.age, b.location, b.tags, b.bottle_id, typeLabel(p.type)].join(' ').toLowerCase();
         if (!tokens.every(function (t) { return hay.indexOf(t) >= 0; })) return false;
       }
       return true;
@@ -1104,7 +1219,13 @@
         : '<p class="empty">The cellar is empty. Scan a sticker to add the first bottle.</p><p><a class="btn primary" href="#/scan">Scan a sticker</a></p>';
       return;
     }
-    el.innerHTML = '<p class="count">' + bottles.length + ' bottles, ' + list.length + ' products</p><ul class="list products">' + list.map(function (g) {
+    var countLine = '<p class="count">' + bottles.length + ' bottles, ' + list.length + ' products</p>';
+    if (f.mode === 'labels') {
+      el.innerHTML = countLine + '<ul class="collage">' + list.map(collageTile).join('') + '</ul>';
+      hydratePhotos(el);
+      return;
+    }
+    el.innerHTML = countLine + '<ul class="list products">' + list.map(function (g) {
       var p = g.p; var cat = L.categoryOf(p.type);
       var sub = [typeLabel(p.type), p.region].filter(Boolean).join(', ');
       var tail = f.status === 'out' ? (g.latest ? 'Last ' + fmtDate(g.latest) : '') : Object.keys(g.locs).sort().slice(0, 3).join(', ');
@@ -1115,6 +1236,21 @@
         '<span class="row-sub">' + esc(sub) + (tail ? '. ' + esc(tail) : '') + '</span></span>' +
         (f.status === 'stock' ? windowChip(p) : '') + '</a></li>';
     }).join('') + '</ul>';
+  }
+
+  /** One label in the collage. A single bottle opens that bottle; several open the product with its bottles. */
+  function collageTile(g) {
+    var p = g.p; var cat = L.categoryOf(p.type);
+    var href = g.bottles.length === 1 ? '#/b/' + encodeURIComponent(g.bottles[0].bottle_id) : '#/p/' + encodeURIComponent(p.product_id);
+    var title = [p.name, p.vintage].filter(Boolean).join(' ') || L.productLabel(p);
+    var maker = cat === 'spirit' ? (p.distillery || p.producer) : p.producer;
+    return '<li><a class="tile cat-' + cat + '" href="' + href + '" aria-label="' + esc(L.productLabel(p)) + ', ' + g.bottles.length + ' bottles">' +
+      (p.photo_id
+        ? '<img class="tile-photo" alt="" loading="lazy" data-photo="' + esc(p.photo_id) + '">'
+        : '<span class="tile-text"><span class="tile-maker">' + esc(maker) + '</span><span class="tile-name serif">' + esc(title) + '</span></span>') +
+      '<span class="count-badge cat-' + cat + '">' + g.bottles.length + '</span>' +
+      (p.photo_id ? '<span class="tile-cap">' + esc(title) + '</span>' : '') +
+      '</a></li>';
   }
 
   // ==================================================================
@@ -1154,15 +1290,33 @@
     return horizontal ? { x: valueAxis, y: catAxis } : { x: catAxis, y: valueAxis };
   }
 
-  function barChart(id, labels, values, color, horizontal) {
+  /** kind: optional facet kind; tapping a bar then lists those bottles in the Cellar tab. */
+  function barChart(id, labels, values, color, horizontal, kind, title) {
     var el = document.getElementById(id);
     if (!el || !window.Chart) return;
     var c = chartBase();
+    var options = { indexAxis: horizontal ? 'y' : 'x', scales: axes(c, horizontal), plugins: { legend: { display: false } } };
+    if (kind) {
+      options.onClick = function (evt, els) { if (els.length) showFacet(kind, labels[els[0].index], title); };
+      options.onHover = function (evt, els) { evt.native.target.style.cursor = els.length ? 'pointer' : 'default'; };
+    }
     app.charts.push(new Chart(el, {
       type: 'bar',
       data: { labels: labels, datasets: [{ data: values, backgroundColor: color, borderRadius: 4, borderSkipped: 'start', maxBarThickness: 18, barPercentage: 0.7 }] },
-      options: { indexAxis: horizontal ? 'y' : 'x', scales: axes(c, horizontal), plugins: { legend: { display: false } } }
+      options: options
     }));
+  }
+
+  var FACET_TITLES = { win: '', grape: 'Grape', tag: 'Tag', type: 'Type', country: 'Country', location: 'Location' };
+  var WIN_LABELS = { ready: 'Ready to drink', young: 'Too young', past: 'Past window', unknown: 'No window set' };
+
+  function showFacet(kind, value, title) {
+    var label = kind === 'win' ? WIN_LABELS[value] : (title || FACET_TITLES[kind]) + ': ' + value;
+    app.cellar.facet = { kind: kind, value: value, label: label };
+    app.cellar.status = 'stock';
+    app.cellar.cat = 'all';
+    app.cellar.q = '';
+    go('cellar');
   }
 
   function hBarBlock(id, title, rows, label) {
@@ -1180,8 +1334,8 @@
     var byType = S.stockBy(app.state, 'type');
     var byCountry = S.stockBy(app.state, 'country').slice(0, 10);
     var byLoc = S.stockBy(app.state, 'location').slice(0, 12);
-    var bySource = S.stockBy(app.state, 'source').slice(0, 10);
-    var hasSource = bySource.some(function (x) { return x.key !== '(not set)'; });
+    var byGrape = S.stockByList(app.state, 'grapes').slice(0, 15);
+    var byTag = S.stockByList(app.state, 'tags').slice(0, 15);
     var vint = S.vintageHistogram(app.state);
     var users = S.perUser(app.state);
     var anyOut = outs.wine.concat(outs.spirit, outs.other).some(function (x) { return x > 0; });
@@ -1200,6 +1354,7 @@
       winCell('ready', win.counts.ready, 'Ready') + winCell('young', win.counts.young, 'Too young') +
       winCell('past', win.counts.past, 'Past window') + winCell('unknown', win.counts.unknown, 'No window set') +
       '</div>' +
+      '<p class="footnote">Tap a number or a bar to see those bottles.</p>' +
       (win.next.length ? '<h3>Drink next</h3><ul class="list compact">' + win.next.slice(0, 8).map(function (x) {
         var locs = {};
         x.bottles.forEach(function (bb) { if (bb.location) locs[bb.location] = true; });
@@ -1214,7 +1369,9 @@
       (byType.length ? hBarBlock('chType', 'Stock by type', byType, 'Bottles in stock by type') : '<h2>Stock</h2><p class="empty">No bottles in stock.</p>') +
       hBarBlock('chLoc', 'Stock by location', byLoc, 'Bottles in stock by location') +
       hBarBlock('chCountry', 'Stock by country', byCountry, 'Bottles in stock by country') +
-      (hasSource ? hBarBlock('chSource', 'Stock by source', bySource, 'Bottles in stock by source') : '') +
+      hBarBlock('chGrape', 'Stock by grape', byGrape, 'Wine bottles in stock by grape. A blend counts for each of its grapes.') +
+      (byGrape.length ? '<p class="footnote">A blend counts once for each of its grapes.</p>' : '') +
+      hBarBlock('chTag', 'Stock by tag', byTag, 'Bottles in stock by tag') +
       (vint.length ? '<h2>Wine vintages in stock</h2><div class="chart"><canvas id="chVint" role="img" aria-label="Wine bottles in stock by vintage"></canvas></div>' : '') +
 
       (users.length ? '<h2>Who added and took out</h2><table class="table"><thead><tr><th>Person</th><th>Added</th><th>Taken out</th></tr></thead><tbody>' +
@@ -1242,10 +1399,13 @@
         }
       }));
     }
-    barChart('chType', byType.map(function (x) { return x.key; }), byType.map(function (x) { return x.n; }), c.other, true);
-    barChart('chLoc', byLoc.map(function (x) { return x.key; }), byLoc.map(function (x) { return x.n; }), c.other, true);
-    barChart('chCountry', byCountry.map(function (x) { return x.key; }), byCountry.map(function (x) { return x.n; }), c.other, true);
-    if (hasSource) barChart('chSource', bySource.map(function (x) { return x.key; }), bySource.map(function (x) { return x.n; }), c.other, true);
+    function keys(rows) { return rows.map(function (x) { return x.key; }); }
+    function counts(rows) { return rows.map(function (x) { return x.n; }); }
+    barChart('chType', keys(byType), counts(byType), c.other, true, 'type');
+    barChart('chLoc', keys(byLoc), counts(byLoc), c.other, true, 'location');
+    barChart('chCountry', keys(byCountry), counts(byCountry), c.other, true, 'country');
+    barChart('chGrape', keys(byGrape), counts(byGrape), c.wine, true, 'grape');
+    barChart('chTag', keys(byTag), counts(byTag), c.other, true, 'tag');
     barChart('chVint', vint.map(function (x) { return x.key; }), vint.map(function (x) { return x.n; }), c.wine, false);
     renderClimate();
   }
@@ -1255,7 +1415,8 @@
   }
 
   function winCell(cls, n, label) {
-    return '<div class="win win-' + cls + '"><p class="win-n">' + n + '</p><p class="win-l">' + esc(label) + '</p></div>';
+    return '<button type="button" class="win win-' + cls + '" data-act="facet" data-kind="win" data-value="' + cls + '"' + (n ? '' : ' disabled') +
+      ' aria-label="' + n + ' ' + esc(WIN_LABELS[cls]) + ', show these bottles"><span class="win-n">' + n + '</span><span class="win-l">' + esc(label) + '</span></button>';
   }
 
   // ---------- climate ----------
@@ -1392,12 +1553,16 @@
       '<dt>Last sync</dt><dd>' + esc(app.lastSync ? fmtDateTime(app.lastSync) : 'never') + '</dd>' +
       '<dt>Changes waiting</dt><dd>' + app.pending.length + '</dd>' +
       (app.syncError ? '<dt>Last error</dt><dd class="out">' + esc(app.syncError) + '</dd>' : '') +
+      (app.backendVersion && app.backendVersion !== L.VERSION ? '<dt>Backend</dt><dd class="out">Version ' + esc(app.backendVersion) +
+        ', this app ' + esc(L.VERSION) + '. In Apps Script: Deploy &gt; Manage deployments &gt; Edit &gt; New version.</dd>' : '') +
       '<dt>On this phone</dt><dd>' + app.state.products.length + ' products, ' + app.state.bottles.length + ' bottles, ' + app.state.events.length + ' history entries</dd>' +
       '</dl><div class="form-actions"><button class="btn" type="button" data-act="sync">Sync now</button></div>' +
 
       (app.rejected.length ? '<h2>Rejected changes</h2><p class="footnote">The backend refused these changes, usually because the other phone changed the same bottle first.</p><ul class="list compact">' +
         app.rejected.map(function (r) { return '<li class="row"><span class="row-main"><span class="row-title">' + esc(r.data) + '</span><span class="row-sub">' + esc(r.error) + ', ' + esc(fmtDateTime(r.ts)) + '</span></span></li>'; }).join('') +
         '</ul><div class="form-actions"><button class="btn quiet" type="button" data-act="clear-rejected">Clear this list</button></div>' : '') +
+
+      tagManager() +
 
       '<h2>Data</h2><div class="form-actions">' +
       '<button class="btn" type="button" data-act="export">Export JSON</button>' +
@@ -1420,6 +1585,47 @@
       if (configured()) syncNow(true).then(function () { render(); });
       else toast('Saved');
     };
+  }
+
+  function tagManager() {
+    var tags = S.tagCounts(app.state);
+    return '<h2>Tags</h2>' + (tags.length
+      ? '<p class="footnote">Renaming or deleting changes the tag on every bottle.</p><ul class="list compact">' + tags.map(function (t) {
+        return '<li class="row"><span class="row-main"><span class="row-title">' + esc(t.key) + '</span><span class="row-sub">' + t.n + (t.n === 1 ? ' bottle' : ' bottles') + '</span></span>' +
+          '<button type="button" class="btn quiet" data-act="tag-rename" data-tag="' + esc(t.key) + '">Rename</button>' +
+          '<button type="button" class="btn quiet danger" data-act="tag-delete" data-tag="' + esc(t.key) + '">Delete</button></li>';
+      }).join('') + '</ul>'
+      : '<p class="empty">No tags yet. Add them on a bottle.</p>');
+  }
+
+  function renameTagDialog(tag) {
+    var dlg = $('#dlg');
+    dlg.innerHTML = '<form method="dialog" class="dlg-form" autocomplete="off">' +
+      '<h2 id="dlgTitle">Rename tag</h2>' +
+      field('to', 'New name', tag, 'required') +
+      '<p class="footnote">If the new name already exists, the two tags are merged.</p>' +
+      '<div class="dlg-actions"><button value="cancel" class="btn" formnovalidate>Cancel</button>' +
+      '<button value="ok" class="btn primary">Rename</button></div></form>';
+    var form = $('form', dlg);
+    dlg.returnValue = '';
+    dlg.addEventListener('close', function () {
+      if (dlg.returnValue !== 'ok') return;
+      var to = L.normalizeList(form.to.value);
+      if (!to || to === tag) return;
+      commit([{ kind: 'rename_tag', data: { from: tag, to: to } }]).then(function (ok) {
+        if (ok) { toast('Renamed ' + tag + ' to ' + to); render(); }
+      });
+    }, { once: true });
+    dlg.showModal();
+  }
+
+  function deleteTag(tag) {
+    confirmDialog('Delete tag', 'Remove the tag "' + tag + '" from every bottle? The bottles stay.', 'Delete').then(function (ok) {
+      if (!ok) return;
+      commit([{ kind: 'rename_tag', data: { from: tag, to: '' } }]).then(function (r) {
+        if (r) { toast('Deleted tag ' + tag); render(); }
+      });
+    });
   }
 
   // ==================================================================
@@ -1449,7 +1655,7 @@
     },
     'add-bottles': function (el) {
       var pid = el.dataset.id;
-      app.batch = { product_id: pid, location: lastLocationFor(pid), acquired_date: today(), source: app.lastSource || '' };
+      app.batch = { product_id: pid, location: lastLocationFor(pid), acquired_date: today(), tags: app.lastTags || '' };
       app.batchCount = 0;
       app.scanMode = 'look';
       go('scan');
@@ -1459,6 +1665,10 @@
       Scanner.torch(on).then(function (ok) { if (ok) el.setAttribute('aria-pressed', String(on)); });
     },
     filter: function (el) { app.cellar[el.dataset.group] = el.dataset.value; viewCellar($('#main')); },
+    facet: function (el) { showFacet(el.dataset.kind, el.dataset.value); },
+    'clear-facet': function () { app.cellar.facet = null; viewCellar($('#main')); },
+    'tag-rename': function (el) { renameTagDialog(el.dataset.tag); },
+    'tag-delete': function (el) { deleteTag(el.dataset.tag); },
     'climate-days': function (el) { app.climate.days = Number(el.dataset.days); destroyClimateCharts(); renderClimate(); },
     'test-conn': function () {
       var form = $('#settingsForm');
@@ -1519,7 +1729,7 @@
   async function init() {
     try {
       var st = await Store.get('kv', 'state');
-      if (st && st.products) app.state = st;
+      if (st && st.products) app.state = L.upgradeState(st);
       app.lastSync = (await Store.get('kv', 'lastSync')) || '';
       app.rejected = (await Store.get('kv', 'rejected')) || [];
       app.unseenRejected = (await Store.get('kv', 'unseenRejected')) || 0;

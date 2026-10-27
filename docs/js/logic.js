@@ -18,7 +18,7 @@
 var DrinkventoryLogic = (function () {
   'use strict';
 
-  var VERSION = '2.0.0';
+  var VERSION = '2.1.0';
 
   var SCHEMA = {
     products: [
@@ -27,7 +27,7 @@ var DrinkventoryLogic = (function () {
       'created_at', 'created_by', 'updated_at'
     ],
     bottles: [
-      'bottle_id', 'product_id', 'status', 'location', 'acquired_date', 'source', 'out_at',
+      'bottle_id', 'product_id', 'status', 'location', 'acquired_date', 'tags', 'out_at',
       'created_at', 'created_by', 'updated_at'
     ],
     events: ['event_id', 'ts', 'user', 'type', 'bottle_id', 'product_id', 'location'],
@@ -66,7 +66,7 @@ var DrinkventoryLogic = (function () {
   var EVENT_TYPES = ['move', 'out', 'restore', 'void'];
   var META_FIELDS = ['product_id', 'created_at', 'created_by', 'updated_at'];
   var PRODUCT_FIELDS = SCHEMA.products.filter(function (f) { return META_FIELDS.indexOf(f) < 0; });
-  var BOTTLE_EDIT_FIELDS = ['product_id', 'location', 'acquired_date', 'source'];
+  var BOTTLE_EDIT_FIELDS = ['product_id', 'location', 'acquired_date', 'tags'];
 
   // ---------- small helpers ----------
 
@@ -89,6 +89,37 @@ var DrinkventoryLogic = (function () {
   }
 
   function fail(msg) { throw new Error(msg); }
+
+  /** Comma-separated text (grapes, tags) as a list: trimmed, no blanks, no case-insensitive duplicates. */
+  function splitList(v) {
+    var seen = {};
+    return clean(v).split(',').map(function (x) { return x.replace(/\s+/g, ' ').trim(); }).filter(function (x) {
+      var k = x.toLowerCase();
+      if (!x || seen[k]) return false;
+      seen[k] = true;
+      return true;
+    });
+  }
+
+  function normalizeList(v) { return splitList(v).join(', '); }
+
+  function listHas(v, item) {
+    var k = clean(item).toLowerCase();
+    return splitList(v).some(function (x) { return x.toLowerCase() === k; });
+  }
+
+  /** Older versions stored a single free-text "source" per bottle; it becomes the first tag. */
+  function bottleTags(d) {
+    return normalizeList(has(d, 'tags') ? d.tags : d.source);
+  }
+
+  function upgradeState(state) {
+    (state.bottles || []).forEach(function (b) {
+      if (b.tags === undefined) b.tags = normalizeList(b.source);
+      delete b.source;
+    });
+    return state;
+  }
 
   function find(list, key, id) {
     if (!list || id === '' || id === null || id === undefined) return null;
@@ -194,6 +225,7 @@ var DrinkventoryLogic = (function () {
     PRODUCT_FIELDS.forEach(function (f) {
       if (has(d, f)) upd[f] = isNumericField(f) ? toNumberOrBlank(d[f]) : clean(d[f]);
     });
+    if (has(upd, 'grapes')) upd.grapes = normalizeList(upd.grapes);
     if (has(upd, 'type') && upd.type !== '' && !typeInfo(upd.type)) fail('unknown type: ' + upd.type);
     if (isNew) {
       if (!upd.type) fail('type missing');
@@ -237,7 +269,7 @@ var DrinkventoryLogic = (function () {
     b.status = 'in_stock';
     b.location = clean(d.location);
     b.acquired_date = clean(d.acquired_date);
-    b.source = clean(d.source);
+    b.tags = bottleTags(d);
     b.created_at = String(op.ts);
     b.created_by = clean(op.user);
     b.updated_at = String(op.ts);
@@ -254,6 +286,7 @@ var DrinkventoryLogic = (function () {
     if (b.status === 'void') fail('bottle was removed');
     var upd = {};
     BOTTLE_EDIT_FIELDS.forEach(function (f) { if (has(d, f)) upd[f] = clean(d[f]); });
+    if (has(d, 'tags') || has(d, 'source')) upd.tags = bottleTags(d);
     if (has(upd, 'product_id') && !find(state.products, 'product_id', upd.product_id)) {
       fail('unknown product: ' + upd.product_id);
     }
@@ -315,12 +348,31 @@ var DrinkventoryLogic = (function () {
     return { products: [p] };
   }
 
+  /** Renames a tag on every bottle; an empty new name deletes it. No history entries. */
+  function renameTag(state, op) {
+    var d = op.data || {};
+    var from = clean(d.from).toLowerCase();
+    if (!from) fail('tag missing');
+    var to = normalizeList(d.to);
+    var changed = [];
+    state.bottles.forEach(function (b) {
+      if (!listHas(b.tags, from)) return;
+      var next = normalizeList(splitList(b.tags).map(function (t) { return t.toLowerCase() === from ? to : t; }).join(','));
+      if (next === b.tags) return;
+      b.tags = next;
+      b.updated_at = String(op.ts);
+      changed.push(b);
+    });
+    return { bottles: changed };
+  }
+
   var HANDLERS = {
     upsert_product: upsertProduct,
     create_bottle: createBottle,
     update_bottle: updateBottle,
     event: bottleEvent,
-    set_photo: setPhoto
+    set_photo: setPhoto,
+    rename_tag: renameTag
   };
 
   function applyOp(state, op) {
@@ -434,9 +486,63 @@ var DrinkventoryLogic = (function () {
       if (field === 'type') { var t = typeInfo(p.type); return t ? t.label : '(not set)'; }
       if (field === 'category') return categoryOf(p.type);
       if (field === 'location') return b.location;
-      if (field === 'source') return b.source;
       return p[field];
     });
+  }
+
+  /**
+   * In-stock bottles per item of a comma-separated field: 'grapes' (wine products) or 'tags' (bottles).
+   * A bottle counts once for each of its items, so a blend shows up under every grape.
+   */
+  function stockByList(state, field) {
+    var pm = productMap(state);
+    var m = {};
+    var label = {};
+    stockBottles(state).forEach(function (b) {
+      var p = pm[String(b.product_id)] || {};
+      if (field === 'grapes' && categoryOf(p.type) !== 'wine') return;
+      splitList(field === 'grapes' ? p.grapes : b[field]).forEach(function (x) {
+        var k = x.toLowerCase();
+        if (!label[k]) label[k] = x;
+        m[k] = (m[k] || 0) + 1;
+      });
+    });
+    return Object.keys(m).map(function (k) { return { key: label[k], n: m[k] }; })
+      .sort(function (a, b) { return b.n - a.n || a.key.localeCompare(b.key); });
+  }
+
+  /** All tags with the number of bottles (any status except removed) that carry them. */
+  function tagCounts(state) {
+    var m = {};
+    var label = {};
+    state.bottles.forEach(function (b) {
+      if (b.status === 'void') return;
+      splitList(b.tags).forEach(function (x) {
+        var k = x.toLowerCase();
+        if (!label[k]) label[k] = x;
+        m[k] = (m[k] || 0) + 1;
+      });
+    });
+    return Object.keys(m).map(function (k) { return { key: label[k], n: m[k] }; })
+      .sort(function (a, b) { return b.n - a.n || a.key.localeCompare(b.key); });
+  }
+
+  /**
+   * Does a bottle (with its product) belong to a statistics slice?
+   * facet: { kind: 'win' | 'grape' | 'tag' | 'type' | 'country' | 'location', value }
+   */
+  function matchFacet(facet, b, p, year) {
+    p = p || {};
+    var v = facet.value;
+    switch (facet.kind) {
+      case 'win': return drinkWindowStatus(p, year) === v;
+      case 'grape': return categoryOf(p.type) === 'wine' && listHas(p.grapes, v);
+      case 'tag': return listHas(b.tags, v);
+      case 'type': { var t = typeInfo(p.type); return (t ? t.label : '(not set)') === v; }
+      case 'country': return (clean(p.country) || '(not set)') === v;
+      case 'location': return (clean(b.location) || '(not set)') === v;
+    }
+    return true;
   }
 
   function vintageHistogram(state) {
@@ -507,10 +613,17 @@ var DrinkventoryLogic = (function () {
     productLabel: productLabel,
     searchQuery: searchQuery,
     blankRecord: blankRecord,
+    splitList: splitList,
+    normalizeList: normalizeList,
+    listHas: listHas,
+    upgradeState: upgradeState,
     applyOp: applyOp,
     stats: {
       summary: summary,
       stockBy: stockBy,
+      stockByList: stockByList,
+      tagCounts: tagCounts,
+      matchFacet: matchFacet,
       vintageHistogram: vintageHistogram,
       drinkWindows: drinkWindows,
       drinkWindowStatus: drinkWindowStatus,

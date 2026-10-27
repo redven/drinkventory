@@ -90,10 +90,13 @@ The app rejects a sticker that is already in use, so a duplicate from a re-order
 
 | Task | How |
 |---|---|
-| Add a bottle | Scan an unused sticker. Choose an existing product or create a new one (photo optional). Set location and, optionally, the source (shop, winery, gift). |
+| Add a bottle | Scan an unused sticker. Choose an existing product or create a new one (photo optional). Set location and, optionally, tags (where it came from, an occasion, a trip). |
 | Add several identical bottles | Tick **Add more bottles of this product next**, then scan the stickers one after another. |
 | Take a bottle out | Scan, then **Take out** on the bottle card. Or switch the scan screen to **Take out**: every scanned bottle then leaves the stock immediately (with **Undo**). |
 | Move | Scan, **Move**, pick or type the location. |
+| Tags | On the bottle page, tap a suggested tag or type a new one; tap × to remove it. Separate several with commas. Rename or delete a tag on all bottles in **Settings > Tags**. |
+| Browse labels | **Cellar > Labels** shows the label photos as a grid. Tap a label to open that bottle (or the product, if there are several). |
+| From statistics to bottles | Tap a drinking-window number or a bar in **Stats** to list exactly those bottles. |
 | Look a product up | **Find online** opens a Google search for producer, name and vintage (or distillery, name and age). |
 | Mistake | **Back in stock** reverses a take-out. **Remove** takes a wrongly labelled bottle out of all lists; the sticker can be used again. The history keeps every entry. |
 
@@ -139,7 +142,7 @@ You can also open the Sheet directly, connect it to Looker Studio, or read it wi
 | Tab | One row per | Notes |
 |---|---|---|
 | `products` | wine or spirit (producer, name, vintage, region, grapes or cask, drink window) | Edit text fields freely. Do not change `product_id`. |
-| `bottles` | physical bottle (sticker ID, status, location, acquired date, source, taken-out date) | Status: `in_stock`, `out`, `void` (removed by mistake). |
+| `bottles` | physical bottle (sticker ID, status, location, acquired date, tags, taken-out date) | Status: `in_stock`, `out`, `void` (removed by mistake). |
 | `events` | action: `intake`, `move`, `out`, `restore`, `void`, `edit` | Append-only history with user, time and location. |
 | `ops` | change received from a phone | Makes sync safe against duplicates. Do not edit. |
 | `climate` | sensor reading | Grows by about 52,000 rows per year at a 10-minute interval. |
@@ -163,7 +166,7 @@ You can add your own columns to the right of a tab. The backend keeps them.
 
 1. Change files in `docs/`.
 2. If you changed `docs/js/logic.js`: copy it to `apps-script/Logic.gs`, paste it into the Apps Script editor, and deploy a new version.
-3. Change `CACHE` in `docs/sw.js` (for example `drinkventory-v6`) so phones load the new files.
+3. Change `CACHE` in `docs/sw.js` (for example `drinkventory-v7`) so phones load the new files.
 4. Push. GitHub Pages updates within a minute.
 
 ## Tests

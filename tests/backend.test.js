@@ -97,7 +97,7 @@ test('sync: product, photo, bottle with leading zeros', () => {
   const b = res.snapshot.bottles.find((x) => x.bottle_id === '000123');
   assert.equal(b.status, 'in_stock');
   assert.equal(b.acquired_date, '2026-10-01');
-  assert.equal(b.source, 'Weinhandlung Erlangen', 'source stored and trimmed');
+  assert.equal(b.tags, 'Weinhandlung Erlangen', 'older "source" field becomes a trimmed tag');
   assert.ok(!('price_paid' in b), 'no price field');
   assert.ok(res.snapshot.bottles.find((x) => x.bottle_id === '000124'), 'code trimmed');
   const p = res.snapshot.products[0];
@@ -139,12 +139,12 @@ test('bottle lifecycle: move, take out, back in stock, remove, reuse sticker', (
     op('event', { type: 'restore', bottle_id: '000123' }),
     op('event', { type: 'out', bottle_id: '000123' }),
     op('update_bottle', { bottle_id: '000124', location: 'Rack B' }),
-    op('update_bottle', { bottle_id: '000124', source: 'Gift from Anna' })
+    op('update_bottle', { bottle_id: '000124', tags: ' Gift from Anna ,vacation,, gift from anna ' })
   ];
   const res = post({ action: 'sync', key: KEY, ops });
   assert.deepEqual(res.results.map((r) => r.status), ['applied', 'applied', 'applied', 'applied', 'applied', 'applied']);
-  assert.equal(res.snapshot.bottles.find((x) => x.bottle_id === '000124').source, 'Gift from Anna');
-  assert.equal(res.snapshot.events.find((e) => e.event_id === ops[5].op_id).type, 'edit', 'source change logs as edit');
+  assert.equal(res.snapshot.bottles.find((x) => x.bottle_id === '000124').tags, 'Gift from Anna, vacation', 'tags trimmed, duplicates dropped');
+  assert.equal(res.snapshot.events.find((e) => e.event_id === ops[5].op_id).type, 'edit', 'tag change logs as edit');
   ops.forEach((o) => { ClientLogic.applyOp(clientState, o); allOps.push(o); });
   const b = res.snapshot.bottles.find((x) => x.bottle_id === '000123');
   assert.equal(b.status, 'out');
@@ -192,6 +192,23 @@ test('user-added sheet column survives updates', () => {
   assert.equal(sh.get(rowIdx, col), 'keep me');
   assert.equal(sh.get(rowIdx, hb.indexOf('location') + 1), 'Rack B1');
   assert.ok(!('my_comment' in res.snapshot.bottles[0]), 'snapshot stripped to schema');
+});
+
+test('tags: rename merges, delete removes, on every bottle', () => {
+  const ops = [
+    op('create_bottle', { bottle_id: '000200', product_id: 'p1', location: 'Rack C', tags: 'Vacation, michi' }),
+    op('rename_tag', { from: 'VACATION', to: 'Holiday' }),
+    op('rename_tag', { from: 'michi', to: 'holiday' }),
+    op('rename_tag', { from: 'gift from anna', to: '' }),
+    op('rename_tag', { from: '', to: 'x' })
+  ];
+  const res = post({ action: 'sync', key: KEY, ops });
+  assert.deepEqual(res.results.map((r) => r.status), ['applied', 'applied', 'applied', 'applied', 'error']);
+  const tags = (id) => res.snapshot.bottles.find((x) => x.bottle_id === id).tags;
+  assert.equal(tags('000200'), 'Holiday', 'renamed, then merged into the existing name');
+  assert.equal(tags('000124'), 'Holiday', 'deleted tag gone, renamed tag kept');
+  assert.equal(tags('000123'), 'Weinhandlung Erlangen', 'untouched');
+  ops.slice(0, 4).forEach((o) => { assert.equal(ClientLogic.applyOp(clientState, o).status, 'applied'); allOps.push(o); });
 });
 
 test('server snapshot equals client state after round trip', () => {
@@ -276,6 +293,49 @@ test('climate alerts mail once per state change', () => {
   G('installClimateAlerts')();
   G('installClimateAlerts')();
   assert.equal(gas.state.triggers.length, 1);
+});
+
+test('stats: grapes and tags count per item, slices match bottles', () => {
+  const L = ClientLogic;
+  const st = { products: [], bottles: [], events: [] };
+  let k = 0;
+  const ap = (kind, data) => assert.equal(L.applyOp(st, { op_id: 's' + (++k), ts: '2026-10-27T10:00:00Z', kind, data }).status, 'applied');
+  ap('upsert_product', { product_id: 'a', type: 'red', producer: 'X', grapes: 'Merlot,cabernet franc', drink_from: 2020, drink_to: 2030 });
+  ap('upsert_product', { product_id: 'b', type: 'red', producer: 'Y', grapes: 'merlot', drink_from: 2035 });
+  ap('upsert_product', { product_id: 'c', type: 'whisky', distillery: 'Z', grapes: 'Merlot' });
+  ap('create_bottle', { bottle_id: '1', product_id: 'a', tags: 'vacation' });
+  ap('create_bottle', { bottle_id: '2', product_id: 'a', tags: 'michi, Vacation' });
+  ap('create_bottle', { bottle_id: '3', product_id: 'b' });
+  ap('create_bottle', { bottle_id: '4', product_id: 'c' });
+  ap('event', { type: 'out', bottle_id: '2' });
+  assert.equal(st.products[0].grapes, 'Merlot, cabernet franc', 'grapes normalized');
+  assert.deepEqual(L.stats.stockByList(st, 'grapes'), [{ key: 'Merlot', n: 2 }, { key: 'cabernet franc', n: 1 }], 'in-stock wine only, case-insensitive');
+  assert.deepEqual(L.stats.stockByList(st, 'tags'), [{ key: 'vacation', n: 1 }]);
+  assert.deepEqual(L.stats.tagCounts(st), [{ key: 'vacation', n: 2 }, { key: 'michi', n: 1 }], 'tag counts include taken-out bottles');
+  const pm = { a: st.products[0], b: st.products[1], c: st.products[2] };
+  const pick = (facet) => st.bottles.filter((b) => L.isInStock(b) && L.stats.matchFacet(facet, b, pm[b.product_id], 2026)).map((b) => b.bottle_id);
+  assert.deepEqual(pick({ kind: 'win', value: 'ready' }), ['1']);
+  assert.deepEqual(pick({ kind: 'win', value: 'young' }), ['3']);
+  assert.deepEqual(pick({ kind: 'grape', value: 'MERLOT' }), ['1', '3'], 'spirits never match a grape');
+  assert.deepEqual(pick({ kind: 'tag', value: 'Vacation' }), ['1']);
+  assert.deepEqual(pick({ kind: 'type', value: 'Whisky' }), ['4']);
+  assert.deepEqual(pick({ kind: 'location', value: '(not set)' }), ['1', '3', '4']);
+  const old = L.upgradeState({ products: [], bottles: [{ bottle_id: '9', source: 'Winery' }], events: [] });
+  assert.deepEqual(old.bottles[0], { bottle_id: '9', tags: 'Winery' }, 'phone copy from an older version is upgraded');
+});
+
+test('older Sheet: "source" column is renamed to "tags" and keeps its values', () => {
+  const sh = gas.state.sheets.bottles;
+  const col = header('bottles').indexOf('tags') + 1;
+  sh.set(1, col, 'source');
+  const res = post({ action: 'sync', key: KEY, ops: [] });
+  assert.equal(header('bottles')[col - 1], 'tags');
+  assert.equal(header('bottles').filter((h) => h === 'tags').length, 1);
+  assert.equal(res.snapshot.bottles.find((x) => x.bottle_id === '000123').tags, 'Weinhandlung Erlangen');
+  sh.set(1, col, 'source');
+  G('setup')();
+  assert.equal(header('bottles')[col - 1], 'tags', 'setup renames instead of adding a second column');
+  assert.equal(header('bottles').filter((h) => h === 'tags').length, 1);
 });
 
 test('bad input does not crash the endpoint', () => {

@@ -492,6 +492,53 @@ a.row:active, button.row:active { background: var(--surface-2); }
 }
 .seg-btn[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 0 0 1px var(--line-strong); }
 
+.facet-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.facet-chip {
+  font: 600 15px/1.2 var(--sans); color: var(--accent-text);
+  background: var(--accent-soft); border-radius: 999px; padding: 8px 12px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* Label collage: a grid of label photos, three across on a phone. */
+.collage { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.tile {
+  position: relative; display: block; aspect-ratio: 3 / 4; overflow: hidden;
+  border-radius: 10px; background: var(--surface); border: 1px solid var(--line);
+  color: var(--ink); text-decoration: none;
+}
+.tile.cat-wine { border-top: 3px solid var(--series-wine); }
+.tile.cat-spirit { border-top: 3px solid var(--series-spirit); }
+.tile-photo { width: 100%; height: 100%; object-fit: cover; display: block; background: var(--surface-2); }
+.tile-photo:not(.loaded) { visibility: hidden; }
+.tile .count-badge { position: absolute; top: 6px; left: 6px; min-width: 28px; height: 28px; font-size: 14px; border-radius: 8px; }
+.tile-cap {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: 14px 6px 5px;
+  font: 600 12px/1.2 var(--sans); color: #fff;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.tile-text { display: flex; flex-direction: column; justify-content: flex-end; height: 100%; padding: 40px 8px 8px; gap: 2px; }
+.tile-maker { font-size: 12px; font-weight: 600; color: var(--ink-2); overflow-wrap: anywhere; }
+.tile-name { font-size: 15px; line-height: 1.2; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; }
+
+/* ---------- tags ---------- */
+
+.tag-editor { display: grid; gap: 10px; margin-bottom: 8px; }
+.tag-chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.tag-chips:empty { display: none; }
+.tag-chip {
+  display: inline-flex; align-items: center; gap: 2px;
+  font: 600 15px/1 var(--sans); color: var(--accent-text);
+  background: var(--accent-soft); border-radius: 999px; padding: 0 2px 0 12px; min-height: 36px;
+}
+.tag-x {
+  font: 400 22px/1 var(--sans); color: inherit; background: transparent; border: 0;
+  width: 36px; height: 36px; border-radius: 999px; cursor: pointer;
+}
+.tag-add { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.tag-suggest { margin: 0; }
+.tag-suggest:empty { display: none; }
+
 /* ---------- stats ---------- */
 
 .figures { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 16px; margin: 4px 0 8px; }
@@ -503,8 +550,10 @@ a.row:active, button.row:active { background: var(--surface-2); }
 .win { border-radius: 12px; padding: 10px 10px 9px; background: var(--neutral-bg); color: var(--neutral-ink); }
 .win-ready { background: var(--good-bg); color: var(--good-ink); }
 .win-past { background: var(--past-bg); color: var(--past-ink); }
-.win-n { font: 700 24px/1.1 var(--sans); font-variant-numeric: tabular-nums; }
-.win-l { font-size: 12px; line-height: 1.25; margin-top: 2px; }
+.win { font: inherit; text-align: left; border: 0; cursor: pointer; }
+.win:disabled { cursor: default; opacity: 0.7; }
+.win-n { display: block; font: 700 24px/1.1 var(--sans); font-variant-numeric: tabular-nums; }
+.win-l { display: block; font-size: 12px; line-height: 1.25; margin-top: 2px; }
 
 .chart { position: relative; height: 220px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 8px 6px; }
 .chart.tall { height: 250px; }
@@ -553,6 +602,7 @@ output { font-variant-numeric: tabular-nums; color: var(--ink); font-weight: 600
 @media (min-width: 700px) {
   dialog { margin: auto; border-radius: 20px; }
   .windows { gap: 10px; }
+  .collage { grid-template-columns: repeat(5, 1fr); }
 }
 
 @media (prefers-reduced-motion: reduce) {

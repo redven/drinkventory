@@ -52,8 +52,8 @@ async function main() {
     for (let i = 0; i < n; i++) {
       const id = String(code++).padStart(6, '0');
       bottles.push({ id, pid });
-      const src = ['Weinhandlung Erlangen', 'Winery direct', 'Online shop', 'Gift'][(code + n) % 4];
-      ops.push(mk('create_bottle', { bottle_id: id, product_id: pid, location: loc, acquired_date: new Date(t).toISOString().slice(0, 10), source: src }));
+      const tags = ['Weinhandlung Erlangen', 'winery, vacation', 'michi', 'gift, birthday', ''][(code + n) % 5];
+      ops.push(mk('create_bottle', { bottle_id: id, product_id: pid, location: loc, acquired_date: new Date(t).toISOString().slice(0, 10), tags }));
     }
   });
   // two years of taking bottles out, spread out

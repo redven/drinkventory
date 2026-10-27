@@ -3,7 +3,7 @@
  * cached copy when the cellar has no signal. Requests to the backend are
  * never cached.
  */
-var CACHE = 'drinkventory-v5';
+var CACHE = 'drinkventory-v6';
 var FILES = [
   './',
   'index.html',

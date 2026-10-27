@@ -30,6 +30,7 @@ class MockRange {
     }
     return out;
   }
+  setValue(v) { this.setValues([[v]]); return this; }
   setValues(vals) {
     if (vals.length !== this.nr) throw new Error(`row count mismatch ${vals.length} vs ${this.nr}`);
     vals.forEach((row, i) => {

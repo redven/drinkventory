@@ -98,6 +98,7 @@ function ensureSheet_(ss, name, headers) {
     ? sh.getRange(1, 1, 1, lastCol).getValues()[0].map(function (h) { return String(h).trim(); })
     : [];
   while (existing.length && existing[existing.length - 1] === '') existing.pop();
+  renameLegacyHeaders_(sh, name, existing);
   var missing = headers.filter(function (h) { return existing.indexOf(h) < 0; });
   if (missing.length) sh.getRange(1, existing.length + 1, 1, missing.length).setValues([missing]);
   var all = existing.concat(missing);
@@ -108,6 +109,15 @@ function ensureSheet_(ss, name, headers) {
     sh.getRange(2, run[0], rows, run[1]).setNumberFormat('@');
   });
   return sh;
+}
+
+/** Version 2.1 renamed bottles.source to bottles.tags; the column and its values are kept. */
+function renameLegacyHeaders_(sh, name, headers) {
+  if (name !== 'bottles') return;
+  var i = headers.indexOf('source');
+  if (i < 0 || headers.indexOf('tags') >= 0) return;
+  sh.getRange(1, i + 1).setValue('tags');
+  headers[i] = 'tags';
 }
 
 /** Contiguous runs of non-numeric columns as [startCol (1-based), numCols]. */
@@ -226,6 +236,7 @@ function loadTable_(ss, name) {
   var headers = lastCol > 0
     ? sh.getRange(1, 1, 1, lastCol).getValues()[0].map(function (h) { return String(h).trim(); })
     : [];
+  renameLegacyHeaders_(sh, name, headers);
   var key = DrinkventoryLogic.KEYS[name];
   var rows = [];
   var rowNum = {};
