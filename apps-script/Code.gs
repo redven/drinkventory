@@ -16,7 +16,7 @@
  *   SENSOR_KEY  used by climate sensors (can only add climate readings)
  */
 
-var CODE_VERSION = '2.1.1';
+var CODE_VERSION = '2.2.0';
 
 var PHOTO_FOLDER_NAME = 'Drinkventory photos';
 var MAX_OPS_PER_REQUEST = 50;
@@ -123,6 +123,24 @@ function renameLegacyHeaders_(sh, name, headers) {
   if (i < 0 || headers.indexOf('tags') >= 0) return;
   sh.getRange(1, i + 1).setValue('tags');
   headers[i] = 'tags';
+}
+
+/**
+ * Adds schema columns that an older Sheet does not have yet (for example products.tags in 2.2),
+ * so a sync never drops a field. New columns go to the right of the last used column.
+ */
+function addMissingHeaders_(sh, name, headers) {
+  var schema = DrinkventoryLogic.SCHEMA[name];
+  if (!schema || !headers.length) return;
+  var missing = schema.filter(function (h) { return headers.indexOf(h) < 0; });
+  if (!missing.length) return;
+  var start = headers.length + 1;
+  sh.getRange(1, start, 1, missing.length).setValues([missing]).setFontWeight('bold');
+  var rows = Math.max(sh.getMaxRows() - 1, 1);
+  missing.forEach(function (h, i) {
+    if (!DrinkventoryLogic.isNumericField(h)) sh.getRange(2, start + i, rows, 1).setNumberFormat('@');
+    headers.push(h);
+  });
 }
 
 /** Contiguous runs of non-numeric columns as [startCol (1-based), numCols]. */
@@ -246,6 +264,7 @@ function loadTable_(ss, name) {
     ? sh.getRange(1, 1, 1, lastCol).getValues()[0].map(function (h) { return String(h).trim(); })
     : [];
   renameLegacyHeaders_(sh, name, headers);
+  addMissingHeaders_(sh, name, headers);
   var key = DrinkventoryLogic.KEYS[name];
   var rows = [];
   var rowNum = {};

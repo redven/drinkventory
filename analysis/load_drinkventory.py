@@ -13,6 +13,8 @@ Tables returned (dict of DataFrames):
     products, bottles, events  as stored in the Sheet (typed)
     stock                      bottles in stock, joined with their product
     taken_out                  bottles taken out (one row per bottle, with out_at), joined with product
+    In stock and taken_out: tags = bottle tags, tags_product = product tags,
+    all_tags = list of both (product first, no case-insensitive duplicates).
     climate                    climate readings (raw, or hourly/daily aggregates)
 """
 from __future__ import annotations
@@ -56,6 +58,17 @@ def _typed(df: pd.DataFrame, tz: str) -> pd.DataFrame:
     return df
 
 
+def _tag_list(*values) -> list[str]:
+    out, seen = [], set()
+    for v in values:
+        for t in str(v if isinstance(v, str) else '').split(','):
+            t = ' '.join(t.split())
+            if t and t.lower() not in seen:
+                seen.add(t.lower())
+                out.append(t)
+    return out
+
+
 def load(url: str | None = None, key: str | None = None, climate_days: int = 90,
          raw_climate: bool = False, tz: str = 'Europe/Berlin') -> dict[str, pd.DataFrame]:
     url = url or os.environ['DRINKVENTORY_URL']
@@ -68,6 +81,11 @@ def load(url: str | None = None, key: str | None = None, climate_days: int = 90,
         products['category'] = products['type'].map(CATEGORY).fillna('other')
 
     joined = bottles.merge(products, on='product_id', how='left', suffixes=('', '_product'))
+    if not joined.empty:
+        blank = [''] * len(joined)
+        ptags = joined['tags_product'] if 'tags_product' in joined else blank
+        btags = joined['tags'] if 'tags' in joined else blank
+        joined['all_tags'] = [_tag_list(p, b) for p, b in zip(ptags, btags)]
     stock = joined[joined['status'] == 'in_stock'].reset_index(drop=True) if not joined.empty else joined
     taken_out = joined[joined['status'] == 'out'].reset_index(drop=True) if not joined.empty else joined
 

@@ -345,7 +345,7 @@ test('stats: grapes and tags count per item, slices match bottles', () => {
   assert.equal(st.products[0].grapes, 'Merlot, cabernet franc', 'grapes normalized');
   assert.deepEqual(L.stats.stockByList(st, 'grapes'), [{ key: 'Merlot', n: 2 }, { key: 'cabernet franc', n: 1 }], 'in-stock wine only, case-insensitive');
   assert.deepEqual(L.stats.stockByList(st, 'tags'), [{ key: 'vacation', n: 1 }]);
-  assert.deepEqual(L.stats.tagCounts(st), [{ key: 'vacation', n: 2 }, { key: 'michi', n: 1 }], 'tag counts include taken-out bottles');
+  assert.deepEqual(L.stats.tagCounts(st), [{ key: 'vacation', n: 2, products: 0 }, { key: 'michi', n: 1, products: 0 }], 'tag counts include taken-out bottles');
   const pm = { a: st.products[0], b: st.products[1], c: st.products[2] };
   const pick = (facet) => st.bottles.filter((b) => L.isInStock(b) && L.stats.matchFacet(facet, b, pm[b.product_id], 2026)).map((b) => b.bottle_id);
   assert.deepEqual(pick({ kind: 'win', value: 'ready' }), ['1']);
@@ -354,8 +354,91 @@ test('stats: grapes and tags count per item, slices match bottles', () => {
   assert.deepEqual(pick({ kind: 'tag', value: 'Vacation' }), ['1']);
   assert.deepEqual(pick({ kind: 'type', value: 'Whisky' }), ['4']);
   assert.deepEqual(pick({ kind: 'location', value: '(not set)' }), ['1', '3', '4']);
-  const old = L.upgradeState({ products: [], bottles: [{ bottle_id: '9', source: 'Winery' }], events: [] });
+  const old = L.upgradeState({ products: [{ product_id: 'q' }], bottles: [{ bottle_id: '9', source: 'Winery' }], events: [] });
   assert.deepEqual(old.bottles[0], { bottle_id: '9', tags: 'Winery' }, 'phone copy from an older version is upgraded');
+  assert.equal(old.products[0].tags, '', 'products get an empty tags field');
+});
+
+test('product tags apply to every bottle of the product', () => {
+  const L = ClientLogic;
+  const st = { products: [], bottles: [], events: [] };
+  let k = 0;
+  const ap = (kind, data) => {
+    const r = L.applyOp(st, { op_id: 't' + (++k), ts: '2026-10-27T11:00:00Z', kind, data });
+    assert.equal(r.status, 'applied', JSON.stringify(r));
+    return r;
+  };
+  ap('upsert_product', { product_id: 'a', type: 'red', producer: 'X', tags: ' Christmas , for guests,christmas' });
+  ap('upsert_product', { product_id: 'b', type: 'whisky', distillery: 'Y' });
+  ap('create_bottle', { bottle_id: '1', product_id: 'a', tags: 'For Guests, gift' });
+  ap('create_bottle', { bottle_id: '2', product_id: 'a' });
+  ap('create_bottle', { bottle_id: '3', product_id: 'b', tags: 'gift' });
+  ap('create_bottle', { bottle_id: '4', product_id: 'a' });
+  ap('event', { type: 'out', bottle_id: '4' });
+  const pa = st.products[0];
+  assert.equal(pa.tags, 'Christmas, for guests', 'normalized, case-insensitive duplicates removed');
+  assert.equal(L.effectiveTags(st.bottles[0], pa), 'Christmas, for guests, gift', 'product tags first, no duplicate');
+  assert.equal(L.effectiveTags(st.bottles[1], pa), 'Christmas, for guests', 'bottle without own tags inherits');
+  assert.deepEqual(L.stats.stockByList(st, 'tags'),
+    [{ key: 'Christmas', n: 2 }, { key: 'for guests', n: 2 }, { key: 'gift', n: 2 }], 'in stock, each tag once per bottle');
+  assert.deepEqual(L.stats.tagCounts(st),
+    [{ key: 'Christmas', n: 3, products: 1 }, { key: 'for guests', n: 3, products: 1 }, { key: 'gift', n: 2, products: 0 }]);
+  const pm = { a: pa, b: st.products[1] };
+  const pick = (v) => st.bottles.filter((b) => L.isInStock(b) && L.stats.matchFacet({ kind: 'tag', value: v }, b, pm[b.product_id], 2026)).map((b) => b.bottle_id);
+  assert.deepEqual(pick('christmas'), ['1', '2'], 'slice by a product tag');
+  assert.deepEqual(pick('GIFT'), ['1', '3'], 'slice by a bottle tag');
+  // rename merges on products and bottles; delete removes from both
+  let r = ap('rename_tag', { from: 'for guests', to: 'Gift' });
+  assert.equal(r.products.length, 1);
+  assert.equal(pa.tags, 'Christmas, Gift');
+  assert.equal(st.bottles[0].tags, 'Gift', 'merged with the existing bottle tag');
+  r = ap('rename_tag', { from: 'christmas', to: '' });
+  assert.equal(pa.tags, 'Gift');
+  assert.deepEqual(L.stats.tagCounts(st).map((t) => t.key), ['Gift']);
+  // editing other product fields keeps the tags
+  ap('upsert_product', { product_id: 'a', region: 'Rioja' });
+  assert.equal(pa.tags, 'Gift');
+});
+
+test('sync: product tags are stored in the Sheet', () => {
+  const ops = [op('upsert_product', { product_id: 'p1', tags: 'Christmas, christmas, For guests' })];
+  const res = post({ action: 'sync', key: KEY, ops });
+  assert.equal(res.results[0].status, 'applied');
+  ops.forEach((o) => { ClientLogic.applyOp(clientState, o); allOps.push(o); });
+  assert.equal(res.snapshot.products.find((x) => x.product_id === 'p1').tags, 'Christmas, For guests');
+  const hp = header('products');
+  const row = sheetRows('products').find((r) => r[hp.indexOf('product_id')] === 'p1');
+  assert.equal(row[hp.indexOf('tags')], 'Christmas, For guests');
+});
+
+test('older Sheet without products.tags: the column is added on sync and keeps data', () => {
+  const sh = gas.state.sheets.products;
+  const hp = header('products');
+  const tagCol = hp.indexOf('tags') + 1;
+  const lastCol = hp.length;
+  // rebuild the tab as a 2.1 Sheet had it: same rows, no tags column
+  const rows = sh.getRange(1, 1, sh.getLastRow(), lastCol).getValues();
+  const without = rows.map((r) => r.filter((_, j) => j !== tagCol - 1).concat(['']));
+  sh.cells = {}; sh.fmt = {};
+  sh.getRange(1, 1, without.length, lastCol).setNumberFormat('@').setValues(without);
+  assert.equal(header('products').indexOf('tags'), -1, 'test setup: no tags column');
+  const before = sheetRows('products').length;
+  const o = op('upsert_product', { product_id: 'p2', tags: 'Islay' });
+  const res = post({ action: 'sync', key: KEY, ops: [o] });
+  ClientLogic.applyOp(clientState, o); allOps.push(o);
+  assert.equal(res.results[0].status, 'applied');
+  const h2 = header('products');
+  assert.equal(h2[h2.length - 1], 'tags', 'tags column appended at the right');
+  assert.equal(h2.filter((h) => h === 'tags').length, 1);
+  assert.equal(sheetRows('products').length, before, 'no rows lost');
+  assert.equal(res.snapshot.products.find((x) => x.product_id === 'p2').tags, 'Islay', 'tag written into the new column');
+  assert.equal(res.snapshot.products.find((x) => x.product_id === 'p1').tags, '', 'old product tags were lost with the column (test setup)');
+  assert.equal(res.snapshot.products.find((x) => x.product_id === 'p1').producer, 'Keller', 'other fields unchanged');
+  const again = post({ action: 'sync', key: KEY, ops: [] });
+  assert.equal(header('products').filter((h) => h === 'tags').length, 1, 'no second column on the next sync');
+  assert.equal(again.snapshot.products.find((x) => x.product_id === 'p2').tags, 'Islay');
+  // keep the shared client copy consistent with the rebuilt Sheet
+  clientState.products.find((x) => x.product_id === 'p1').tags = '';
 });
 
 test('older Sheet: "source" column is renamed to "tags" and keeps its values', () => {

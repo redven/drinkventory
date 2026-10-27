@@ -697,27 +697,43 @@
   // Tag editor (new bottle, edit bottle, bottle page)
   // ==================================================================
 
-  /** name: form field name for a hidden input, or '' when changes are saved right away. */
-  function tagEditor(value, name) {
+  /**
+   * name: form field name for a hidden input, or '' when changes are saved right away.
+   * opts.key: unique per page when a page has two editors (product and bottle).
+   */
+  function tagEditor(value, name, opts) {
+    opts = opts || {};
+    var dl = 'dl_tags_' + (opts.key || 'b');
     return '<div class="tag-editor">' +
       (name ? '<input type="hidden" name="' + name + '" value="' + esc(L.normalizeList(value)) + '">' : '') +
-      '<ul class="tag-chips" aria-label="Tags"></ul>' +
-      '<div class="tag-add"><input class="tag-input" list="dl_tags" placeholder="Add a tag, e.g. vacation" aria-label="New tag" autocomplete="off" enterkeyhint="done">' +
+      '<ul class="tag-chips" aria-label="' + esc(opts.label || 'Tags') + '"></ul>' +
+      '<div class="tag-add"><input class="tag-input" list="' + dl + '" placeholder="' + esc(opts.placeholder || 'Add a tag, e.g. vacation') + '" aria-label="New tag" autocomplete="off" enterkeyhint="done">' +
       '<button type="button" class="btn tag-add-btn">Add</button></div>' +
-      '<div class="chips tag-suggest"></div>' + datalist('dl_tags', allTags()) +
+      '<div class="chips tag-suggest"></div>' + datalist(dl, allTags()) +
       '</div>';
   }
 
-  function bindTagEditor(root, value, onChange) {
+  /** Read-only chips, for product tags shown on a bottle. */
+  function tagChips(value, label) {
+    var tags = L.splitList(value);
+    if (!tags.length) return '';
+    return '<ul class="tag-chips" aria-label="' + esc(label) + '">' + tags.map(function (t) {
+      return '<li class="tag-chip inherited">' + esc(t) + '</li>';
+    }).join('') + '</ul>';
+  }
+
+  /** exclude: tags not offered as suggestions (for example the product's tags on a bottle). */
+  function bindTagEditor(root, value, onChange, exclude) {
     var ed = $('.tag-editor', root);
     var hidden = $('input[type=hidden]', ed);
     var input = $('.tag-input', ed);
     var tags = L.splitList(value);
+    var skip = L.splitList(exclude).map(function (t) { return t.toLowerCase(); });
     function draw() {
       $('.tag-chips', ed).innerHTML = tags.map(function (t, i) {
         return '<li class="tag-chip">' + esc(t) + '<button type="button" class="tag-x" data-i="' + i + '" aria-label="Remove tag ' + esc(t) + '">&times;</button></li>';
       }).join('');
-      var have = tags.map(function (t) { return t.toLowerCase(); });
+      var have = tags.map(function (t) { return t.toLowerCase(); }).concat(skip);
       $('.tag-suggest', ed).innerHTML = allTags().filter(function (t) { return have.indexOf(t.toLowerCase()) < 0; }).slice(0, 10).map(function (t) {
         return '<button type="button" class="chip-btn" data-tag="' + esc(t) + '">+ ' + esc(t) + '</button>';
       }).join('');
@@ -793,6 +809,8 @@
       field('drink_from', 'Drink from (year)', p.drink_from, 'inputmode="numeric"') +
       field('drink_to', 'Drink until (year)', p.drink_to, 'inputmode="numeric"') +
       '</div></div>' +
+      '<div class="field ptags"><span>Tags for every bottle of this product (optional)</span>' +
+      tagEditor(p.tags, 'p_tags', { key: 'p', label: 'Product tags', placeholder: 'Add a tag, e.g. Christmas' }) + '</div>' +
       '<div class="photo-field">' +
       '<img class="photo-preview" alt=""' + (p.photo_id ? ' data-photo="' + esc(p.photo_id) + '"' : '') + '>' +
       '<label class="btn file-btn"><input type="file" accept="image/*" class="photo-input visually-hidden">' + (p.photo_id ? 'Replace label photo' : 'Add label photo') + '</label>' +
@@ -822,6 +840,8 @@
         img.src = data; img.classList.add('loaded');
       }).catch(function (e) { toast(e.message, { error: true }); });
     });
+    var ptags = $('.ptags', pf);
+    bindTagEditor(ptags, $('input[name=p_tags]', ptags).value);
     hydratePhotos(pf);
   }
 
@@ -836,6 +856,7 @@
     var cat = L.categoryOf(out.type);
     if (cat !== 'spirit') { out.distillery = ''; out.age = ''; out.cask = ''; }
     if (cat !== 'wine') { out.grapes = ''; out.drink_from = ''; out.drink_to = ''; }
+    out.tags = $('input[name=p_tags]', pf).value;
     delete out.photo_id;
     return { data: out, photo: $('input[name=photo_data]', pf).value };
   }
@@ -853,7 +874,7 @@
   function productSearch(q) {
     var tokens = q.toLowerCase().split(/\s+/).filter(Boolean);
     var list = app.state.products.map(function (p) {
-      var hay = [p.producer, p.distillery, p.name, p.vintage, p.region, p.country, p.age].join(' ').toLowerCase();
+      var hay = [p.producer, p.distillery, p.name, p.vintage, p.region, p.country, p.age, p.tags].join(' ').toLowerCase();
       return { p: p, hay: hay };
     }).filter(function (x) { return tokens.every(function (t) { return x.hay.indexOf(t) >= 0; }); });
     list.sort(function (a, b) { return a.p.updated_at < b.p.updated_at ? 1 : -1; });
@@ -886,14 +907,15 @@
       field('acquired_date', 'Acquired', today(), 'type="date"') +
       '</div>' + datalist('dl_loc', locs) +
       '</fieldset>' +
-      '<fieldset class="group"><legend>Tags (optional)</legend>' + tagEditor(app.lastTags || '', 'tags') + '</fieldset>' +
+      '<fieldset class="group"><legend>Tags for this bottle (optional)</legend><div class="btags">' +
+      tagEditor(app.lastTags || '', 'tags', { key: 'b', label: 'Bottle tags' }) + '</div></fieldset>' +
       '<label class="check"><input type="checkbox" name="keep_adding"> Add more bottles of this product next</label>' +
       '<div class="form-actions"><button class="btn primary" type="submit">Add bottle</button><a class="btn quiet" href="#/scan">Cancel</a></div>' +
       '</form></section>';
 
     var form = $('#intakeForm');
     bindProductFields(form);
-    bindTagEditor(form, app.lastTags || '');
+    bindTagEditor($('.btags', form), app.lastTags || '');
     var search = $('#productSearch');
     var results = $('#productResults');
     function showResults() {
@@ -957,7 +979,8 @@
     $('#chosenId').value = id;
     var chosen = $('#chosen');
     chosen.hidden = false;
-    chosen.innerHTML = '<p class="serif chosen-name">' + esc(L.productLabel(p)) + '</p><p class="row-sub">' + esc(typeLabel(p.type)) + '</p>' +
+    chosen.innerHTML = '<p class="serif chosen-name">' + esc(L.productLabel(p)) + '</p><p class="row-sub">' + esc(typeLabel(p.type)) +
+      (p.tags ? '. Product tags: ' + esc(p.tags) : '') + '</p>' +
       '<button type="button" class="btn quiet" data-act="change-product">Change</button>';
     $('#chooser').hidden = true;
     $('#newProduct').hidden = true;
@@ -1047,7 +1070,11 @@
       '</div></div>' +
       labelBlock(p) +
       '<div class="action-grid">' + actions + '</div>' +
-      (st !== 'void' ? '<h2>Tags</h2>' + tagEditor(b.tags, '') : '') +
+      (st !== 'void' ? '<h2>Tags</h2>' +
+        (p.tags ? '<div class="tag-group"><p class="tag-group-k">From the product, for every bottle. <a href="#/p/' + encodeURIComponent(b.product_id) + '">Change</a></p>' +
+          tagChips(p.tags, 'Product tags') + '</div>' : '') +
+        '<div class="tag-group btags">' + (p.tags ? '<p class="tag-group-k">Only this bottle</p>' : '') +
+        tagEditor(b.tags, '', { key: 'b', label: 'Bottle tags', placeholder: 'Add a tag for this bottle' }) + '</div>' : '') +
       '<p class="others"><a href="#/p/' + encodeURIComponent(b.product_id) + '">' + (others ? others + ' more of this product in stock' : 'No other bottle of this product in stock') + '</a></p>' +
       '<details class="more"><summary>Details</summary>' + facts(p) +
       (b.acquired_date ? '<dl class="facts"><dt>Acquired</dt><dd>' + esc(fmtDate(b.acquired_date)) + '</dd></dl>' : '') +
@@ -1059,11 +1086,11 @@
       (st !== 'void' ? '<button type="button" class="btn quiet danger" data-act="remove" data-code="' + esc(code) + '">Remove</button>' : '') +
       '</div></section>';
     if (st !== 'void') {
-      bindTagEditor(main, b.tags, function (tags) {
+      bindTagEditor($('.btags', main), b.tags, function (tags) {
         commit([{ kind: 'update_bottle', data: { bottle_id: code, tags: tags } }]).then(function (ok) {
           if (!ok) render();
         });
-      });
+      }, p.tags);
     }
     hydratePhotos(main);
   }
@@ -1094,11 +1121,18 @@
       findOnlineLink(p) +
       '<a class="btn" href="#/p/' + encodeURIComponent(pid) + '/edit">Edit product</a>' +
       '</div>' +
+      '<h2>Tags</h2><div class="tag-group ptags"><p class="tag-group-k">For every bottle of this product</p>' +
+      tagEditor(p.tags, '', { key: 'p', label: 'Product tags', placeholder: 'Add a tag, e.g. Christmas' }) + '</div>' +
       '<h2>In stock (' + stock.length + ')</h2>' +
       (stock.length ? '<ul class="list">' + stock.map(bottleRow).join('') + '</ul>' : '<p class="empty">None in stock.</p>') +
       facts(p) +
       (out.length ? '<h2>Taken out (' + out.length + ')</h2><ul class="list">' + out.map(bottleRow).join('') + '</ul>' : '') +
       '</section>';
+    bindTagEditor($('.ptags', main), p.tags, function (tags) {
+      commit([{ kind: 'upsert_product', data: { product_id: pid, tags: tags } }]).then(function (ok) {
+        if (!ok) render();
+      });
+    });
     hydratePhotos(main);
   }
 
@@ -1137,10 +1171,10 @@
       }).join('') + '</select></label>' +
       '<div class="grid2">' + field('location', 'Location', b.location, 'list="dl_loc"') +
       field('acquired_date', 'Acquired', b.acquired_date, 'type="date"') + '</div>' + datalist('dl_loc', locations()) +
-      '<div class="field"><span>Tags</span>' + tagEditor(b.tags, 'tags') + '</div>' +
+      '<div class="field btags"><span>Tags for this bottle</span>' + tagEditor(b.tags, 'tags', { key: 'b', label: 'Bottle tags' }) + '</div>' +
       '</fieldset><div class="form-actions"><button class="btn primary" type="submit">Save bottle</button>' +
       '<a class="btn quiet" href="#/b/' + encodeURIComponent(code) + '">Cancel</a></div></form></section>';
-    bindTagEditor($('#bottleForm'), b.tags);
+    bindTagEditor($('#bottleForm .btags'), b.tags, null, (product(b.product_id) || {}).tags);
     $('#bottleForm').onsubmit = function (e) {
       e.preventDefault();
       var fd = new FormData(e.target);
@@ -1191,7 +1225,7 @@
       if (f.cat !== 'all' && L.categoryOf(p.type) !== f.cat) return false;
       if (f.facet && !S.matchFacet(f.facet, b, p, year)) return false;
       if (tokens.length) {
-        var hay = [p.producer, p.distillery, p.name, p.vintage, p.region, p.country, p.grapes, p.age, b.location, b.tags, b.bottle_id, typeLabel(p.type)].join(' ').toLowerCase();
+        var hay = [p.producer, p.distillery, p.name, p.vintage, p.region, p.country, p.grapes, p.age, b.location, p.tags, b.tags, b.bottle_id, typeLabel(p.type)].join(' ').toLowerCase();
         if (!tokens.every(function (t) { return hay.indexOf(t) >= 0; })) return false;
       }
       return true;
@@ -1594,12 +1628,13 @@
   function tagManager() {
     var tags = S.tagCounts(app.state);
     return '<h2>Tags</h2>' + (tags.length
-      ? '<p class="footnote">Renaming or deleting changes the tag on every bottle.</p><ul class="list compact">' + tags.map(function (t) {
-        return '<li class="row"><span class="row-main"><span class="row-title">' + esc(t.key) + '</span><span class="row-sub">' + t.n + (t.n === 1 ? ' bottle' : ' bottles') + '</span></span>' +
+      ? '<p class="footnote">Renaming or deleting changes the tag on every product and bottle.</p><ul class="list compact">' + tags.map(function (t) {
+        var sub = t.n + (t.n === 1 ? ' bottle' : ' bottles') + (t.products ? ', set on ' + t.products + (t.products === 1 ? ' product' : ' products') : '');
+        return '<li class="row"><span class="row-main"><span class="row-title">' + esc(t.key) + '</span><span class="row-sub">' + esc(sub) + '</span></span>' +
           '<button type="button" class="btn quiet" data-act="tag-rename" data-tag="' + esc(t.key) + '">Rename</button>' +
           '<button type="button" class="btn quiet danger" data-act="tag-delete" data-tag="' + esc(t.key) + '">Delete</button></li>';
       }).join('') + '</ul>'
-      : '<p class="empty">No tags yet. Add them on a bottle.</p>');
+      : '<p class="empty">No tags yet. Add them on a bottle or a product.</p>');
   }
 
   function renameTagDialog(tag) {
@@ -1624,7 +1659,7 @@
   }
 
   function deleteTag(tag) {
-    confirmDialog('Delete tag', 'Remove the tag "' + tag + '" from every bottle? The bottles stay.', 'Delete').then(function (ok) {
+    confirmDialog('Delete tag', 'Remove the tag "' + tag + '" from every product and bottle? The bottles stay.', 'Delete').then(function (ok) {
       if (!ok) return;
       commit([{ kind: 'rename_tag', data: { from: tag, to: '' } }]).then(function (r) {
         if (r) { toast('Deleted tag ' + tag); render(); }

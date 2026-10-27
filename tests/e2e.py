@@ -69,8 +69,12 @@ try:
         a.fill('input[name=age]', 'NAS')
         a.fill('input[name=abv]', '54,2')
         a.fill('#intakeForm input[name=location]', 'Cabinet')
-        a.fill('#intakeForm .tag-input', 'Whisky fair Nuremberg')
-        a.click('#intakeForm .tag-add-btn')
+        a.fill('#intakeForm .ptags .tag-input', 'Islay')
+        a.press('#intakeForm .ptags .tag-input', 'Enter')
+        a.fill('#intakeForm .btags .tag-input', 'Whisky fair Nuremberg')
+        a.click('#intakeForm .btags .tag-add-btn')
+        expect(a.locator('#intakeForm .ptags .tag-chip')).to_have_text(['Islay\u00d7'])
+        expect(a.locator('#intakeForm .btags .tag-chip')).to_have_text(['Whisky fair Nuremberg\u00d7'])
         a.check('input[name=keep_adding]')
         shot(a, '02-new-bottle-form', full=True)
         a.click('#intakeForm button[type=submit]')
@@ -104,6 +108,28 @@ try:
         expect(a.locator('.necktag .tag-status')).to_contain_text('Taken out', timeout=5000)
         wait_synced(a)
         print('ok  find-online link and take-out from the bottle card')
+
+        # ---------- phone A: product tag on the product page, inherited by its bottles ----------
+        a.goto(APP + '#/p/p_keller')
+        a.fill('.ptags .tag-input', 'Christmas')
+        a.press('.ptags .tag-input', 'Enter')
+        expect(a.locator('.ptags .tag-chip')).to_have_text(['Christmas\u00d7'])
+        wait_synced(a)
+        a.goto(APP + '#/b/000003')
+        expect(a.locator('.tag-chip.inherited')).to_have_text(['Christmas'])
+        expect(a.locator('.btags .tag-suggest')).not_to_contain_text('Christmas')
+        a.fill('.btags .tag-input', 'for guests')
+        a.press('.btags .tag-input', 'Enter')
+        expect(a.locator('.btags .tag-chip').last).to_have_text('for guests\u00d7')
+        expect(a.locator('.btags .tag-chip')).not_to_contain_text(['Christmas'])
+        wait_synced(a)
+        shot(a, '03b-bottle-tags')
+        a.goto(APP + '#/cellar')
+        a.fill('#cellarSearch', 'christmas')
+        expect(a.locator('#cellarList')).to_contain_text('Riesling Kirchspiel')
+        expect(a.locator('#cellarList .count')).to_contain_text('products')
+        a.fill('#cellarSearch', '')
+        print('ok  product tag set once, shown on every bottle of the product, found by search')
 
         # ---------- phone B: sees A's changes, moves a bottle, works offline ----------
         b_ctx, b = phone(browser, 'Partner')
@@ -165,6 +191,11 @@ try:
         prod = [x for x in snap['products'] if x['name'] == 'Victoriana'][0]
         assert prod['abv'] == 54.2 and prod['type'] == 'whisky'
         assert [x['tags'] for x in snap['bottles'] if x['bottle_id'] == '000777'] == ['Whisky fair Nuremberg']
+        assert prod['tags'] == 'Islay', prod
+        keller = [x for x in snap['products'] if x['product_id'] == 'p_keller'][0]
+        assert keller['tags'] == 'Christmas', keller
+        b3 = [x['tags'] for x in snap['bottles'] if x['bottle_id'] == '000003'][0]
+        assert b3.endswith('for guests') and 'Christmas' not in b3, ('bottle keeps only its own tags', b3)
         assert set(snap['bottles'][0].keys()) == {'bottle_id', 'product_id', 'status', 'location', 'acquired_date', 'tags', 'out_at', 'created_at', 'created_by', 'updated_at'}
         print('ok  Sheet contains the changes from both phones')
         assert a.evaluate('DrinkventoryApp.app.backendIssue') is None, 'version warning with matching backend'

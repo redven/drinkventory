@@ -18,12 +18,12 @@
 var DrinkventoryLogic = (function () {
   'use strict';
 
-  var VERSION = '2.1.1';
+  var VERSION = '2.2.0';
 
   var SCHEMA = {
     products: [
       'product_id', 'type', 'producer', 'name', 'vintage', 'distillery', 'age', 'cask',
-      'country', 'region', 'grapes', 'abv', 'volume_ml', 'drink_from', 'drink_to', 'photo_id',
+      'country', 'region', 'grapes', 'abv', 'volume_ml', 'drink_from', 'drink_to', 'tags', 'photo_id',
       'created_at', 'created_by', 'updated_at'
     ],
     bottles: [
@@ -113,7 +113,15 @@ var DrinkventoryLogic = (function () {
     return normalizeList(has(d, 'tags') ? d.tags : d.source);
   }
 
+  /** Tags of a bottle: its product's tags first, then its own, without duplicates. */
+  function effectiveTags(b, p) {
+    return normalizeList(((p && p.tags) || '') + ',' + ((b && b.tags) || ''));
+  }
+
   function upgradeState(state) {
+    (state.products || []).forEach(function (p) {
+      if (p.tags === undefined) p.tags = '';
+    });
     (state.bottles || []).forEach(function (b) {
       if (b.tags === undefined) b.tags = normalizeList(b.source);
       delete b.source;
@@ -226,6 +234,7 @@ var DrinkventoryLogic = (function () {
       if (has(d, f)) upd[f] = isNumericField(f) ? toNumberOrBlank(d[f]) : clean(d[f]);
     });
     if (has(upd, 'grapes')) upd.grapes = normalizeList(upd.grapes);
+    if (has(upd, 'tags')) upd.tags = normalizeList(upd.tags);
     if (has(upd, 'type') && upd.type !== '' && !typeInfo(upd.type)) fail('unknown type: ' + upd.type);
     if (isNew) {
       if (!upd.type) fail('type missing');
@@ -348,22 +357,25 @@ var DrinkventoryLogic = (function () {
     return { products: [p] };
   }
 
-  /** Renames a tag on every bottle; an empty new name deletes it. No history entries. */
+  /** Renames a tag on every product and bottle; an empty new name deletes it. No history entries. */
   function renameTag(state, op) {
     var d = op.data || {};
     var from = clean(d.from).toLowerCase();
     if (!from) fail('tag missing');
     var to = normalizeList(d.to);
-    var changed = [];
-    state.bottles.forEach(function (b) {
-      if (!listHas(b.tags, from)) return;
-      var next = normalizeList(splitList(b.tags).map(function (t) { return t.toLowerCase() === from ? to : t; }).join(','));
-      if (next === b.tags) return;
-      b.tags = next;
-      b.updated_at = String(op.ts);
-      changed.push(b);
-    });
-    return { bottles: changed };
+    function apply(list) {
+      var changed = [];
+      list.forEach(function (x) {
+        if (!listHas(x.tags, from)) return;
+        var next = normalizeList(splitList(x.tags).map(function (t) { return t.toLowerCase() === from ? to : t; }).join(','));
+        if (next === x.tags) return;
+        x.tags = next;
+        x.updated_at = String(op.ts);
+        changed.push(x);
+      });
+      return changed;
+    }
+    return { products: apply(state.products), bottles: apply(state.bottles) };
   }
 
   var HANDLERS = {
@@ -491,8 +503,9 @@ var DrinkventoryLogic = (function () {
   }
 
   /**
-   * In-stock bottles per item of a comma-separated field: 'grapes' (wine products) or 'tags' (bottles).
-   * A bottle counts once for each of its items, so a blend shows up under every grape.
+   * In-stock bottles per item of a comma-separated field: 'grapes' (wine products) or 'tags'
+   * (product tags plus bottle tags). A bottle counts once for each of its items, so a blend
+   * shows up under every grape, and a tag on both product and bottle counts once.
    */
   function stockByList(state, field) {
     var pm = productMap(state);
@@ -501,7 +514,7 @@ var DrinkventoryLogic = (function () {
     stockBottles(state).forEach(function (b) {
       var p = pm[String(b.product_id)] || {};
       if (field === 'grapes' && categoryOf(p.type) !== 'wine') return;
-      splitList(field === 'grapes' ? p.grapes : b[field]).forEach(function (x) {
+      splitList(field === 'grapes' ? p.grapes : effectiveTags(b, p)).forEach(function (x) {
         var k = x.toLowerCase();
         if (!label[k]) label[k] = x;
         m[k] = (m[k] || 0) + 1;
@@ -511,19 +524,27 @@ var DrinkventoryLogic = (function () {
       .sort(function (a, b) { return b.n - a.n || a.key.localeCompare(b.key); });
   }
 
-  /** All tags with the number of bottles (any status except removed) that carry them. */
+  /**
+   * All tags in use. n: bottles (any status except removed) that carry the tag directly or
+   * through their product. products: products that carry the tag.
+   */
   function tagCounts(state) {
+    var pm = productMap(state);
     var m = {};
     var label = {};
+    function seen(x) {
+      var k = x.toLowerCase();
+      if (!label[k]) { label[k] = x; m[k] = { n: 0, products: 0 }; }
+      return m[k];
+    }
+    state.products.forEach(function (p) {
+      splitList(p.tags).forEach(function (x) { seen(x).products += 1; });
+    });
     state.bottles.forEach(function (b) {
       if (b.status === 'void') return;
-      splitList(b.tags).forEach(function (x) {
-        var k = x.toLowerCase();
-        if (!label[k]) label[k] = x;
-        m[k] = (m[k] || 0) + 1;
-      });
+      splitList(effectiveTags(b, pm[String(b.product_id)])).forEach(function (x) { seen(x).n += 1; });
     });
-    return Object.keys(m).map(function (k) { return { key: label[k], n: m[k] }; })
+    return Object.keys(m).map(function (k) { return { key: label[k], n: m[k].n, products: m[k].products }; })
       .sort(function (a, b) { return b.n - a.n || a.key.localeCompare(b.key); });
   }
 
@@ -537,7 +558,7 @@ var DrinkventoryLogic = (function () {
     switch (facet.kind) {
       case 'win': return drinkWindowStatus(p, year) === v;
       case 'grape': return categoryOf(p.type) === 'wine' && listHas(p.grapes, v);
-      case 'tag': return listHas(b.tags, v);
+      case 'tag': return listHas(effectiveTags(b, p), v);
       case 'type': { var t = typeInfo(p.type); return (t ? t.label : '(not set)') === v; }
       case 'country': return (clean(p.country) || '(not set)') === v;
       case 'location': return (clean(b.location) || '(not set)') === v;
@@ -627,6 +648,7 @@ var DrinkventoryLogic = (function () {
     VERSION: VERSION,
     compareVersions: compareVersions,
     backendStatus: backendStatus,
+    effectiveTags: effectiveTags,
     SCHEMA: SCHEMA,
     KEYS: KEYS,
     NUMERIC_FIELDS: NUMERIC_FIELDS,

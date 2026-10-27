@@ -96,7 +96,9 @@ The app rejects a sticker that is already in use, so a duplicate from a re-order
 | Add several identical bottles | Tick **Add more bottles of this product next**, then scan the stickers one after another. |
 | Take a bottle out | Scan, then **Take out** on the bottle card. Or switch the scan screen to **Take out**: every scanned bottle then leaves the stock immediately (with **Undo**). |
 | Move | Scan, **Move**, pick or type the location. |
-| Tags | On the bottle page, tap a suggested tag or type a new one; tap × to remove it. Separate several with commas. Rename or delete a tag on all bottles in **Settings > Tags**. |
+| Tags for one bottle | On the bottle page, under **Only this bottle**, tap a suggested tag or type a new one; tap × to remove it. Separate several with commas. |
+| Tags for a whole product | On the product page (or in **Edit product**), add tags under **For every bottle of this product**. Every bottle of that product shows them, outlined, on its bottle page. Change them only on the product. |
+| Manage tags | **Settings > Tags** lists every tag with its number of bottles and products. Rename or delete a tag there; this changes it on every product and bottle. Search, statistics and the tag slices use product and bottle tags together; a tag on both counts once per bottle. |
 | Browse labels | **Cellar > Labels** shows the label photos as a grid. Tap a label to open that bottle (or the product, if there are several). |
 | From statistics to bottles | Tap a drinking-window number or a bar in **Stats** to list exactly those bottles. |
 | Look a product up | **Find online** opens a Google search for producer, name and vintage (or distillery, name and age). |
@@ -143,7 +145,7 @@ You can also open the Sheet directly, connect it to Looker Studio, or read it wi
 
 | Tab | One row per | Notes |
 |---|---|---|
-| `products` | wine or spirit (producer, name, vintage, region, grapes or cask, drink window) | Edit text fields freely. Do not change `product_id`. |
+| `products` | wine or spirit (producer, name, vintage, region, grapes or cask, drink window, tags) | Edit text fields freely. Do not change `product_id`. |
 | `bottles` | physical bottle (sticker ID, status, location, acquired date, tags, taken-out date) | Status: `in_stock`, `out`, `void` (removed by mistake). |
 | `events` | action: `intake`, `move`, `out`, `restore`, `void`, `edit` | Append-only history with user, time and location. |
 | `ops` | change received from a phone | Makes sync safe against duplicates. Do not edit. |
