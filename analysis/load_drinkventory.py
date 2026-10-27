@@ -1,13 +1,13 @@
 """
 Load the cellar into pandas through the Apps Script backend (no Google API setup).
 
-    from load_cellar import load
-    d = load()                      # reads CELLAR_URL and CELLAR_KEY from the environment
+    from load_drinkventory import load
+    d = load()                      # reads DRINKVENTORY_URL and DRINKVENTORY_KEY from the environment
     d['stock'].groupby('country').size()
     d['taken_out'].set_index('out_at').resample('ME').size()
 
 Command line:
-    CELLAR_URL=... CELLAR_KEY=... python load_cellar.py --csv out/
+    DRINKVENTORY_URL=... DRINKVENTORY_KEY=... python load_drinkventory.py --csv out/
 
 Tables returned (dict of DataFrames):
     products, bottles, events  as stored in the Sheet (typed)
@@ -58,8 +58,8 @@ def _typed(df: pd.DataFrame, tz: str) -> pd.DataFrame:
 
 def load(url: str | None = None, key: str | None = None, climate_days: int = 90,
          raw_climate: bool = False, tz: str = 'Europe/Berlin') -> dict[str, pd.DataFrame]:
-    url = url or os.environ['CELLAR_URL']
-    key = key or os.environ['CELLAR_KEY']
+    url = url or os.environ['DRINKVENTORY_URL']
+    key = key or os.environ['DRINKVENTORY_KEY']
     snap = _post(url, key, {'action': 'sync', 'ops': []})['snapshot']
     products = _typed(pd.DataFrame(snap['products']), tz)
     bottles = _typed(pd.DataFrame(snap['bottles']), tz)
@@ -89,8 +89,8 @@ def load(url: str | None = None, key: str | None = None, climate_days: int = 90,
 
 def main() -> None:
     ap = argparse.ArgumentParser(description='Load the cellar from the Apps Script backend.')
-    ap.add_argument('--url', default=os.environ.get('CELLAR_URL'))
-    ap.add_argument('--key', default=os.environ.get('CELLAR_KEY'))
+    ap.add_argument('--url', default=os.environ.get('DRINKVENTORY_URL'))
+    ap.add_argument('--key', default=os.environ.get('DRINKVENTORY_KEY'))
     ap.add_argument('--climate-days', type=int, default=90)
     ap.add_argument('--raw-climate', action='store_true')
     ap.add_argument('--csv', metavar='DIR', help='write every table as CSV into DIR')

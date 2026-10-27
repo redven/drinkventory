@@ -27,7 +27,7 @@ Other boards: use any two free GPIOs and set `SDA_PIN` and `SCL_PIN` in `config.
 ## Install
 
 1. Flash MicroPython for your board from <https://micropython.org/download/>. The simplest tool is **Thonny** (Tools > Options > Interpreter > Install or update MicroPython).
-2. Copy `config.example.py` to `config.py` and fill in Wi-Fi, the backend URL and the **sensor key** (Sheet menu **Cellar > Setup / show keys**).
+2. Copy `config.example.py` to `config.py` and fill in Wi-Fi, the backend URL and the **sensor key** (Sheet menu **Drinkventory > Setup / show keys**).
 3. Copy both files to the board, for example with `mpremote`:
    ```bash
    pip install mpremote

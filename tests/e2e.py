@@ -31,7 +31,7 @@ def backend(body):
 def phone(browser, user, scheme='light'):
     ctx = browser.new_context(viewport={'width': 390, 'height': 844}, device_scale_factor=2, is_mobile=True,
                               has_touch=True, color_scheme=scheme, reduced_motion='reduce', permissions=['camera'])
-    ctx.add_init_script("localStorage.setItem('cellar.settings', JSON.stringify(%s));" % json.dumps(
+    ctx.add_init_script("localStorage.setItem('drinkventory.settings', JSON.stringify(%s));" % json.dumps(
         {'apiUrl': API, 'apiKey': keys['apiKey'], 'user': user}))
     page = ctx.new_page()
     page.on('console', lambda m: errors.append(f'{user}: {m.text}') if m.type == 'error' else None)
@@ -42,7 +42,7 @@ def phone(browser, user, scheme='light'):
 def wait_synced(page, after_action=True):
     """Waits for a completed sync. After an action, the sync must finish after this call."""
     since = page.evaluate('new Date().toISOString()') if after_action else ''
-    page.wait_for_function("(since) => window.CellarApp && CellarApp.app.lastSync && CellarApp.app.lastSync > since && CellarApp.app.pending.length === 0 && !CellarApp.app.syncing && !CellarApp.app.syncError", arg=since, timeout=15000)
+    page.wait_for_function("(since) => window.DrinkventoryApp && DrinkventoryApp.app.lastSync && DrinkventoryApp.app.lastSync > since && DrinkventoryApp.app.pending.length === 0 && !DrinkventoryApp.app.syncing && !DrinkventoryApp.app.syncError", arg=since, timeout=15000)
     expect(page.locator('#syncBadge')).to_contain_text('Synced', timeout=5000)
 
 
@@ -138,12 +138,12 @@ try:
         a_ctx.set_offline(True)
         a.goto(APP + '#/b/000006')
         a.click('button[data-act=take-out]')
-        a.wait_for_function("() => CellarApp.app.pending.length === 1")
+        a.wait_for_function("() => DrinkventoryApp.app.pending.length === 1")
         b.goto(APP + '#/b/000006')
         b.click('button[data-act=take-out]')
         wait_synced(b)
         a_ctx.set_offline(False)
-        a.evaluate('CellarApp.syncNow(false)')
+        a.evaluate('DrinkventoryApp.syncNow(false)')
         expect(a.locator('#syncBadge')).to_contain_text('1 rejected', timeout=15000)
         a.click('#syncBadge')
         a.wait_for_url('**/#/settings')

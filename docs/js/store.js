@@ -1,15 +1,15 @@
 /*
  * Local storage on the phone.
- *   IndexedDB "cellar":
+ *   IndexedDB "drinkventory":
  *     kv      last snapshot of the data (state), misc values
  *     outbox  changes not yet confirmed by the server (in order)
  *     photos  label photos as data URLs, keyed by photo_id or "local:<op_id>"
- *   localStorage "cellar.settings": backend URL, key, user name
+ *   localStorage "drinkventory.settings": backend URL, key, user name
  */
 var Store = (function () {
   'use strict';
 
-  var DB_NAME = 'cellar';
+  var DB_NAME = 'drinkventory';
   var DB_VERSION = 1;
   var dbPromise = null;
 
@@ -80,14 +80,14 @@ var Store = (function () {
 
     settings: function () {
       try {
-        var s = JSON.parse(localStorage.getItem('cellar.settings') || '{}');
+        var s = JSON.parse(localStorage.getItem('drinkventory.settings') || '{}');
         return { apiUrl: s.apiUrl || '', apiKey: s.apiKey || '', user: s.user || '' };
       } catch (e) {
         return { apiUrl: '', apiKey: '', user: '' };
       }
     },
     saveSettings: function (s) {
-      try { localStorage.setItem('cellar.settings', JSON.stringify(s)); return true; } catch (e) { return false; }
+      try { localStorage.setItem('drinkventory.settings', JSON.stringify(s)); return true; } catch (e) { return false; }
     },
     persist: function () {
       // Ask the browser not to evict our data (no effect where unsupported).

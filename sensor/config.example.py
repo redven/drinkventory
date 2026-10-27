@@ -5,7 +5,7 @@ WIFI_SSID = 'your-wifi'
 WIFI_PASSWORD = 'your-password'
 
 # Apps Script web app URL (the same URL the phones use) and the SENSOR key
-# from the Sheet menu "Cellar > Setup / show keys". Do not use the app key here.
+# from the Sheet menu "Drinkventory > Setup / show keys". Do not use the app key here.
 BACKEND_URL = 'https://script.google.com/macros/s/XXXXXXXX/exec'
 SENSOR_KEY = 'paste-sensor-key'
 

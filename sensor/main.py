@@ -1,4 +1,4 @@
-# Cellar climate sensor: ESP32 (C3, C6 or classic) + Sensirion SHT4x (SHT40/SHT41/SHT45).
+# Drinkventory climate sensor: ESP32 (C3, C6 or classic) + Sensirion SHT4x (SHT40/SHT41/SHT45).
 # MicroPython. Copy main.py and config.py to the board (see sensor/README.md).
 #
 # Every INTERVAL_S seconds: read temperature and humidity, send them to the
@@ -25,7 +25,7 @@ SHT4X_ADDR = getattr(config, 'SHT4X_ADDR', 0x44)
 
 
 def log(*a):
-    print('[cellar]', *a)
+    print('[drinkventory]', *a)
 
 
 # ---------- SHT4x ----------

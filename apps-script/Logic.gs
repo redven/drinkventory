@@ -1,5 +1,5 @@
 /*
- * Cellar shared logic.
+ * Drinkventory shared logic.
  *
  * The same file runs in two places:
  *   - in the browser:        docs/js/logic.js
@@ -15,7 +15,7 @@
  * Bottle status: in_stock -> out (taken out) -> in_stock (back in stock)
  *                any -> void (removed: wrong sticker or mistake; sticker can be reused)
  */
-var CellarLogic = (function () {
+var DrinkventoryLogic = (function () {
   'use strict';
 
   var VERSION = '2.0.0';
@@ -521,4 +521,4 @@ var CellarLogic = (function () {
   };
 })();
 
-if (typeof module !== 'undefined' && module.exports) { module.exports = CellarLogic; }
+if (typeof module !== 'undefined' && module.exports) { module.exports = DrinkventoryLogic; }

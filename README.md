@@ -1,4 +1,4 @@
-# Cellar
+# Drinkventory
 
 A wine and spirits inventory for two iPhones. You scan a QR sticker on each bottle to add it, move it or take it out of stock. Every action goes into a history. The app also shows statistics and a cellar climate record. Your data lives in a Google Sheet in your Drive. Everything is free: no App Store, no Apple Developer Program, no server to pay for.
 
@@ -10,11 +10,11 @@ A wine and spirits inventory for two iPhones. You scan a QR sticker on each bott
                        │ HTTPS (app key / sensor key)
               Google Apps Script web app  (apps-script/Code.gs + Logic.gs)
                        │
-              Google Sheet "Cellar" in your Drive
+              Google Sheet "Drinkventory" in your Drive
               tabs: products · bottles · events · ops · climate
-              folder: "Cellar photos" (label photos)
+              folder: "Drinkventory photos" (label photos)
 
- Web app files: GitHub Pages (docs/)        Analysis: analysis/load_cellar.py (pandas)
+ Web app files: GitHub Pages (docs/)        Analysis: analysis/load_drinkventory.py (pandas)
 ```
 
 Why this split: Google Drive cannot host web pages, and an Apps Script page cannot use the camera reliably. So the app files are on GitHub Pages and only the data goes to Google.
@@ -28,20 +28,20 @@ Why this split: Google Drive cannot host web pages, and an Apps Script page cann
 | `apps-script/Code.gs` | Backend: sync, photos, climate, e-mail alerts. |
 | `apps-script/Logic.gs` | Identical copy of `docs/js/logic.js`. |
 | `sensor/` | MicroPython script for an ESP32 + SHT4x climate sensor. |
-| `analysis/load_cellar.py` | Loads everything into pandas DataFrames. |
+| `analysis/load_drinkventory.py` | Loads everything into pandas DataFrames. |
 | `tests/` | Backend tests, end-to-end browser test, sensor test. |
 
 ## Setup (about 20 minutes)
 
 ### 1. Google Sheet and backend
 
-1. In Google Drive, create a blank Google Sheet. Name it `Cellar`.
+1. In Google Drive, create a blank Google Sheet. Name it `Drinkventory`.
 2. In the Sheet: **Extensions > Apps Script**.
 3. Replace the content of `Code.gs` with `apps-script/Code.gs`.
 4. Add a second script file (**+ > Script**), name it `Logic`, and paste `apps-script/Logic.gs`.
 5. Save. Select the function `setup` in the toolbar and click **Run**.
 6. Google asks for authorization. Because this is your own unverified script, click **Advanced > Go to … (unsafe)** and allow. The script needs access to this Sheet, to Drive (for the photo folder) and, for alerts, to send e-mail to you.
-7. Reload the Sheet. A **Cellar** menu appears. **Cellar > Setup / show keys** shows two keys:
+7. Reload the Sheet. A **Drinkventory** menu appears. **Drinkventory > Setup / show keys** shows two keys:
    - **App key**: for both phones.
    - **Sensor key**: for climate sensors only. It can add readings but cannot read or change the cellar.
 
@@ -103,7 +103,7 @@ Offline: every change is stored on the phone first and sent when there is a conn
 
 See `sensor/README.md` for hardware, wiring and setup.
 
-E-mail alerts: **Cellar > Install climate alerts**. The backend checks once per hour and sends one e-mail when a value leaves the limits or the sensor stops reporting, and one when everything is back in range. Change the limits in **Apps Script > Project Settings > Script properties**:
+E-mail alerts: **Drinkventory > Install climate alerts**. The backend checks once per hour and sends one e-mail when a value leaves the limits or the sensor stops reporting, and one when everything is back in range. Change the limits in **Apps Script > Project Settings > Script properties**:
 
 | Property | Default | Meaning |
 |---|---|---|
@@ -119,13 +119,13 @@ Sensors that can only call a URL (for example webhooks) can use GET:
 
 ```bash
 pip install pandas
-export CELLAR_URL='https://script.google.com/macros/s/…/exec'
-export CELLAR_KEY='<app key>'
-python analysis/load_cellar.py --csv out/
+export DRINKVENTORY_URL='https://script.google.com/macros/s/…/exec'
+export DRINKVENTORY_KEY='<app key>'
+python analysis/load_drinkventory.py --csv out/
 ```
 
 ```python
-from load_cellar import load
+from load_drinkventory import load
 d = load(climate_days=365)
 d['stock'].groupby(['country', 'type']).size()
 d['taken_out'].set_index('out_at').resample('QE').size()
@@ -148,9 +148,9 @@ You can add your own columns to the right of a tab. The backend keeps them.
 
 ## Security
 
-- Anyone with the backend URL **and** the app key can read and change the cellar. Rotate the key with **Cellar > New app key** if needed, then enter it again on both phones.
+- Anyone with the backend URL **and** the app key can read and change the cellar. Rotate the key with **Drinkventory > New app key** if needed, then enter it again on both phones.
 - The sensor key can only add climate readings.
-- Label photos stay private in the `Cellar photos` folder. The backend serves only files from that folder.
+- Label photos stay private in the `Drinkventory photos` folder. The backend serves only files from that folder.
 - Do not commit `sensor/config.py` (it contains your Wi-Fi password). `.gitignore` excludes it.
 
 ## Limits
@@ -163,7 +163,7 @@ You can add your own columns to the right of a tab. The backend keeps them.
 
 1. Change files in `docs/`.
 2. If you changed `docs/js/logic.js`: copy it to `apps-script/Logic.gs`, paste it into the Apps Script editor, and deploy a new version.
-3. Change `CACHE` in `docs/sw.js` (for example `cellar-v2`) so phones load the new files.
+3. Change `CACHE` in `docs/sw.js` (for example `drinkventory-v6`) so phones load the new files.
 4. Push. GitHub Pages updates within a minute.
 
 ## Tests

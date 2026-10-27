@@ -118,7 +118,7 @@ function createGas() {
     return rec;
   }
   makeFolder('root', 'My Drive');
-  files['ss1'] = makeFile('ss1', 'Cellar', 'root', null);
+  files['ss1'] = makeFile('ss1', 'Drinkventory', 'root', null);
 
   const ss = {
     getId: () => 'ss1',

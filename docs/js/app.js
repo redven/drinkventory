@@ -1,12 +1,12 @@
 /*
- * Cellar web app: views, local-first changes, sync with the Apps Script backend.
- * Depends on: CellarLogic (logic.js), Store (store.js), Scanner (scanner.js),
+ * Drinkventory web app: views, local-first changes, sync with the Apps Script backend.
+ * Depends on: DrinkventoryLogic (logic.js), Store (store.js), Scanner (scanner.js),
  * jsQR and Chart.js (vendor/).
  */
 (function () {
   'use strict';
 
-  var L = window.CellarLogic;
+  var L = window.DrinkventoryLogic;
   var S = L.stats;
 
   var app = {
@@ -1222,7 +1222,7 @@
         '</tbody></table>' : '') +
 
       '<h2>Cellar climate</h2><div id="climate"></div>' +
-      '<p class="footnote">Raw data: the Google Sheet. Load it in Python with analysis/load_cellar.py.</p>' +
+      '<p class="footnote">Raw data: the Google Sheet. Load it in Python with analysis/load_drinkventory.py.</p>' +
       '</section>';
 
     if (anyOut) {
@@ -1384,7 +1384,7 @@
       '<form id="settingsForm" autocomplete="off" novalidate><fieldset class="group">' +
       field('user', 'Your name (shown in the history)', s.user, 'autocapitalize="words" required') +
       field('apiUrl', 'Backend URL (Apps Script web app, ends with /exec)', s.apiUrl, 'type="url" inputmode="url" spellcheck="false" placeholder="https://script.google.com/macros/s/…/exec"') +
-      field('apiKey', 'App key (from the Sheet menu Cellar > Setup / show keys)', s.apiKey, 'spellcheck="false" autocapitalize="off"') +
+      field('apiKey', 'App key (from the Sheet menu Drinkventory > Setup / show keys)', s.apiKey, 'spellcheck="false" autocapitalize="off"') +
       '</fieldset><div class="form-actions"><button class="btn primary" type="submit">Save and connect</button>' +
       '<button class="btn" type="button" data-act="test-conn">Test connection</button></div></form>' +
 
@@ -1470,7 +1470,7 @@
     'clear-rejected': function () { app.rejected = []; Store.put('kv', 'rejected', []); render(); },
     export: function () {
       var blob = new Blob([JSON.stringify(app.state, null, 2)], { type: 'application/json' });
-      var name = 'cellar-export-' + today() + '.json';
+      var name = 'drinkventory-export-' + today() + '.json';
       var file = window.File ? new File([blob], name, { type: 'application/json' }) : null;
       if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
         navigator.share({ files: [file], title: 'Drinkventory export' }).catch(function () { /* cancelled */ });
@@ -1552,7 +1552,7 @@
   }
 
   // Exposed for tests and debugging in the browser console.
-  window.CellarApp = { app: app, commit: commit, syncNow: syncNow, render: render, handleCode: handleCode };
+  window.DrinkventoryApp = { app: app, commit: commit, syncNow: syncNow, render: render, handleCode: handleCode };
 
   init();
 })();

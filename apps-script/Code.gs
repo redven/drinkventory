@@ -1,7 +1,7 @@
 /**
- * Cellar backend for Google Apps Script.
+ * Drinkventory backend for Google Apps Script.
  *
- * The Apps Script project is bound to the cellar Google Sheet and has two files:
+ * The Apps Script project is bound to the Drinkventory Google Sheet and has two files:
  *   Code.gs   (this file)
  *   Logic.gs  (identical copy of docs/js/logic.js)
  *
@@ -13,7 +13,7 @@
  *   SENSOR_KEY  used by climate sensors (can only add climate readings)
  */
 
-var PHOTO_FOLDER_NAME = 'Cellar photos';
+var PHOTO_FOLDER_NAME = 'Drinkventory photos';
 var MAX_OPS_PER_REQUEST = 50;
 var MAX_PHOTO_BASE64 = 6 * 1024 * 1024;
 var DATA_TABLES = ['products', 'bottles', 'events', 'ops'];
@@ -31,7 +31,7 @@ var ALERT_DEFAULTS = {
 // ======================================================================
 
 function onOpen() {
-  SpreadsheetApp.getUi().createMenu('Cellar')
+  SpreadsheetApp.getUi().createMenu('Drinkventory')
     .addItem('Setup / show keys', 'menuSetup')
     .addSeparator()
     .addItem('New app key (both phones must update)', 'menuNewApiKey')
@@ -46,8 +46,8 @@ function onOpen() {
 function setup() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   if (!ss) throw new Error('Open this script from the Sheet: Extensions > Apps Script.');
-  Object.keys(CellarLogic.SCHEMA).forEach(function (name) {
-    ensureSheet_(ss, name, CellarLogic.SCHEMA[name]);
+  Object.keys(DrinkventoryLogic.SCHEMA).forEach(function (name) {
+    ensureSheet_(ss, name, DrinkventoryLogic.SCHEMA[name]);
   });
   var props = PropertiesService.getScriptProperties();
   props.setProperty('SPREADSHEET_ID', ss.getId());
@@ -69,7 +69,7 @@ function setup() {
 function menuSetup() {
   var keys = setup();
   SpreadsheetApp.getUi().alert(
-    'Cellar setup complete',
+    'Drinkventory setup complete',
     'App key (enter on both phones):\n' + keys.apiKey +
     '\n\nSensor key (climate sensors only):\n' + keys.sensorKey,
     SpreadsheetApp.getUi().ButtonSet.OK);
@@ -115,7 +115,7 @@ function textRuns_(headers) {
   var runs = [];
   var start = -1;
   for (var i = 0; i <= headers.length; i++) {
-    var isText = i < headers.length && headers[i] !== '' && !CellarLogic.isNumericField(headers[i]);
+    var isText = i < headers.length && headers[i] !== '' && !DrinkventoryLogic.isNumericField(headers[i]);
     if (isText && start < 0) start = i;
     if (!isText && start >= 0) { runs.push([start + 1, i - start]); start = -1; }
   }
@@ -161,7 +161,7 @@ function doGet(e) {
         }]
       }));
     }
-    return json_({ ok: true, app: 'cellar', version: CellarLogic.VERSION });
+    return json_({ ok: true, app: 'drinkventory', version: DrinkventoryLogic.VERSION });
   } catch (err) {
     return json_({ ok: false, error: String(err && err.message ? err.message : err) });
   }
@@ -182,7 +182,7 @@ function doPost(e) {
     }
     if (!isApiKey_(body.key)) return json_({ ok: false, error: 'unauthorized' });
     switch (action) {
-      case 'ping': return json_({ ok: true, app: 'cellar', version: CellarLogic.VERSION });
+      case 'ping': return json_({ ok: true, app: 'drinkventory', version: DrinkventoryLogic.VERSION });
       case 'sync': return json_(handleSync_(body));
       case 'photo_get': return json_(handlePhotoGet_(body));
       case 'climate_get': return json_(handleClimateGet_(body));
@@ -226,7 +226,7 @@ function loadTable_(ss, name) {
   var headers = lastCol > 0
     ? sh.getRange(1, 1, 1, lastCol).getValues()[0].map(function (h) { return String(h).trim(); })
     : [];
-  var key = CellarLogic.KEYS[name];
+  var key = DrinkventoryLogic.KEYS[name];
   var rows = [];
   var rowNum = {};
   if (lastRow >= 2 && lastCol > 0) {
@@ -253,7 +253,7 @@ function rowToObject_(headers, r) {
     var v = r[j];
     if (v instanceof Date) v = v.toISOString();
     if (v === null || v === undefined) v = '';
-    v = CellarLogic.isNumericField(h) ? CellarLogic.toNumberOrBlank(v) : String(v);
+    v = DrinkventoryLogic.isNumericField(h) ? DrinkventoryLogic.toNumberOrBlank(v) : String(v);
     if (v !== '') empty = false;
     o[h] = v;
   }
@@ -262,7 +262,7 @@ function rowToObject_(headers, r) {
 
 function cellValue_(h, v) {
   if (v === undefined || v === null) return '';
-  if (CellarLogic.isNumericField(h)) return CellarLogic.toNumberOrBlank(v);
+  if (DrinkventoryLogic.isNumericField(h)) return DrinkventoryLogic.toNumberOrBlank(v);
   var s = String(v);
   if (s.charAt(0) === '=') s = "'" + s; // never let user text become a formula
   return s;
@@ -271,7 +271,7 @@ function cellValue_(h, v) {
 /** Updates existing rows in place and appends new ones. Keeps user-added columns. */
 function writeObjects_(t, objs) {
   if (!objs.length) return;
-  var key = CellarLogic.KEYS[t.name];
+  var key = DrinkventoryLogic.KEYS[t.name];
   var appends = [];
   var appendKeys = [];
   objs.forEach(function (o) {
@@ -310,7 +310,7 @@ function appendRows_(t, rows) {
 }
 
 function stripToSchema_(rows, table) {
-  var fields = CellarLogic.SCHEMA[table];
+  var fields = DrinkventoryLogic.SCHEMA[table];
   return rows.map(function (r) {
     var o = {};
     fields.forEach(function (f) { o[f] = r[f] === undefined ? '' : r[f]; });
@@ -373,7 +373,7 @@ function handleSync_(body) {
 
     return {
       ok: true,
-      version: CellarLogic.VERSION,
+      version: DrinkventoryLogic.VERSION,
       server_time: now,
       results: results,
       snapshot: {
@@ -393,11 +393,11 @@ function values_(o) {
 
 function applyServerOp_(state, op) {
   if (op.kind === 'set_photo') return { status: 'error', error: 'set_photo is internal; send a photo op' };
-  if (op.kind !== 'photo') return CellarLogic.applyOp(state, op);
+  if (op.kind !== 'photo') return DrinkventoryLogic.applyOp(state, op);
 
   var d = op.data || {};
-  var pid = CellarLogic.clean(d.product_id);
-  if (!CellarLogic.find(state.products, 'product_id', pid)) return { status: 'error', error: 'unknown product: ' + pid };
+  var pid = DrinkventoryLogic.clean(d.product_id);
+  if (!DrinkventoryLogic.find(state.products, 'product_id', pid)) return { status: 'error', error: 'unknown product: ' + pid };
   if (!d.data) return { status: 'error', error: 'photo data missing' };
   if (String(d.data).length > MAX_PHOTO_BASE64) return { status: 'error', error: 'photo too large' };
   var fileId;
@@ -406,7 +406,7 @@ function applyServerOp_(state, op) {
   } catch (err) {
     return { status: 'error', error: 'photo save failed: ' + (err && err.message ? err.message : err) };
   }
-  var res = CellarLogic.applyOp(state, {
+  var res = DrinkventoryLogic.applyOp(state, {
     op_id: op.op_id, kind: 'set_photo', ts: op.ts, user: op.user,
     data: { product_id: pid, photo_id: fileId }
   });
@@ -438,7 +438,7 @@ function savePhoto_(opId, dataUrl) {
 }
 
 function handlePhotoGet_(body) {
-  var id = CellarLogic.clean(body.photo_id);
+  var id = DrinkventoryLogic.clean(body.photo_id);
   if (!id) return { ok: false, error: 'photo_id missing' };
   var folderId = photoFolder_().getId();
   var file;
@@ -469,16 +469,16 @@ function handleClimate_(body) {
   var errors = [];
   input.forEach(function (r, i) {
     r = r || {};
-    var temp = CellarLogic.toNumberOrBlank(r.temp_c);
-    var rh = CellarLogic.toNumberOrBlank(r.rh_pct);
-    var bat = CellarLogic.toNumberOrBlank(r.battery_pct);
+    var temp = DrinkventoryLogic.toNumberOrBlank(r.temp_c);
+    var rh = DrinkventoryLogic.toNumberOrBlank(r.rh_pct);
+    var bat = DrinkventoryLogic.toNumberOrBlank(r.battery_pct);
     if (temp === '' && rh === '') { errors.push(i + ': no values'); return; }
     if (temp !== '' && (temp < -40 || temp > 85)) { errors.push(i + ': temperature out of range'); return; }
     if (rh !== '' && (rh < 0 || rh > 100)) { errors.push(i + ': humidity out of range'); return; }
     if (bat !== '' && (bat < 0 || bat > 100)) bat = '';
-    var sensor = CellarLogic.clean(r.sensor).slice(0, 40) || 'cellar';
+    var sensor = DrinkventoryLogic.clean(r.sensor).slice(0, 40) || 'cellar';
     var ts = parseDeviceTs_(r.ts, nowDate);
-    var rid = CellarLogic.clean(r.reading_id).slice(0, 80) || (sensor + '-' + ts);
+    var rid = DrinkventoryLogic.clean(r.reading_id).slice(0, 80) || (sensor + '-' + ts);
     clean.push({ reading_id: rid, ts: ts, sensor: sensor, temp_c: temp, rh_pct: rh, battery_pct: bat, received_at: now });
   });
   if (!clean.length) return { ok: false, error: errors.join('; ') || 'no readings' };
@@ -487,7 +487,7 @@ function handleClimate_(body) {
   lock.waitLock(25000);
   try {
     var ss = getSpreadsheet_();
-    var sh = ss.getSheetByName('climate') || ensureSheet_(ss, 'climate', CellarLogic.SCHEMA.climate);
+    var sh = ss.getSheetByName('climate') || ensureSheet_(ss, 'climate', DrinkventoryLogic.SCHEMA.climate);
     var t = tableHeaderOnly_(sh, 'climate');
     var recent = recentKeys_(t, 500);
     var fresh = clean.filter(function (r) {
@@ -524,7 +524,7 @@ function tableHeaderOnly_(sh, name) {
 
 function recentKeys_(t, n) {
   var out = {};
-  var col = t.headers.indexOf(CellarLogic.KEYS[t.name]) + 1;
+  var col = t.headers.indexOf(DrinkventoryLogic.KEYS[t.name]) + 1;
   if (col < 1 || t.lastRow < 2) return out;
   var count = Math.min(n, t.lastRow - 1);
   t.sheet.getRange(t.lastRow - count + 1, col, count, 1).getValues()
@@ -617,8 +617,8 @@ function round1_(x) { return Math.round(x * 10) / 10; }
 
 function climateConfig_(props) {
   function num(k) {
-    var v = CellarLogic.toNumberOrBlank(props.getProperty(k));
-    return v === '' ? CellarLogic.toNumberOrBlank(ALERT_DEFAULTS[k]) : v;
+    var v = DrinkventoryLogic.toNumberOrBlank(props.getProperty(k));
+    return v === '' ? DrinkventoryLogic.toNumberOrBlank(ALERT_DEFAULTS[k]) : v;
   }
   return {
     temp_min: num('ALERT_TEMP_MIN'), temp_max: num('ALERT_TEMP_MAX'),
@@ -676,7 +676,7 @@ function checkClimate() {
   props.setProperty('ALERT_LAST_STATE', state);
   var to = props.getProperty('ALERT_EMAIL') || Session.getEffectiveUser().getEmail();
   if (!to) return state;
-  var subject = state === 'ok' ? 'Cellar climate: back in range' : 'Cellar climate alert: ' + flags.join(', ');
+  var subject = state === 'ok' ? 'Drinkventory: cellar climate back in range' : 'Drinkventory: cellar climate alert: ' + flags.join(', ');
   var bodyText = lines.join('\n') +
     '\n\nLimits: ' + cfg.temp_min + '–' + cfg.temp_max + ' °C, ' + cfg.rh_min + '–' + cfg.rh_max +
     ' % RH, stale after ' + cfg.stale_min + ' min.\nChange limits in Apps Script > Project Settings > Script properties.';
