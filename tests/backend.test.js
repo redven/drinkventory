@@ -51,6 +51,36 @@ console.log('backend');
 test('apps-script/Logic.gs is identical to docs/js/logic.js', () => {
   assert.equal(fs.readFileSync(path.join(root, 'apps-script/Logic.gs'), 'utf8'), logicSrc);
 });
+
+test('CODE_VERSION in Code.gs equals VERSION in logic.js', () => {
+  const m = codeSrc.match(/var CODE_VERSION = '([^']+)';/);
+  assert.ok(m, 'CODE_VERSION missing in Code.gs');
+  assert.equal(m[1], ClientLogic.VERSION, 'raise both versions together');
+});
+
+test('version check names the out-of-date file', () => {
+  const V = ClientLogic.VERSION;
+  const st = (r) => ClientLogic.backendStatus(r);
+  assert.equal(st({ version: V, code_version: V }), null, 'match');
+  assert.equal(st({}), null, 'no version info: no warning');
+  // backend before 2.1.1: Code.gs reports nothing
+  let x = st({ version: '2.0.0' });
+  assert.match(x.text, /Code\.gs older than 2\.1\.1, Logic\.gs 2\.0\.0/);
+  assert.match(x.text, /replace both Code\.gs and Logic\.gs/);
+  assert.equal(x.appIsOlder, false);
+  // the trap: only Logic.gs replaced
+  x = st({ version: V });
+  assert.match(x.text, /Code\.gs older than 2\.1\.1, Logic\.gs /);
+  // only Code.gs replaced
+  x = st({ version: '2.1.0', code_version: V });
+  assert.match(x.text, new RegExp('Code\\.gs ' + V.replace(/\./g, '\\.') + ', Logic\\.gs 2\\.1\\.0'));
+  // backend newer than the cached app
+  x = st({ version: '9.0.0', code_version: '9.0.0' });
+  assert.equal(x.appIsOlder, true);
+  assert.match(x.text, /open it again/);
+  assert.equal(ClientLogic.compareVersions('2.10.0', '2.9.9'), 1);
+  assert.equal(ClientLogic.compareVersions('2.1', '2.1.0'), 0);
+});
 let KEY, SENSOR;
 const clientState = { products: [], bottles: [], events: [] };
 const allOps = [];
@@ -72,7 +102,11 @@ test('setup creates tabs, headers, keys, photo folder', () => {
 test('unauthorized requests are rejected', () => {
   assert.equal(post({ action: 'ping', key: 'wrong' }).ok, false);
   assert.equal(post({ action: 'sync', key: SENSOR, ops: [] }).ok, false, 'sensor key cannot sync');
-  assert.equal(post({ action: 'ping', key: KEY }).ok, true);
+  const ping = post({ action: 'ping', key: KEY });
+  assert.equal(ping.ok, true);
+  assert.equal(ClientLogic.backendStatus(ping), null, 'ping reports matching versions');
+  assert.equal(ClientLogic.backendStatus(get({})), null, 'GET ping too');
+  assert.equal(ClientLogic.backendStatus(post({ action: 'sync', key: KEY, ops: [] })), null, 'sync too');
 });
 
 test('sync: product, photo, bottle with leading zeros', () => {

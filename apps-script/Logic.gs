@@ -18,7 +18,7 @@
 var DrinkventoryLogic = (function () {
   'use strict';
 
-  var VERSION = '2.1.0';
+  var VERSION = '2.1.1';
 
   var SCHEMA = {
     products: [
@@ -594,8 +594,39 @@ var DrinkventoryLogic = (function () {
     return Object.keys(m).map(function (k) { return m[k]; }).sort(function (a, b) { return b.added - a.added; });
   }
 
+  // ---------- backend version check ----------
+
+  function compareVersions(a, b) {
+    var pa = String(a).split('.'); var pb = String(b).split('.');
+    for (var i = 0; i < Math.max(pa.length, pb.length); i++) {
+      var x = Number(pa[i] || 0); var y = Number(pb[i] || 0);
+      if (x !== y) return x < y ? -1 : 1;
+    }
+    return 0;
+  }
+
+  /**
+   * Compares the versions in a backend response with this file's VERSION.
+   * Code.gs reports code_version (since 2.1.1), Logic.gs reports version.
+   * Returns null when both match, otherwise { key, appIsOlder, text }.
+   */
+  function backendStatus(r) {
+    var logicV = clean(r && r.version);
+    var codeV = clean(r && r.code_version);
+    if (!logicV) return null;
+    if (logicV === VERSION && codeV === VERSION) return null;
+    var appIsOlder = !!codeV && compareVersions(codeV, VERSION) > 0 && compareVersions(logicV, VERSION) > 0;
+    var text = 'Versions do not match: this app ' + VERSION + ', Code.gs ' + (codeV || 'older than 2.1.1') +
+      ', Logic.gs ' + logicV + '. ' + (appIsOlder
+        ? 'Close the app completely and open it again to load the update.'
+        : 'In Apps Script, replace both Code.gs and Logic.gs, then Deploy > Manage deployments > Edit > New version.');
+    return { key: logicV + '|' + codeV, appIsOlder: appIsOlder, text: text };
+  }
+
   return {
     VERSION: VERSION,
+    compareVersions: compareVersions,
+    backendStatus: backendStatus,
     SCHEMA: SCHEMA,
     KEYS: KEYS,
     NUMERIC_FIELDS: NUMERIC_FIELDS,

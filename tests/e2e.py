@@ -167,6 +167,11 @@ try:
         assert [x['tags'] for x in snap['bottles'] if x['bottle_id'] == '000777'] == ['Whisky fair Nuremberg']
         assert set(snap['bottles'][0].keys()) == {'bottle_id', 'product_id', 'status', 'location', 'acquired_date', 'tags', 'out_at', 'created_at', 'created_by', 'updated_at'}
         print('ok  Sheet contains the changes from both phones')
+        assert a.evaluate('DrinkventoryApp.app.backendIssue') is None, 'version warning with matching backend'
+        a.goto(APP + '#/settings')
+        a.click('button[data-act=test-conn]')
+        expect(a.locator('#toast')).to_contain_text('Connected. Backend version', timeout=10000)
+        print('ok  no version warning when Code.gs and Logic.gs match the app')
 
         # ---------- stats and settings ----------
         a.goto(APP + '#/stats')

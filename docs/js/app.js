@@ -28,7 +28,8 @@
     lastProductId: '',
     signature: '',
     cellar: { q: '', cat: 'all', status: 'stock', sort: 'name', mode: 'list', facet: null },
-    backendVersion: '',
+    backendIssue: null,
+    backendIssueKey: '',
     climate: { days: 14, data: null, loadedAt: 0, loading: false, error: '' },
     charts: [],
     view: ''
@@ -313,7 +314,7 @@
 
     var remaining = await Store.outbox();
     var st = L.upgradeState(last.snapshot);
-    noteBackendVersion(last.version);
+    noteBackend(last);
     remaining.forEach(function (row) { applyLocal(st, row.op); });
     app.state = st;
     app.pending = remaining;
@@ -335,10 +336,14 @@
     return rejectedNow.length;
   }
 
-  function noteBackendVersion(v) {
-    var warn = v && v !== L.VERSION && app.backendVersion !== v;
-    app.backendVersion = v || '';
-    if (warn) toast('The backend runs version ' + v + ', this app ' + L.VERSION + '. In Apps Script, deploy a new version so tags are saved.', { error: true });
+  /** Warns once per combination of backend versions that does not match this app. */
+  function noteBackend(r) {
+    var st = L.backendStatus(r);
+    var key = st ? st.key : '';
+    var changed = key !== app.backendIssueKey;
+    app.backendIssue = st;
+    app.backendIssueKey = key;
+    if (st && changed) toast(st.text, { error: true });
   }
 
   function summarizeOp(op) {
@@ -1553,8 +1558,7 @@
       '<dt>Last sync</dt><dd>' + esc(app.lastSync ? fmtDateTime(app.lastSync) : 'never') + '</dd>' +
       '<dt>Changes waiting</dt><dd>' + app.pending.length + '</dd>' +
       (app.syncError ? '<dt>Last error</dt><dd class="out">' + esc(app.syncError) + '</dd>' : '') +
-      (app.backendVersion && app.backendVersion !== L.VERSION ? '<dt>Backend</dt><dd class="out">Version ' + esc(app.backendVersion) +
-        ', this app ' + esc(L.VERSION) + '. In Apps Script: Deploy &gt; Manage deployments &gt; Edit &gt; New version.</dd>' : '') +
+      (app.backendIssue ? '<dt>Backend</dt><dd class="out">' + esc(app.backendIssue.text) + '</dd>' : '') +
       '<dt>On this phone</dt><dd>' + app.state.products.length + ' products, ' + app.state.bottles.length + ' bottles, ' + app.state.events.length + ' history entries</dd>' +
       '</dl><div class="form-actions"><button class="btn" type="button" data-act="sync">Sync now</button></div>' +
 
@@ -1674,7 +1678,11 @@
       var form = $('#settingsForm');
       var saved = app.settings;
       app.settings = { user: saved.user, apiUrl: form.apiUrl.value.trim(), apiKey: form.apiKey.value.trim() };
-      api('ping', {}, 20000).then(function (r) { toast('Connected. Backend version ' + r.version + '.'); }, function (e) { toast(e.message, { error: true }); })
+      api('ping', {}, 20000).then(function (r) {
+        var st = L.backendStatus(r);
+        if (st) toast('Connected. ' + st.text, { error: true });
+        else toast('Connected. Backend version ' + r.version + '.');
+      }, function (e) { toast(e.message, { error: true }); })
         .then(function () { app.settings = saved; });
     },
     'clear-rejected': function () { app.rejected = []; Store.put('kv', 'rejected', []); render(); },

@@ -8,10 +8,15 @@
  * First run: select setup() and click Run. Then deploy as web app:
  *   Execute as: Me    Who has access: Anyone
  *
+ * Updates: replace BOTH Code.gs and Logic.gs, then Deploy > Manage deployments >
+ * Edit > New version. CODE_VERSION must equal VERSION in Logic.gs; the app checks both.
+ *
  * Keys (Project Settings > Script properties):
  *   API_KEY     used by the web app on both phones (read and write)
  *   SENSOR_KEY  used by climate sensors (can only add climate readings)
  */
+
+var CODE_VERSION = '2.1.1';
 
 var PHOTO_FOLDER_NAME = 'Drinkventory photos';
 var MAX_OPS_PER_REQUEST = 50;
@@ -171,7 +176,7 @@ function doGet(e) {
         }]
       }));
     }
-    return json_({ ok: true, app: 'drinkventory', version: DrinkventoryLogic.VERSION });
+    return json_(pingInfo_());
   } catch (err) {
     return json_({ ok: false, error: String(err && err.message ? err.message : err) });
   }
@@ -192,7 +197,7 @@ function doPost(e) {
     }
     if (!isApiKey_(body.key)) return json_({ ok: false, error: 'unauthorized' });
     switch (action) {
-      case 'ping': return json_({ ok: true, app: 'drinkventory', version: DrinkventoryLogic.VERSION });
+      case 'ping': return json_(pingInfo_());
       case 'sync': return json_(handleSync_(body));
       case 'photo_get': return json_(handlePhotoGet_(body));
       case 'climate_get': return json_(handleClimateGet_(body));
@@ -201,6 +206,10 @@ function doPost(e) {
   } catch (err) {
     return json_({ ok: false, error: String(err && err.message ? err.message : err) });
   }
+}
+
+function pingInfo_() {
+  return { ok: true, app: 'drinkventory', version: DrinkventoryLogic.VERSION, code_version: CODE_VERSION };
 }
 
 function json_(obj) {
@@ -385,6 +394,7 @@ function handleSync_(body) {
     return {
       ok: true,
       version: DrinkventoryLogic.VERSION,
+      code_version: CODE_VERSION,
       server_time: now,
       results: results,
       snapshot: {

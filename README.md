@@ -53,7 +53,9 @@ Why this split: Google Drive cannot host web pages, and an Apps Script page cann
 
 "Anyone" means anyone with the URL can call the backend, but every call needs the key. Keep the key private.
 
-When you change `Code.gs` or `Logic.gs` later: **Deploy > Manage deployments > Edit (pencil) > Version: New version > Deploy**. The URL stays the same. If you skip this step, the old code keeps running.
+When you update the backend later, always replace **both** `Code.gs` and `Logic.gs` in the editor, then **Deploy > Manage deployments > Edit (pencil) > Version: New version > Deploy**. The URL stays the same. If you skip the deployment, the old code keeps running. Do not use **New deployment**: it creates a second URL, and the phones keep using the old one.
+
+The app compares its version with both files after every sync. If one of them is out of date, it shows a red message that names the file, and the same text under **Settings > Sync**. **Test connection** shows it too.
 
 ### 3. Host the web app on GitHub Pages
 
@@ -164,10 +166,15 @@ You can add your own columns to the right of a tab. The backend keeps them.
 
 ## Updating the app
 
-1. Change files in `docs/`.
-2. If you changed `docs/js/logic.js`: copy it to `apps-script/Logic.gs`, paste it into the Apps Script editor, and deploy a new version.
-3. Change `CACHE` in `docs/sw.js` (for example `drinkventory-v7`) so phones load the new files.
-4. Push. GitHub Pages updates within a minute.
+1. Change files in `docs/` and `apps-script/`.
+2. Raise `VERSION` in `docs/js/logic.js` and `CODE_VERSION` in `apps-script/Code.gs` to the same new value.
+3. Copy `docs/js/logic.js` to `apps-script/Logic.gs`.
+4. Change `CACHE` in `docs/sw.js` (for example `drinkventory-v8`) so phones load the new files.
+5. Run `node tests/backend.test.js`. It fails if the two versions differ or `Logic.gs` is not an exact copy.
+6. Push. GitHub Pages updates within a minute.
+7. In the Apps Script editor, replace both `Code.gs` and `Logic.gs`, then deploy a new version (see section 2).
+
+Every release changes `VERSION`, so every release needs step 7. Until then, the app shows the red version message.
 
 ## Tests
 
