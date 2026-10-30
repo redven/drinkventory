@@ -16,12 +16,12 @@
  *   SENSOR_KEY  used by climate sensors (can only add climate readings)
  */
 
-var CODE_VERSION = '2.2.0';
+var CODE_VERSION = '2.3.0';
 
 var PHOTO_FOLDER_NAME = 'Drinkventory photos';
 var MAX_OPS_PER_REQUEST = 50;
 var MAX_PHOTO_BASE64 = 6 * 1024 * 1024;
-var DATA_TABLES = ['products', 'bottles', 'events', 'ops'];
+var DATA_TABLES = ['products', 'bottles', 'events', 'ops', 'settings'];
 
 var ALERT_DEFAULTS = {
   ALERT_TEMP_MIN: '8',
@@ -370,13 +370,18 @@ function handleSync_(body) {
   try {
     var ss = getSpreadsheet_();
     var t = {};
-    DATA_TABLES.forEach(function (n) { t[n] = loadTable_(ss, n); });
-    var state = { products: t.products.rows, bottles: t.bottles.rows, events: t.events.rows };
+    DATA_TABLES.forEach(function (n) {
+      // Tabs added in later versions (settings in 2.3) are created on the first sync.
+      if (!ss.getSheetByName(n)) ensureSheet_(ss, n, DrinkventoryLogic.SCHEMA[n]);
+      t[n] = loadTable_(ss, n);
+    });
+    var state = { products: t.products.rows, bottles: t.bottles.rows, events: t.events.rows, settings: t.settings.rows };
     var seen = {};
     t.ops.rows.forEach(function (r) { seen[String(r.op_id)] = true; });
 
     var dirtyProducts = {};
     var dirtyBottles = {};
+    var dirtySettings = {};
     var newEvents = [];
     var newOps = [];
     var results = [];
@@ -392,6 +397,7 @@ function handleSync_(body) {
       if (res.status === 'applied') {
         res.products.forEach(function (p) { dirtyProducts[p.product_id] = p; });
         res.bottles.forEach(function (b) { dirtyBottles[b.bottle_id] = b; });
+        (res.settings || []).forEach(function (s) { dirtySettings[s.key] = s; });
         newEvents = newEvents.concat(res.events);
         if (res.photo_id) result.photo_id = res.photo_id;
       } else {
@@ -406,6 +412,7 @@ function handleSync_(body) {
 
     writeObjects_(t.products, values_(dirtyProducts));
     writeObjects_(t.bottles, values_(dirtyBottles));
+    writeObjects_(t.settings, values_(dirtySettings));
     appendObjects_(t.events, newEvents);
     appendObjects_(t.ops, newOps);
     SpreadsheetApp.flush();
@@ -419,7 +426,8 @@ function handleSync_(body) {
       snapshot: {
         products: stripToSchema_(state.products, 'products'),
         bottles: stripToSchema_(state.bottles, 'bottles'),
-        events: stripToSchema_(state.events, 'events')
+        events: stripToSchema_(state.events, 'events'),
+        settings: stripToSchema_(state.settings, 'settings')
       }
     };
   } finally {

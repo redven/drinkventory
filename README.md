@@ -121,6 +121,17 @@ How the app picks the glass:
 | Rosé | RIEDEL's Rosé entry. |
 | Red, white, orange | Grapes: the largest share if percentages are given, else the first grape listed. Grapes without a RIEDEL entry are skipped and named. Pinot Noir and Syrah use the New World entry for wines from the Americas, Australia, New Zealand and South Africa. Chardonnay and Sauvignon Blanc show the oaked glass as an alternative. |
 
+**Your own glasses:** in **Settings > My RIEDEL glasses**, open a collection and tick the glasses you own, then **Save my glasses**. Both phones share the set (Sheet tab `settings`). Each wine then shows **Your glass**:
+
+| Order | Rule |
+|---|---|
+| 1 | A glass of yours that RIEDEL lists for the grape or style. |
+| 2 | Else a glass of yours with the same shape as RIEDEL's recommendation. |
+| 3 | Else a glass of yours with another shape that RIEDEL also lists for it (most frequent first). |
+| 4 | Else "None of your glasses", with the RIEDEL glass from your collection that would fit. |
+
+With a set, **Stats** shows **Your glasses for wine in stock**; "Not in your set: …" bars show which RIEDEL glass would cover the remaining bottles.
+
 Grape names: common synonyms work (Spätburgunder, Grauburgunder, Weißburgunder, Lemberger, Garnacha, Monastrell, Turbiana, ...). A long name with one wrong, missing or extra letter is read as the known grape, and the app says so ("Read "Rieslng" as Riesling").
 
 Source and limits:

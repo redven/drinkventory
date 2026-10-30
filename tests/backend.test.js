@@ -455,6 +455,38 @@ test('older Sheet: "source" column is renamed to "tags" and keeps its values', (
   assert.equal(header('bottles').filter((h) => h === 'tags').length, 1);
 });
 
+test('settings: owned glasses are stored once for the household', () => {
+  const o1 = op('set_setting', { key: 'owned_glasses', value: ['Veloce Cabernet/Merlot', ' Veloce  Riesling ', 'veloce riesling', 'Veloce Pinot Noir / Nebbiolo'] });
+  let res = post({ action: 'sync', key: KEY, ops: [o1] });
+  assert.equal(res.results[0].status, 'applied', JSON.stringify(res.results));
+  ClientLogic.applyOp(clientState, o1); allOps.push(o1);
+  assert.deepEqual(ClientLogic.getSetting(res.snapshot, 'owned_glasses'),
+    ['Veloce Cabernet / Merlot', 'Veloce Riesling', 'Veloce Pinot Noir / Nebbiolo'], 'cleaned, no duplicates');
+  const o2 = op('set_setting', { key: 'owned_glasses', value: JSON.stringify(['Veloce Riesling', 'Veloce Chardonnay']) }, 'Partner');
+  res = post({ action: 'sync', key: KEY, ops: [o2] });
+  ClientLogic.applyOp(clientState, o2); allOps.push(o2);
+  assert.deepEqual(ClientLogic.getSetting(res.snapshot, 'owned_glasses'), ['Veloce Riesling', 'Veloce Chardonnay'], 'replaced, JSON text accepted');
+  assert.equal(res.snapshot.settings.length, 1);
+  assert.equal(res.snapshot.settings[0].updated_by, 'Partner');
+  assert.equal(sheetRows('settings').length, 1, 'one row per key');
+  const bad = post({ action: 'sync', key: KEY, ops: [op('set_setting', { key: 'api_key', value: [] }), op('set_setting', { key: 'owned_glasses', value: 'not json' })] });
+  assert.deepEqual(bad.results.map((r) => r.status), ['error', 'error']);
+  assert.match(bad.results[0].error, /unknown setting/);
+  assert.deepEqual(ClientLogic.getSetting({ settings: [] }, 'owned_glasses'), []);
+  assert.deepEqual(ClientLogic.upgradeState({ products: [], bottles: [], events: [] }).settings, [], 'phone copy from 2.2 gets settings');
+});
+
+test('older Sheet without a settings tab: created on the next sync', () => {
+  delete gas.state.sheets.settings;
+  const o = op('set_setting', { key: 'owned_glasses', value: ['Veloce Riesling'] });
+  const res = post({ action: 'sync', key: KEY, ops: [o] });
+  ClientLogic.applyOp(clientState, o); allOps.push(o);
+  assert.equal(res.ok, true, JSON.stringify(res));
+  assert.equal(res.results[0].status, 'applied');
+  assert.deepEqual(header('settings'), ClientLogic.SCHEMA.settings);
+  assert.deepEqual(ClientLogic.getSetting(res.snapshot, 'owned_glasses'), ['Veloce Riesling']);
+});
+
 test('bad input does not crash the endpoint', () => {
   const out = JSON.parse(G('doPost')({ postData: { contents: '{not json' } }).content);
   assert.equal(out.ok, false);

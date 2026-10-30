@@ -141,6 +141,43 @@ test('styles: sparkling, sweet, fortified and rosé ignore the grapes', () => {
   assert.equal(rec({ type: 'rose', grapes: 'Grenache' }).entry, 'Rosé');
 });
 
+const VELOCE4 = ['Veloce Cabernet / Merlot', 'Veloce Riesling', 'Veloce Pinot Noir / Nebbiolo', 'Veloce Chardonnay'];
+const mine = (p) => G.yourGlass(Object.assign({ type: 'white', grapes: '', name: '', producer: '', region: '', country: 'Germany' }, p), VELOCE4);
+
+test('own glasses: collections and shapes come from the RIEDEL data', () => {
+  const veloce = G.collections().find((c) => c.collection === 'Veloce');
+  assert.ok(veloce, 'Veloce collection');
+  for (const g of VELOCE4) assert.ok(veloce.glasses.includes(g), g);
+  assert.deepEqual(G.glassInfo('Veloce Chardonnay').shapes, ['Oaked Chardonnay'], 'plain "Chardonnay" glass is the oaked shape');
+  assert.deepEqual(G.glassInfo('veloce cabernet/merlot').shapes, ['Cabernet / Merlot'], 'lookup ignores case and slash spacing');
+  assert.ok(!G.collections().some((c) => c.glasses.some((g) => /\+|decanter|\bset\b/i.test(g))), 'no sets or decanters to pick');
+});
+
+test('own glasses: RIEDEL-listed glass first, then same shape, then a shape RIEDEL lists', () => {
+  let y = mine({ grapes: 'Scheurebe' });
+  assert.deepEqual([y.main.glass, y.main.how], ['Veloce Riesling', 'listed']);
+  y = mine({ type: 'red', grapes: 'Merlot, Cabernet Sauvignon' });
+  assert.deepEqual([y.main.glass, y.main.how], ['Veloce Cabernet / Merlot', 'listed']);
+  y = mine({ type: 'red', grapes: 'Spätburgunder' });
+  assert.equal(y.main.glass, 'Veloce Pinot Noir / Nebbiolo');
+  y = mine({ grapes: 'Riesling' });
+  assert.deepEqual([y.main.glass, y.main.how], ['Veloce Riesling', 'shape'], 'RIEDEL Riesling page list is cut before Veloce');
+  y = mine({ grapes: 'Sauvignon Blanc' });
+  assert.deepEqual([y.main.glass, y.main.how, y.main.riedel], ['Veloce Riesling', 'related', 'Veloce Sauvignon Blanc']);
+  y = mine({ grapes: 'Chardonnay' });
+  assert.equal(y.main.glass, 'Veloce Riesling', 'unoaked');
+  assert.equal(y.alt.glass, 'Veloce Chardonnay', 'if aged in oak');
+});
+
+test('own glasses: none fits, RIEDEL glass named; no RIEDEL entry: null', () => {
+  let y = mine({ type: 'red', grapes: 'Sangiovese' });
+  assert.deepEqual([y.main.glass, y.main.how, y.main.riedel], [null, 'none', 'Veloce Syrah / Shiraz']);
+  y = mine({ type: 'sparkling', name: 'Cava Brut', region: 'Cava' });
+  assert.deepEqual([y.main.glass, y.main.riedel], [null, 'Veloce Champagne Wine Glass']);
+  assert.equal(mine({ grapes: 'Silvaner' }), null);
+  assert.equal(G.yourGlass({ type: 'white', grapes: 'Riesling' }, []), null, 'no set: no own glass');
+});
+
 test('spirits get no recommendation', () => {
   assert.equal(G.recommend({ type: 'whisky', grapes: '' }), null);
   assert.equal(G.shapeOf({ type: 'rum' }), '');

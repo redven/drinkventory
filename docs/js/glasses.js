@@ -366,13 +366,77 @@ var DrinkventoryGlasses = (function () {
       note: '', alt: null, unmatched: unmatched };
   }
 
+  // ---------- the household's own glasses ----------
+
+  function glassKey(t) { return String(t || '').replace(/\s*\/\s*/g, ' / ').replace(/\s+/g, ' ').trim().toLowerCase(); }
+
+  var GLASSES = GUIDE.glasses || {};
+  var GLASS_BY_KEY = {};
+  Object.keys(GLASSES).forEach(function (t) { GLASS_BY_KEY[glassKey(t)] = { title: t, info: GLASSES[t] }; });
+
+  function glassInfo(title) { var g = GLASS_BY_KEY[glassKey(title)]; return g ? g.info : null; }
+
+  /** All glasses one can own, grouped by collection: [{ collection, glasses: [title, ...] }]. */
+  function collections() {
+    var by = {};
+    Object.keys(GLASSES).forEach(function (t) {
+      var c = GLASSES[t].collection || 'Other';
+      (by[c] = by[c] || []).push(t);
+    });
+    return Object.keys(by).sort().map(function (c) { return { collection: c, glasses: by[c] }; });
+  }
+
+  /**
+   * Which of the owned glasses to use for an entry.
+   * Order: a glass RIEDEL lists for the entry; else one with the entry's shape; else one with another
+   * shape that RIEDEL lists for the entry (most frequent first); else none.
+   * riedel: a glass RIEDEL lists for the entry in a collection the household owns, but not owned.
+   * Returns { glass, how: 'listed' | 'shape' | 'related' | 'none', shape, riedel }.
+   */
+  function pickOwned(entryName, owned) {
+    var e = entry(entryName);
+    if (!e || !owned || !owned.length) return null;
+    var ownedKeys = owned.map(glassKey);
+    var ownedCols = owned.map(function (t) { var i = glassInfo(t); return i ? i.collection : ''; }).filter(Boolean);
+    var shapesOf = function (t) { var i = glassInfo(t); return i ? i.shapes : []; };
+    var listed = (e.glasses || []).filter(function (g) { return ownedKeys.indexOf(glassKey(g)) >= 0; });
+    var riedel = (e.glasses || []).filter(function (g) {
+      var i = glassInfo(g);
+      return i && ownedCols.indexOf(i.collection) >= 0 && ownedKeys.indexOf(glassKey(g)) < 0;
+    })[0] || null;
+    var ownedTitle = function (g) { return owned[ownedKeys.indexOf(glassKey(g))]; };
+    if (listed.length) {
+      var best = listed.filter(function (g) { return shapesOf(g).indexOf(e.shape) >= 0; })[0] || listed[0];
+      return { glass: ownedTitle(best), how: 'listed', shape: e.shape, riedel: null };
+    }
+    var same = owned.filter(function (t) { return shapesOf(t).indexOf(e.shape) >= 0; })[0];
+    if (same) return { glass: same, how: 'shape', shape: e.shape, riedel: riedel };
+    var ranked = Object.keys(e.votes || {}).sort(function (a, b) { return e.votes[b] - e.votes[a]; });
+    for (var i = 0; i < ranked.length; i++) {
+      var hit = owned.filter(function (t) { return shapesOf(t).indexOf(ranked[i]) >= 0; })[0];
+      if (hit) return { glass: hit, how: 'related', shape: ranked[i], riedel: riedel };
+    }
+    return { glass: null, how: 'none', shape: e.shape, riedel: riedel };
+  }
+
+  /** The owned glass for a product: { main: pickOwned(...), alt: pickOwned(...) for the oaked case }. */
+  function yourGlass(p, owned) {
+    var r = recommend(p);
+    if (!r || !r.entry || !owned || !owned.length) return null;
+    return { rec: r, main: pickOwned(r.entry, owned), alt: r.alt ? pickOwned(r.alt.entry, owned) : null };
+  }
+
   /** Glass shape of a product for statistics, or '' (spirits, no match). */
   function shapeOf(p) {
     var r = recommend(p);
     return r && r.shape ? r.shape : '';
   }
 
-  return { recommend: recommend, shapeOf: shapeOf, grapeList: grapeList, norm: norm, guide: GUIDE, ALIASES: ALIASES, FALLBACK: FALLBACK };
+  return {
+    recommend: recommend, shapeOf: shapeOf, grapeList: grapeList, norm: norm, guide: GUIDE,
+    ALIASES: ALIASES, FALLBACK: FALLBACK,
+    collections: collections, glassInfo: glassInfo, pickOwned: pickOwned, yourGlass: yourGlass
+  };
 })();
 
 if (typeof module !== 'undefined' && module.exports) { module.exports = DrinkventoryGlasses; }

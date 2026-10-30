@@ -1054,16 +1054,38 @@
         '<p class="glass-why">' + why + guide(r.url, 'Search the RIEDEL guide') + '</p></section>';
     }
     var from = 'Recommended for ' + r.from + '.';
+    var owned = ownedGlasses();
+    var mine = owned.length ? GL.yourGlass(p, owned) : null;
+    var mineHtml = '';
+    if (mine && mine.main) {
+      var m = mine.main;
+      var how = {
+        listed: 'RIEDEL lists it for ' + r.entry + '.',
+        shape: 'Same shape as RIEDEL\'s recommendation.' + (m.riedel ? ' RIEDEL\'s own pick in this collection: ' + m.riedel + '.' : ''),
+        related: 'Not RIEDEL\'s first choice' + (m.riedel ? ' (' + m.riedel + ')' : '') + ', but RIEDEL also lists ' + m.shape + ' glasses for ' + r.entry + '.',
+        none: m.riedel ? 'RIEDEL recommends ' + m.riedel + ', which is not in your set.' : 'RIEDEL recommends a ' + m.shape + ' glass, which is not in your set.'
+      }[m.how];
+      var altMine = mine.alt && mine.alt.glass && mine.alt.glass !== m.glass
+        ? '<p class="glass-why">' + esc(r.alt.when.charAt(0).toUpperCase() + r.alt.when.slice(1)) + ': <strong>' + esc(mine.alt.glass) + '</strong>.</p>' : '';
+      mineHtml = '<div class="glass-mine' + (m.glass ? '' : ' missing') + '"><p class="glass-k">Your glass</p>' +
+        '<p class="glass-v">' + esc(m.glass || 'None of your glasses') + '</p>' +
+        '<p class="glass-why">' + esc(how) + '</p>' + altMine + '</div>';
+    }
     var glasses = r.glasses.length
       ? '<details class="glass-list"><summary>' + r.glasses.length + ' RIEDEL glasses for ' + esc(r.entry) + '</summary><ul>' +
         r.glasses.map(function (g) { return '<li>' + esc(g) + '</li>'; }).join('') + '</ul></details>'
       : '';
-    return '<section class="glass" aria-label="RIEDEL glass"><p class="glass-k">RIEDEL glass</p>' +
-      '<p class="glass-v">' + esc(r.shape) + (r.also.length ? '<span class="glass-also">, also ' + esc(r.also.join(', ')) + '</span>' : '') + '</p>' +
+    return '<section class="glass" aria-label="RIEDEL glass">' + mineHtml +
+      '<p class="glass-k">' + (mineHtml ? 'RIEDEL glass shape' : 'RIEDEL glass') + '</p>' +
+      '<p class="glass-v' + (mineHtml ? ' small' : '') + '">' + esc(r.shape) + (r.also.length ? '<span class="glass-also">, also ' + esc(r.also.join(', ')) + '</span>' : '') + '</p>' +
       '<p class="glass-why">' + esc(from) + (r.note ? ' ' + esc(r.note) : '') + ' ' + guide(r.url) + '</p>' +
       (r.alt ? '<p class="glass-why">' + esc(r.alt.when.charAt(0).toUpperCase() + r.alt.when.slice(1)) + ': <strong>' + esc(r.alt.shape) + '</strong>. ' + guide(r.alt.url) + '</p>' : '') +
-      glasses + '</section>';
+      glasses + (owned.length ? '' : '<p class="glass-why"><a href="#/settings">Add your RIEDEL glasses</a> to see which of them to use.</p>') +
+      '</section>';
   }
+
+  /** The household's RIEDEL glasses (shared setting). */
+  function ownedGlasses() { return L.getSetting(app.state, 'owned_glasses'); }
 
   function viewBottle(main, code) {
     code = L.normalizeCode(code);
@@ -1378,14 +1400,22 @@
     }));
   }
 
-  var FACET_TITLES = { win: '', grape: 'Grape', tag: 'Tag', type: 'Type', country: 'Country', location: 'Location', glass: 'RIEDEL glass' };
+  var FACET_TITLES = { win: '', grape: 'Grape', tag: 'Tag', type: 'Type', country: 'Country', location: 'Location', glass: 'Glass' };
   var NO_GLASS = 'No RIEDEL entry';
 
-  /** Glass shape for the statistics slice; spirits get null, wines without a match NO_GLASS. */
+  /**
+   * Statistics slice for a wine; spirits get null, wines without a RIEDEL entry NO_GLASS.
+   * With a glass set: the owned glass to use, or "Not in your set: <RIEDEL's glass>".
+   */
   function glassFacet(p) {
     if (!GL || L.categoryOf(p.type) !== 'wine') return null;
-    return GL.shapeOf(p) || NO_GLASS;
+    var owned = ownedGlasses();
+    if (!owned.length) return GL.shapeOf(p) || NO_GLASS;
+    var y = GL.yourGlass(p, owned);
+    if (!y || !y.main) return NO_GLASS;
+    return y.main.glass || NOT_OWNED + (y.main.riedel || y.main.shape + ' glass');
   }
+  var NOT_OWNED = 'Not in your set: ';
 
   function stockByGlass() {
     var pm = {};
@@ -1396,8 +1426,9 @@
       var g = glassFacet(pm[b.product_id] || {});
       if (g) m[g] = (m[g] || 0) + 1;
     });
+    var rank = function (k) { return k === NO_GLASS ? 2 : (k.indexOf(NOT_OWNED) === 0 ? 1 : 0); };
     return Object.keys(m).map(function (k) { return { key: k, n: m[k] }; })
-      .sort(function (a, b) { return (a.key === NO_GLASS) - (b.key === NO_GLASS) || b.n - a.n || a.key.localeCompare(b.key); });
+      .sort(function (a, b) { return rank(a.key) - rank(b.key) || b.n - a.n || a.key.localeCompare(b.key); });
   }
   var WIN_LABELS = { ready: 'Ready to drink', young: 'Too young', past: 'Past window', unknown: 'No window set' };
 
@@ -1463,8 +1494,11 @@
       hBarBlock('chCountry', 'Stock by country', byCountry, 'Bottles in stock by country') +
       hBarBlock('chGrape', 'Stock by grape', byGrape, 'Wine bottles in stock by grape. A blend counts for each of its grapes.') +
       (byGrape.length ? '<p class="footnote">A blend counts once for each of its grapes.</p>' : '') +
-      hBarBlock('chGlass', 'Glasses for wine in stock', byGlass, 'Wine bottles in stock by recommended RIEDEL glass') +
-      (byGlass.length ? '<p class="footnote">Glass shape from the RIEDEL Wine Glass Guide, by the main grape or the wine style. Tap a bar to see the bottles.</p>' : '') +
+      (ownedGlasses().length
+        ? hBarBlock('chGlass', 'Your glasses for wine in stock', byGlass, 'Wine bottles in stock by the glass from your set') +
+          (byGlass.length ? '<p class="footnote">"Not in your set" names the RIEDEL glass for those bottles. Tap a bar to see the bottles.</p>' : '')
+        : hBarBlock('chGlass', 'Glasses for wine in stock', byGlass, 'Wine bottles in stock by recommended RIEDEL glass') +
+          (byGlass.length ? '<p class="footnote">Glass shape from the RIEDEL Wine Glass Guide, by the main grape or the wine style. Tap a bar to see the bottles. <a href="#/settings">Add your glasses</a> to see which of them to use.</p>' : '')) +
       hBarBlock('chTag', 'Stock by tag', byTag, 'Bottles in stock by tag') +
       (vint.length ? '<h2>Wine vintages in stock</h2><div class="chart"><canvas id="chVint" role="img" aria-label="Wine bottles in stock by vintage"></canvas></div>' : '') +
 
@@ -1499,7 +1533,9 @@
     barChart('chLoc', keys(byLoc), counts(byLoc), c.other, true, 'location');
     barChart('chCountry', keys(byCountry), counts(byCountry), c.other, true, 'country');
     barChart('chGrape', keys(byGrape), counts(byGrape), c.wine, true, 'grape');
-    barChart('chGlass', keys(byGlass), counts(byGlass), keys(byGlass).map(function (k) { return k === NO_GLASS ? c.muted : c.wine; }), true, 'glass');
+    barChart('chGlass', keys(byGlass), counts(byGlass), keys(byGlass).map(function (k) {
+      return k === NO_GLASS || k.indexOf(NOT_OWNED) === 0 ? c.muted : c.wine;
+    }), true, 'glass');
     barChart('chTag', keys(byTag), counts(byTag), c.other, true, 'tag');
     barChart('chVint', vint.map(function (x) { return x.key; }), vint.map(function (x) { return x.n; }), c.wine, false);
     renderClimate();
@@ -1657,6 +1693,7 @@
         '</ul><div class="form-actions"><button class="btn quiet" type="button" data-act="clear-rejected">Clear this list</button></div>' : '') +
 
       tagManager() +
+      glassManager() +
 
       '<h2>Data</h2><div class="form-actions">' +
       '<button class="btn" type="button" data-act="export">Export JSON</button>' +
@@ -1665,6 +1702,16 @@
       '<p class="footnote">Drinkventory ' + esc(L.VERSION) + '</p>' +
       '</section>';
 
+    var gf = $('#glassForm');
+    if (gf) {
+      gf.onsubmit = function (e) {
+        e.preventDefault();
+        var picked = $$('input[name=g]:checked', gf).map(function (x) { return x.value; });
+        commit([{ kind: 'set_setting', data: { key: 'owned_glasses', value: picked } }]).then(function (ok) {
+          if (ok) { toast(picked.length ? 'Saved ' + picked.length + ' glasses' : 'Removed all glasses'); render(); }
+        });
+      };
+    }
     $('#settingsForm').onsubmit = function (e) {
       e.preventDefault();
       var fd = new FormData(e.target);
@@ -1679,6 +1726,30 @@
       if (configured()) syncNow(true).then(function () { render(); });
       else toast('Saved');
     };
+  }
+
+  function glassManager() {
+    if (!GL) return '';
+    var owned = ownedGlasses();
+    var ownedKeys = owned.map(function (g) { return g.toLowerCase(); });
+    var cols = GL.collections();
+    return '<h2 id="my-glasses">My RIEDEL glasses</h2>' +
+      '<p class="footnote">Shared by both phones. Each wine then shows which of these glasses to use.</p>' +
+      (owned.length ? '<ul class="tag-chips mine-chips" aria-label="My glasses">' + owned.map(function (g) {
+        return '<li class="tag-chip inherited">' + esc(g) + '</li>'; }).join('') + '</ul>' : '<p class="empty">No glasses yet. Tick the ones you own.</p>') +
+      '<form id="glassForm">' + cols.map(function (c) {
+        var have = c.glasses.filter(function (g) { return ownedKeys.indexOf(g.toLowerCase()) >= 0; }).length;
+        return '<details class="glass-col"' + (have ? ' open' : '') + '><summary>' + esc(c.collection) +
+          (have ? ' <span class="row-sub">(' + have + ')</span>' : '') + '</summary>' +
+          c.glasses.map(function (g) {
+            var shape = (GL.glassInfo(g) || {}).shapes || [];
+            return '<label class="check"><input type="checkbox" name="g" value="' + esc(g) + '"' +
+              (ownedKeys.indexOf(g.toLowerCase()) >= 0 ? ' checked' : '') + '> <span>' + esc(g.slice(c.collection.length + 1)) +
+              (shape.length && shape.join(', ') !== g.slice(c.collection.length + 1) ? ' <span class="row-sub">' + esc(shape.join(', ')) + '</span>' : '') +
+              '</span></label>';
+          }).join('') + '</details>';
+      }).join('') +
+      '<div class="form-actions"><button class="btn primary" type="submit">Save my glasses</button></div></form>';
   }
 
   function tagManager() {

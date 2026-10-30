@@ -8,6 +8,7 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en/wineglassguide/aglianico",
    "shape": null,
    "also": [],
+   "votes": {},
    "source": "guide",
    "glasses": []
   },
@@ -15,6 +16,11 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/albarino",
    "shape": "Viognier / Chardonnay",
    "also": [],
+   "votes": {
+    "Viognier / Chardonnay": 4.0,
+    "Sauvignon Blanc": 2.0,
+    "Riesling / Zinfandel": 2.0
+   },
    "source": "guide",
    "glasses": [
     "Performance Sauvignon Blanc",
@@ -32,6 +38,7 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/aligote",
    "shape": null,
    "also": [],
+   "votes": {},
    "source": "guide",
    "glasses": []
   },
@@ -39,6 +46,7 @@ var RIEDEL_GUIDE = {
    "url": null,
    "shape": null,
    "also": [],
+   "votes": {},
    "source": "guide",
    "glasses": []
   },
@@ -46,6 +54,11 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/auslese-sweet",
    "shape": "Sauvignon Blanc",
    "also": [],
+   "votes": {
+    "Sauvignon Blanc": 5.0,
+    "Riesling / Zinfandel": 1.5,
+    "Sweet Wine": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -61,6 +74,7 @@ var RIEDEL_GUIDE = {
    "url": null,
    "shape": null,
    "also": [],
+   "votes": {},
    "source": "guide",
    "glasses": []
   },
@@ -68,6 +82,11 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/bacchus",
    "shape": "Sauvignon Blanc",
    "also": [],
+   "votes": {
+    "Sauvignon Blanc": 4.0,
+    "Riesling / Zinfandel": 2.5,
+    "Sweet Wine": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -83,6 +102,9 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-int/wine-glass-guide/barbera",
    "shape": "Syrah / Shiraz",
    "also": [],
+   "votes": {
+    "Syrah / Shiraz": 11.0
+   },
    "source": "guide",
    "glasses": [
     "Extreme Shiraz",
@@ -102,6 +124,11 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/blanc-de-blancs",
    "shape": "Champagne Wine Glass",
    "also": [],
+   "votes": {
+    "Champagne Wine Glass": 10.0,
+    "Rosé": 0.5,
+    "Sauvignon Blanc": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Black Series Collector's Edition Sparkling Wine - Red / Black",
@@ -121,6 +148,7 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-at/wineglassguide/blanc-de-noirs",
    "shape": null,
    "also": [],
+   "votes": {},
    "source": "guide",
    "glasses": []
   },
@@ -128,6 +156,9 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-int/wine-glass-guide/blauburgunder",
    "shape": "Pinot Noir / Nebbiolo",
    "also": [],
+   "votes": {
+    "Pinot Noir / Nebbiolo": 9.0
+   },
    "source": "guide",
    "glasses": [
     "Black Series Collector's Edition Burgundy Grand Cru - Red / Black",
@@ -145,6 +176,10 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-is/wine-glass-guide/blauer-portugieser",
    "shape": "Riesling / Zinfandel",
    "also": [],
+   "votes": {
+    "Riesling / Zinfandel": 9.5,
+    "Sauvignon Blanc": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Black Series Collector's Edition Riesling Grand Cru - Red / Black",
@@ -163,6 +198,9 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/blaufraenkisch",
    "shape": "Syrah / Shiraz",
    "also": [],
+   "votes": {
+    "Syrah / Shiraz": 7.0
+   },
    "source": "guide",
    "glasses": [
     "Extreme Shiraz",
@@ -178,6 +216,9 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/bobal",
    "shape": "Syrah / Shiraz",
    "also": [],
+   "votes": {
+    "Syrah / Shiraz": 7.0
+   },
    "source": "guide",
    "glasses": [
     "Extreme Shiraz",
@@ -193,6 +234,7 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en/wineglassguide/bonarda",
    "shape": null,
    "also": [],
+   "votes": {},
    "source": "guide",
    "glasses": []
   },
@@ -200,6 +242,9 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/cabernet-franc",
    "shape": "Cabernet / Merlot",
    "also": [],
+   "votes": {
+    "Cabernet / Merlot": 12.0
+   },
    "source": "guide",
    "glasses": [
     "Black Series Collector's Edition Bordeaux Grand Cru - Red / Black",
@@ -220,6 +265,9 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-ca/wine-glass-guide/cabernet-sauvignon",
    "shape": "Cabernet / Merlot",
    "also": [],
+   "votes": {
+    "Cabernet / Merlot": 13.0
+   },
    "source": "guide",
    "glasses": [
     "Black Series Collector's Edition Bordeaux Grand Cru - Red / Black",
@@ -241,6 +289,9 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/cannonau",
    "shape": "Syrah / Shiraz",
    "also": [],
+   "votes": {
+    "Syrah / Shiraz": 7.0
+   },
    "source": "guide",
    "glasses": [
     "Extreme Shiraz",
@@ -256,6 +307,9 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/carignan",
    "shape": "Syrah / Shiraz",
    "also": [],
+   "votes": {
+    "Syrah / Shiraz": 7.0
+   },
    "source": "guide",
    "glasses": [
     "Extreme Shiraz",
@@ -271,6 +325,7 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wineglassguide/carmenere",
    "shape": null,
    "also": [],
+   "votes": {},
    "source": "guide",
    "glasses": []
   },
@@ -278,6 +333,11 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/cava",
    "shape": "Champagne Wine Glass",
    "also": [],
+   "votes": {
+    "Champagne Wine Glass": 10.0,
+    "Rosé": 0.5,
+    "Sauvignon Blanc": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Black Series Collector's Edition Sparkling Wine - Red / Black",
@@ -297,6 +357,11 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/champagne",
    "shape": "Champagne Wine Glass",
    "also": [],
+   "votes": {
+    "Champagne Wine Glass": 9.0,
+    "Rosé": 0.5,
+    "Sauvignon Blanc": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Rosé Champagne Glass / Rosé Wine",
@@ -314,9 +379,10 @@ var RIEDEL_GUIDE = {
   "Chardonnay (oaked)": {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/chardonnay-oaked",
    "shape": "Oaked Chardonnay",
-   "also": [
-    "Viognier / Chardonnay"
-   ],
+   "also": [],
+   "votes": {
+    "Oaked Chardonnay": 11.0
+   },
    "source": "guide",
    "glasses": [
     "Extreme Oaked Chardonnay",
@@ -334,10 +400,16 @@ var RIEDEL_GUIDE = {
   },
   "Chardonnay (unoaked)": {
    "url": "https://www.riedel.com/en-int/wine-glass-guide/chardonnay-unoaked",
-   "shape": "Viognier / Chardonnay",
+   "shape": "Riesling / Zinfandel",
    "also": [
-    "Riesling / Zinfandel"
+    "Viognier / Chardonnay"
    ],
+   "votes": {
+    "Riesling / Zinfandel": 4.5,
+    "Viognier / Chardonnay": 4.0,
+    "Oaked Chardonnay": 1.0,
+    "Sauvignon Blanc": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -356,6 +428,7 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-ch/wineglassguide/chasselas",
    "shape": null,
    "also": [],
+   "votes": {},
    "source": "guide",
    "glasses": []
   },
@@ -363,6 +436,12 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-au/wine-glass-guide/chenin-blanc",
    "shape": "Sauvignon Blanc",
    "also": [],
+   "votes": {
+    "Sauvignon Blanc": 3.0,
+    "Champagne Wine Glass": 2.0,
+    "Riesling / Zinfandel": 1.5,
+    "Sweet Wine": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling / Sauvignon Blanc",
@@ -378,6 +457,7 @@ var RIEDEL_GUIDE = {
    "url": null,
    "shape": null,
    "also": [],
+   "votes": {},
    "source": "guide",
    "glasses": []
   },
@@ -387,6 +467,11 @@ var RIEDEL_GUIDE = {
    "also": [
     "Riesling / Zinfandel"
    ],
+   "votes": {
+    "Viognier / Chardonnay": 4.0,
+    "Riesling / Zinfandel": 3.5,
+    "Sauvignon Blanc": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -403,6 +488,11 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/corvina",
    "shape": "Sauvignon Blanc",
    "also": [],
+   "votes": {
+    "Sauvignon Blanc": 5.0,
+    "Riesling / Zinfandel": 2.5,
+    "Sweet Wine": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -419,6 +509,12 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/dessertwine",
    "shape": "Sauvignon Blanc",
    "also": [],
+   "votes": {
+    "Sauvignon Blanc": 3.5,
+    "Champagne Wine Glass": 1.5,
+    "Rosé": 0.5,
+    "Sweet Wine": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Rosé Champagne Glass / Rosé Wine",
@@ -433,6 +529,7 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-in/wineglassguide/dolcetto",
    "shape": null,
    "also": [],
+   "votes": {},
    "source": "guide",
    "glasses": []
   },
@@ -440,6 +537,10 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-is/wine-glass-guide/dornfelder",
    "shape": "Riesling / Zinfandel",
    "also": [],
+   "votes": {
+    "Riesling / Zinfandel": 9.5,
+    "Sauvignon Blanc": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Black Series Collector's Edition Riesling Grand Cru - Red / Black",
@@ -460,6 +561,11 @@ var RIEDEL_GUIDE = {
    "also": [
     "Riesling / Zinfandel"
    ],
+   "votes": {
+    "Viognier / Chardonnay": 4.0,
+    "Riesling / Zinfandel": 3.5,
+    "Sauvignon Blanc": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -479,6 +585,11 @@ var RIEDEL_GUIDE = {
    "also": [
     "Viognier / Chardonnay"
    ],
+   "votes": {
+    "Riesling / Zinfandel": 4.5,
+    "Viognier / Chardonnay": 4.0,
+    "Sauvignon Blanc": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -497,6 +608,11 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/franciacorta",
    "shape": "Champagne Wine Glass",
    "also": [],
+   "votes": {
+    "Champagne Wine Glass": 9.0,
+    "Rosé": 0.5,
+    "Sauvignon Blanc": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Rosé Champagne Glass / Rosé Wine",
@@ -513,10 +629,16 @@ var RIEDEL_GUIDE = {
   },
   "Friulano": {
    "url": "https://www.riedel.com/en-is/wine-glass-guide/friulano",
-   "shape": "Viognier / Chardonnay",
+   "shape": "Riesling / Zinfandel",
    "also": [
-    "Riesling / Zinfandel"
+    "Viognier / Chardonnay"
    ],
+   "votes": {
+    "Riesling / Zinfandel": 4.5,
+    "Viognier / Chardonnay": 4.0,
+    "Oaked Chardonnay": 1.0,
+    "Sauvignon Blanc": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -535,6 +657,11 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-int/wine-glass-guide/furmint",
    "shape": "Sauvignon Blanc",
    "also": [],
+   "votes": {
+    "Sauvignon Blanc": 8.0,
+    "Riesling / Zinfandel": 1.5,
+    "Sweet Wine": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -553,6 +680,9 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/gamay",
    "shape": "Pinot Noir / Nebbiolo",
    "also": [],
+   "votes": {
+    "Pinot Noir / Nebbiolo": 6.0
+   },
    "source": "guide",
    "glasses": [
     "Extreme Pinot Noir",
@@ -565,10 +695,11 @@ var RIEDEL_GUIDE = {
   },
   "Garnatxa Blanca": {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/garnatxa-blanca",
-   "shape": "Viognier / Chardonnay",
-   "also": [
-    "Oaked Chardonnay"
-   ],
+   "shape": "Oaked Chardonnay",
+   "also": [],
+   "votes": {
+    "Oaked Chardonnay": 9.0
+   },
    "source": "guide",
    "glasses": [
     "Extreme Oaked Chardonnay",
@@ -586,6 +717,11 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/gelber-muskateller",
    "shape": "Sauvignon Blanc",
    "also": [],
+   "votes": {
+    "Sauvignon Blanc": 6.0,
+    "Riesling / Zinfandel": 1.5,
+    "Sweet Wine": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -602,6 +738,11 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/gewuerztraminer",
    "shape": "Sauvignon Blanc",
    "also": [],
+   "votes": {
+    "Sauvignon Blanc": 5.0,
+    "Riesling / Zinfandel": 2.5,
+    "Sweet Wine": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -618,6 +759,7 @@ var RIEDEL_GUIDE = {
    "url": null,
    "shape": null,
    "also": [],
+   "votes": {},
    "source": "guide",
    "glasses": []
   },
@@ -625,6 +767,9 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/graciano",
    "shape": "Syrah / Shiraz",
    "also": [],
+   "votes": {
+    "Syrah / Shiraz": 5.0
+   },
    "source": "guide",
    "glasses": [
     "Extreme Shiraz",
@@ -638,13 +783,22 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en/wineglassguide/greco-di-tufo",
    "shape": null,
    "also": [],
+   "votes": {},
    "source": "guide",
    "glasses": []
   },
   "Grenache Blanc/Granacha Blanca": {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/grenache-blanc-granacha-blanca",
    "shape": "Viognier / Chardonnay",
-   "also": [],
+   "also": [
+    "Riesling / Zinfandel"
+   ],
+   "votes": {
+    "Viognier / Chardonnay": 4.0,
+    "Riesling / Zinfandel": 3.5,
+    "Oaked Chardonnay": 1.0,
+    "Sauvignon Blanc": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -662,6 +816,7 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-ch/wineglassguide/grenache-granacha",
    "shape": null,
    "also": [],
+   "votes": {},
    "source": "guide",
    "glasses": []
   },
@@ -669,6 +824,10 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/gruener-veltliner",
    "shape": "Riesling / Zinfandel",
    "also": [],
+   "votes": {
+    "Riesling / Zinfandel": 12.0,
+    "Sauvignon Blanc": 1.0
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -690,6 +849,7 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-fr/wineglassguide/icewine",
    "shape": null,
    "also": [],
+   "votes": {},
    "source": "guide",
    "glasses": []
   },
@@ -697,6 +857,11 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-int/wine-glass-guide/kerner",
    "shape": "Riesling / Zinfandel",
    "also": [],
+   "votes": {
+    "Riesling / Zinfandel": 4.5,
+    "Viognier / Chardonnay": 2.0,
+    "Sauvignon Blanc": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -712,6 +877,9 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-gb/wine-glass-guide/lagrein",
    "shape": "Syrah / Shiraz",
    "also": [],
+   "votes": {
+    "Syrah / Shiraz": 9.0
+   },
    "source": "guide",
    "glasses": [
     "Extreme Shiraz",
@@ -729,6 +897,11 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/lambrusco",
    "shape": "Sauvignon Blanc",
    "also": [],
+   "votes": {
+    "Sauvignon Blanc": 5.0,
+    "Riesling / Zinfandel": 1.5,
+    "Sweet Wine": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -744,6 +917,7 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-it/wineglassguide/macabeo",
    "shape": null,
    "also": [],
+   "votes": {},
    "source": "guide",
    "glasses": []
   },
@@ -751,6 +925,11 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-int/wine-glass-guide/madeira",
    "shape": "Port",
    "also": [],
+   "votes": {
+    "Port": 2.0,
+    "Sherry": 1.0,
+    "Sauvignon Blanc": 1.0
+   },
    "source": "guide",
    "glasses": [
     "Sommeliers Vintage Port",
@@ -763,6 +942,9 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-int/wine-glass-guide/malbec",
    "shape": "Syrah / Shiraz",
    "also": [],
+   "votes": {
+    "Syrah / Shiraz": 10.0
+   },
    "source": "guide",
    "glasses": [
     "Extreme Shiraz",
@@ -781,6 +963,11 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/malvazija-istriana",
    "shape": "Sauvignon Blanc",
    "also": [],
+   "votes": {
+    "Sauvignon Blanc": 5.0,
+    "Riesling / Zinfandel": 2.5,
+    "Sweet Wine": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -799,6 +986,11 @@ var RIEDEL_GUIDE = {
    "also": [
     "Riesling / Zinfandel"
    ],
+   "votes": {
+    "Viognier / Chardonnay": 4.0,
+    "Riesling / Zinfandel": 3.5,
+    "Sauvignon Blanc": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -816,6 +1008,7 @@ var RIEDEL_GUIDE = {
    "url": null,
    "shape": null,
    "also": [],
+   "votes": {},
    "source": "guide",
    "glasses": []
   },
@@ -823,6 +1016,7 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en/wineglassguide/melon-de-bourgogne-muscadet",
    "shape": null,
    "also": [],
+   "votes": {},
    "source": "guide",
    "glasses": []
   },
@@ -830,6 +1024,7 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wineglassguide/mencia",
    "shape": null,
    "also": [],
+   "votes": {},
    "source": "guide",
    "glasses": []
   },
@@ -837,18 +1032,24 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/shop/red-wine-glasses/medium-to-full-bodied-red-wine-glasses/cabernet-merlot-glass",
    "shape": "Cabernet / Merlot",
    "also": [],
+   "votes": {
+    "Cabernet / Merlot": 4.0
+   },
    "source": "glass-name",
    "glasses": [
     "Veritas Cabernet / Merlot",
     "Veloce Cabernet / Merlot",
     "Vinum Cabernet Sauvignon / Merlot",
-    "Performance Cabernet/Merlot"
+    "Performance Cabernet / Merlot"
    ]
   },
   "Montepulciano": {
    "url": "https://www.riedel.com/en-int/wine-glass-guide/montepulciano",
    "shape": "Cabernet / Merlot",
    "also": [],
+   "votes": {
+    "Cabernet / Merlot": 7.0
+   },
    "source": "guide",
    "glasses": [
     "Black Series Collector's Edition Bordeaux Grand Cru - Red / Black",
@@ -864,6 +1065,9 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/mourvedre",
    "shape": "Syrah / Shiraz",
    "also": [],
+   "votes": {
+    "Syrah / Shiraz": 7.0
+   },
    "source": "guide",
    "glasses": [
     "Extreme Shiraz",
@@ -878,7 +1082,15 @@ var RIEDEL_GUIDE = {
   "Muscadet": {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/muscadet",
    "shape": "Viognier / Chardonnay",
-   "also": [],
+   "also": [
+    "Riesling / Zinfandel"
+   ],
+   "votes": {
+    "Viognier / Chardonnay": 4.0,
+    "Riesling / Zinfandel": 3.5,
+    "Oaked Chardonnay": 1.0,
+    "Sauvignon Blanc": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -896,6 +1108,11 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-int/wine-glass-guide/muskat-ottonel",
    "shape": "Sauvignon Blanc",
    "also": [],
+   "votes": {
+    "Sauvignon Blanc": 7.0,
+    "Riesling / Zinfandel": 2.5,
+    "Sweet Wine": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -914,6 +1131,11 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/muskateller",
    "shape": "Sauvignon Blanc",
    "also": [],
+   "votes": {
+    "Sauvignon Blanc": 5.0,
+    "Riesling / Zinfandel": 2.5,
+    "Sweet Wine": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -930,6 +1152,7 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en/wineglassguide/mueller-thurgau",
    "shape": null,
    "also": [],
+   "votes": {},
    "source": "guide",
    "glasses": []
   },
@@ -937,6 +1160,11 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-int/wine-glass-guide/nebbiolo",
    "shape": "Pinot Noir / Nebbiolo",
    "also": [],
+   "votes": {
+    "Pinot Noir / Nebbiolo": 9.5,
+    "Oaked Chardonnay": 2.0,
+    "Champagne Wine Glass": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Black Series Collector's Edition Montrachet - Red / Black",
@@ -958,6 +1186,11 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-int/wine-glass-guide/nerello-mascalese",
    "shape": "Pinot Noir / Nebbiolo",
    "also": [],
+   "votes": {
+    "Pinot Noir / Nebbiolo": 9.5,
+    "Oaked Chardonnay": 2.0,
+    "Champagne Wine Glass": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Black Series Collector's Edition Montrachet - Red / Black",
@@ -979,13 +1212,22 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wineglassguide/nero-d-avola",
    "shape": null,
    "also": [],
+   "votes": {},
    "source": "guide",
    "glasses": []
   },
   "Neuburger": {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/neuburger",
    "shape": "Viognier / Chardonnay",
-   "also": [],
+   "also": [
+    "Riesling / Zinfandel"
+   ],
+   "votes": {
+    "Viognier / Chardonnay": 4.0,
+    "Riesling / Zinfandel": 3.5,
+    "Oaked Chardonnay": 1.0,
+    "Sauvignon Blanc": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -1003,6 +1245,9 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/petit-verdot",
    "shape": "Cabernet / Merlot",
    "also": [],
+   "votes": {
+    "Cabernet / Merlot": 11.0
+   },
    "source": "guide",
    "glasses": [
     "Black Series Collector's Edition Bordeaux Grand Cru - Red / Black",
@@ -1022,6 +1267,9 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/petite-sirah",
    "shape": "Syrah / Shiraz",
    "also": [],
+   "votes": {
+    "Syrah / Shiraz": 7.0
+   },
    "source": "guide",
    "glasses": [
     "Extreme Shiraz",
@@ -1037,6 +1285,7 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/pinot-blanc-grigio-gris",
    "shape": null,
    "also": [],
+   "votes": {},
    "source": "guide",
    "glasses": []
   },
@@ -1044,6 +1293,11 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/pinot-noir-new-world",
    "shape": "Pinot Noir / Nebbiolo",
    "also": [],
+   "votes": {
+    "Pinot Noir / Nebbiolo": 7.5,
+    "Oaked Chardonnay": 1.0,
+    "Champagne Wine Glass": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Pinot Noir",
@@ -1061,6 +1315,9 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-int/wine-glass-guide/pinot-noir-old-world",
    "shape": "Pinot Noir / Nebbiolo",
    "also": [],
+   "votes": {
+    "Pinot Noir / Nebbiolo": 7.0
+   },
    "source": "guide",
    "glasses": [
     "Black Series Collector's Edition Burgundy Grand Cru - Red / Black",
@@ -1076,6 +1333,9 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/pinotage",
    "shape": "Syrah / Shiraz",
    "also": [],
+   "votes": {
+    "Syrah / Shiraz": 7.0
+   },
    "source": "guide",
    "glasses": [
     "Extreme Shiraz",
@@ -1091,6 +1351,10 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/primitivo",
    "shape": "Riesling / Zinfandel",
    "also": [],
+   "votes": {
+    "Riesling / Zinfandel": 10.0,
+    "Sauvignon Blanc": 1.0
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -1110,6 +1374,11 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-ca/wine-glass-guide/prosecco",
    "shape": "Champagne Wine Glass",
    "also": [],
+   "votes": {
+    "Champagne Wine Glass": 8.0,
+    "Rosé": 0.5,
+    "Sauvignon Blanc": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Rosé Champagne Glass / Rosé Wine",
@@ -1127,6 +1396,7 @@ var RIEDEL_GUIDE = {
    "url": null,
    "shape": null,
    "also": [],
+   "votes": {},
    "source": "guide",
    "glasses": []
   },
@@ -1134,6 +1404,9 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-int/wine-glass-guide/refosco",
    "shape": "Syrah / Shiraz",
    "also": [],
+   "votes": {
+    "Syrah / Shiraz": 10.0
+   },
    "source": "guide",
    "glasses": [
     "Extreme Shiraz",
@@ -1151,7 +1424,15 @@ var RIEDEL_GUIDE = {
   "Ribolla Gialla": {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/ribolla-gialla",
    "shape": "Viognier / Chardonnay",
-   "also": [],
+   "also": [
+    "Riesling / Zinfandel"
+   ],
+   "votes": {
+    "Viognier / Chardonnay": 4.0,
+    "Riesling / Zinfandel": 3.5,
+    "Oaked Chardonnay": 1.0,
+    "Sauvignon Blanc": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -1169,6 +1450,10 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-int/wine-glass-guide/riesling",
    "shape": "Riesling / Zinfandel",
    "also": [],
+   "votes": {
+    "Riesling / Zinfandel": 8.5,
+    "Sauvignon Blanc": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Black Series Collector's Edition Riesling Grand Cru",
@@ -1186,6 +1471,10 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/riesling-spaetlese-late-harvest-dry",
    "shape": "Riesling / Zinfandel",
    "also": [],
+   "votes": {
+    "Riesling / Zinfandel": 11.0,
+    "Sauvignon Blanc": 1.0
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -1206,6 +1495,10 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/riesling-smaragd",
    "shape": "Riesling / Zinfandel",
    "also": [],
+   "votes": {
+    "Riesling / Zinfandel": 11.0,
+    "Sauvignon Blanc": 1.0
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -1226,6 +1519,10 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/rivaner",
    "shape": "Riesling / Zinfandel",
    "also": [],
+   "votes": {
+    "Riesling / Zinfandel": 10.0,
+    "Sauvignon Blanc": 1.0
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -1245,6 +1542,11 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/rose",
    "shape": "Riesling / Zinfandel",
    "also": [],
+   "votes": {
+    "Riesling / Zinfandel": 11.0,
+    "Sauvignon Blanc": 1.0,
+    "Rosé": 1.0
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -1268,6 +1570,12 @@ var RIEDEL_GUIDE = {
    "also": [
     "Pinot Noir / Nebbiolo"
    ],
+   "votes": {
+    "Pinot Noir / Nebbiolo": 3.0,
+    "Champagne Wine Glass": 3.0,
+    "Rosé": 0.5,
+    "Sauvignon Blanc": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Pinot Noir",
@@ -1283,13 +1591,22 @@ var RIEDEL_GUIDE = {
    "url": null,
    "shape": null,
    "also": [],
+   "votes": {},
    "source": "guide",
    "glasses": []
   },
   "Roussanne": {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/roussanne",
    "shape": "Viognier / Chardonnay",
-   "also": [],
+   "also": [
+    "Riesling / Zinfandel"
+   ],
+   "votes": {
+    "Viognier / Chardonnay": 4.0,
+    "Riesling / Zinfandel": 3.5,
+    "Oaked Chardonnay": 1.0,
+    "Sauvignon Blanc": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -1307,6 +1624,9 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/sangiovese",
    "shape": "Syrah / Shiraz",
    "also": [],
+   "votes": {
+    "Syrah / Shiraz": 7.0
+   },
    "source": "guide",
    "glasses": [
     "Extreme Shiraz",
@@ -1322,6 +1642,7 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-it/wineglassguide/saperavi",
    "shape": null,
    "also": [],
+   "votes": {},
    "source": "guide",
    "glasses": []
   },
@@ -1329,6 +1650,12 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/sauternes",
    "shape": "Sauvignon Blanc",
    "also": [],
+   "votes": {
+    "Sauvignon Blanc": 4.5,
+    "Champagne Wine Glass": 1.5,
+    "Rosé": 0.5,
+    "Sweet Wine": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Rosé Champagne Glass / Rosé Wine",
@@ -1346,6 +1673,12 @@ var RIEDEL_GUIDE = {
    "also": [
     "Viognier / Chardonnay"
    ],
+   "votes": {
+    "Riesling / Zinfandel": 4.0,
+    "Viognier / Chardonnay": 3.0,
+    "Sauvignon Blanc": 1.0,
+    "Oaked Chardonnay": 1.0
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -1363,6 +1696,11 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/sauvignon-blanc-unoaked",
    "shape": "Sauvignon Blanc",
    "also": [],
+   "votes": {
+    "Sauvignon Blanc": 6.0,
+    "Riesling / Zinfandel": 1.5,
+    "Sweet Wine": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -1379,6 +1717,10 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/scheurebe",
    "shape": "Riesling / Zinfandel",
    "also": [],
+   "votes": {
+    "Riesling / Zinfandel": 10.0,
+    "Sauvignon Blanc": 1.0
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -1398,6 +1740,7 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en/wineglassguide/schilcher",
    "shape": null,
    "also": [],
+   "votes": {},
    "source": "guide",
    "glasses": []
   },
@@ -1405,6 +1748,12 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/sekt",
    "shape": "Champagne Wine Glass",
    "also": [],
+   "votes": {
+    "Champagne Wine Glass": 8.0,
+    "Syrah / Shiraz": 1.0,
+    "Rosé": 0.5,
+    "Sauvignon Blanc": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Rosé Champagne Glass / Rosé Wine",
@@ -1423,6 +1772,9 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-int/wine-glass-guide/sherry",
    "shape": "Sherry",
    "also": [],
+   "votes": {
+    "Sherry": 1.0
+   },
    "source": "guide",
    "glasses": [
     "Sommeliers Sherry / Tequila"
@@ -1432,6 +1784,9 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/shiraz-new-world",
    "shape": "Syrah / Shiraz",
    "also": [],
+   "votes": {
+    "Syrah / Shiraz": 4.0
+   },
    "source": "guide",
    "glasses": [
     "Extreme Shiraz",
@@ -1444,6 +1799,11 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/sparkling-wine",
    "shape": "Champagne Wine Glass",
    "also": [],
+   "votes": {
+    "Champagne Wine Glass": 9.0,
+    "Rosé": 0.5,
+    "Sauvignon Blanc": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Rosé Champagne Glass / Rosé Wine",
@@ -1462,11 +1822,14 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/de-at/weinglasberater/st-laurent",
    "shape": "Syrah / Shiraz",
    "also": [],
+   "votes": {
+    "Syrah / Shiraz": 11.0
+   },
    "source": "guide",
    "glasses": [
     "Extreme Shiraz",
     "Fatto A Mano Black Tie Hermitage - Schwarze Bodenplatte",
-    "FATTO A MANO BY RIEDEL Syrah - Dunkelblau",
+    "Fatto A Mano by RIEDEL Syrah - Dunkelblau",
     "Performance Syrah / Shiraz",
     "Sommeliers Black Tie Hermitage - Schwarzer Stiel",
     "Sommeliers Hermitage",
@@ -1482,6 +1845,7 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en/wineglassguide/sylvaner",
    "shape": null,
    "also": [],
+   "votes": {},
    "source": "guide",
    "glasses": []
   },
@@ -1489,6 +1853,9 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/syrah-old-world",
    "shape": "Syrah / Shiraz",
    "also": [],
+   "votes": {
+    "Syrah / Shiraz": 6.0
+   },
    "source": "guide",
    "glasses": [
     "Extreme Shiraz",
@@ -1503,6 +1870,11 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/semillon",
    "shape": "Sauvignon Blanc",
    "also": [],
+   "votes": {
+    "Sauvignon Blanc": 6.0,
+    "Riesling / Zinfandel": 1.5,
+    "Sweet Wine": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -1519,6 +1891,10 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/tannat",
    "shape": "Syrah / Shiraz",
    "also": [],
+   "votes": {
+    "Syrah / Shiraz": 4.0,
+    "Cabernet / Merlot": 2.0
+   },
    "source": "guide",
    "glasses": [
     "Extreme Shiraz",
@@ -1533,6 +1909,10 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-au/wine-glass-guide/tawny-port",
    "shape": "Port",
    "also": [],
+   "votes": {
+    "Port": 2.0,
+    "Sherry": 1.0
+   },
    "source": "guide",
    "glasses": [
     "Sommeliers Vintage Port",
@@ -1544,6 +1924,9 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/tempranillo",
    "shape": "Syrah / Shiraz",
    "also": [],
+   "votes": {
+    "Syrah / Shiraz": 5.0
+   },
    "source": "guide",
    "glasses": [
     "Extreme Shiraz",
@@ -1557,6 +1940,9 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-gb/wine-glass-guide/teroldego",
    "shape": "Syrah / Shiraz",
    "also": [],
+   "votes": {
+    "Syrah / Shiraz": 9.0
+   },
    "source": "guide",
    "glasses": [
     "Extreme Shiraz",
@@ -1573,7 +1959,15 @@ var RIEDEL_GUIDE = {
   "Timorasso": {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/timorasso",
    "shape": "Viognier / Chardonnay",
-   "also": [],
+   "also": [
+    "Riesling / Zinfandel"
+   ],
+   "votes": {
+    "Viognier / Chardonnay": 4.0,
+    "Riesling / Zinfandel": 3.5,
+    "Oaked Chardonnay": 1.0,
+    "Sauvignon Blanc": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -1591,6 +1985,9 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-ca/wine-glass-guide/tinta-de-toro",
    "shape": "Syrah / Shiraz",
    "also": [],
+   "votes": {
+    "Syrah / Shiraz": 5.0
+   },
    "source": "guide",
    "glasses": [
     "Extreme Shiraz",
@@ -1604,6 +2001,9 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/touriga-nacional",
    "shape": "Syrah / Shiraz",
    "also": [],
+   "votes": {
+    "Syrah / Shiraz": 7.0
+   },
    "source": "guide",
    "glasses": [
     "Extreme Shiraz",
@@ -1619,6 +2019,11 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/traminer",
    "shape": "Sauvignon Blanc",
    "also": [],
+   "votes": {
+    "Sauvignon Blanc": 5.0,
+    "Riesling / Zinfandel": 2.5,
+    "Sweet Wine": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -1637,6 +2042,11 @@ var RIEDEL_GUIDE = {
    "also": [
     "Riesling / Zinfandel"
    ],
+   "votes": {
+    "Viognier / Chardonnay": 4.0,
+    "Riesling / Zinfandel": 3.5,
+    "Sauvignon Blanc": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -1654,6 +2064,7 @@ var RIEDEL_GUIDE = {
    "url": null,
    "shape": null,
    "also": [],
+   "votes": {},
    "source": "guide",
    "glasses": []
   },
@@ -1661,6 +2072,12 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/trockenbeerenauslese",
    "shape": "Sauvignon Blanc",
    "also": [],
+   "votes": {
+    "Sauvignon Blanc": 3.5,
+    "Champagne Wine Glass": 1.5,
+    "Rosé": 0.5,
+    "Sweet Wine": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Rosé Champagne Glass / Rosé Wine",
@@ -1677,6 +2094,11 @@ var RIEDEL_GUIDE = {
    "also": [
     "Riesling / Zinfandel"
    ],
+   "votes": {
+    "Viognier / Chardonnay": 4.0,
+    "Riesling / Zinfandel": 3.5,
+    "Sauvignon Blanc": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -1696,6 +2118,11 @@ var RIEDEL_GUIDE = {
    "also": [
     "Riesling / Zinfandel"
    ],
+   "votes": {
+    "Viognier / Chardonnay": 4.0,
+    "Riesling / Zinfandel": 3.5,
+    "Sauvignon Blanc": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -1713,6 +2140,11 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/vermentino",
    "shape": "Sauvignon Blanc",
    "also": [],
+   "votes": {
+    "Sauvignon Blanc": 5.0,
+    "Riesling / Zinfandel": 2.5,
+    "Sweet Wine": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -1729,6 +2161,10 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/vernaccia",
    "shape": "Riesling / Zinfandel",
    "also": [],
+   "votes": {
+    "Riesling / Zinfandel": 10.0,
+    "Sauvignon Blanc": 1.0
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -1748,6 +2184,10 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-gb/wine-glass-guide/vintage-port",
    "shape": "Port",
    "also": [],
+   "votes": {
+    "Port": 2.0,
+    "Sherry": 1.0
+   },
    "source": "guide",
    "glasses": [
     "Sommeliers Vintage Port",
@@ -1757,10 +2197,16 @@ var RIEDEL_GUIDE = {
   },
   "Viognier": {
    "url": "https://www.riedel.com/en-int/wine-glass-guide/viognier",
-   "shape": "Viognier / Chardonnay",
+   "shape": "Riesling / Zinfandel",
    "also": [
-    "Riesling / Zinfandel"
+    "Viognier / Chardonnay"
    ],
+   "votes": {
+    "Riesling / Zinfandel": 4.5,
+    "Viognier / Chardonnay": 4.0,
+    "Oaked Chardonnay": 1.0,
+    "Sauvignon Blanc": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -1779,6 +2225,10 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/welschriesling",
    "shape": "Riesling / Zinfandel",
    "also": [],
+   "votes": {
+    "Riesling / Zinfandel": 10.0,
+    "Sauvignon Blanc": 1.0
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -1800,6 +2250,11 @@ var RIEDEL_GUIDE = {
    "also": [
     "Riesling / Zinfandel"
    ],
+   "votes": {
+    "Viognier / Chardonnay": 4.0,
+    "Riesling / Zinfandel": 3.5,
+    "Sauvignon Blanc": 0.5
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -1817,6 +2272,7 @@ var RIEDEL_GUIDE = {
    "url": null,
    "shape": null,
    "also": [],
+   "votes": {},
    "source": "guide",
    "glasses": []
   },
@@ -1824,6 +2280,10 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/zierfandler",
    "shape": "Riesling / Zinfandel",
    "also": [],
+   "votes": {
+    "Riesling / Zinfandel": 11.0,
+    "Sauvignon Blanc": 1.0
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -1844,6 +2304,10 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wine-glass-guide/zinfandel",
    "shape": "Riesling / Zinfandel",
    "also": [],
+   "votes": {
+    "Riesling / Zinfandel": 10.0,
+    "Sauvignon Blanc": 1.0
+   },
    "source": "guide",
    "glasses": [
     "Extreme Riesling",
@@ -1863,8 +2327,675 @@ var RIEDEL_GUIDE = {
    "url": "https://www.riedel.com/en-us/wineglassguide/zweigelt",
    "shape": null,
    "also": [],
+   "votes": {},
    "source": "guide",
    "glasses": []
+  }
+ },
+ "glasses": {
+  "Black Series Collector's Edition Bordeaux Grand Cru - Red / Black": {
+   "collection": "Black Series Collector's Edition",
+   "shapes": [
+    "Cabernet / Merlot"
+   ]
+  },
+  "Black Series Collector's Edition Burgundy Grand Cru - Red / Black": {
+   "collection": "Black Series Collector's Edition",
+   "shapes": [
+    "Pinot Noir / Nebbiolo"
+   ]
+  },
+  "Black Series Collector's Edition Montrachet - Red / Black": {
+   "collection": "Black Series Collector's Edition",
+   "shapes": [
+    "Oaked Chardonnay"
+   ]
+  },
+  "Black Series Collector's Edition Riesling Grand Cru": {
+   "collection": "Black Series Collector's Edition",
+   "shapes": [
+    "Riesling / Zinfandel"
+   ]
+  },
+  "Black Series Collector's Edition Riesling Grand Cru - Red / Black": {
+   "collection": "Black Series Collector's Edition",
+   "shapes": [
+    "Riesling / Zinfandel"
+   ]
+  },
+  "Black Series Collector's Edition Sparkling Wine - Red / Black": {
+   "collection": "Black Series Collector's Edition",
+   "shapes": [
+    "Champagne Wine Glass"
+   ]
+  },
+  "Extreme Cabernet": {
+   "collection": "Extreme",
+   "shapes": [
+    "Cabernet / Merlot"
+   ]
+  },
+  "Extreme Oaked Chardonnay": {
+   "collection": "Extreme",
+   "shapes": [
+    "Oaked Chardonnay"
+   ]
+  },
+  "Extreme Pinot Noir": {
+   "collection": "Extreme",
+   "shapes": [
+    "Pinot Noir / Nebbiolo"
+   ]
+  },
+  "Extreme Riesling": {
+   "collection": "Extreme",
+   "shapes": [
+    "Riesling / Zinfandel"
+   ]
+  },
+  "Extreme Riesling / Sauvignon Blanc": {
+   "collection": "Extreme",
+   "shapes": [
+    "Riesling / Zinfandel",
+    "Sauvignon Blanc"
+   ]
+  },
+  "Extreme Rosé Champagne Glass / Rosé Wine": {
+   "collection": "Extreme",
+   "shapes": [
+    "Champagne Wine Glass",
+    "Rosé"
+   ]
+  },
+  "Extreme Shiraz": {
+   "collection": "Extreme",
+   "shapes": [
+    "Syrah / Shiraz"
+   ]
+  },
+  "Fatto A Mano Black Tie Bordeaux Grand Cru - Black Base": {
+   "collection": "Fatto A Mano Black Tie",
+   "shapes": [
+    "Cabernet / Merlot"
+   ]
+  },
+  "Fatto A Mano Black Tie Burgundy Grand Cru - Black Base": {
+   "collection": "Fatto A Mano Black Tie",
+   "shapes": [
+    "Pinot Noir / Nebbiolo"
+   ]
+  },
+  "Fatto A Mano Black Tie Champagne Wine Glass / Sauvignon Blanc - Black Base": {
+   "collection": "Fatto A Mano Black Tie",
+   "shapes": [
+    "Champagne Wine Glass",
+    "Sauvignon Blanc"
+   ]
+  },
+  "Fatto A Mano Black Tie Chardonnay - Black Base": {
+   "collection": "Fatto A Mano Black Tie",
+   "shapes": [
+    "Oaked Chardonnay"
+   ]
+  },
+  "Fatto A Mano Black Tie Hermitage - Black Base": {
+   "collection": "Fatto A Mano Black Tie",
+   "shapes": [
+    "Syrah / Shiraz"
+   ]
+  },
+  "Fatto A Mano Black Tie Hermitage - Schwarze Bodenplatte": {
+   "collection": "Fatto A Mano Black Tie",
+   "shapes": [
+    "Syrah / Shiraz"
+   ]
+  },
+  "Fatto A Mano Black Tie Riesling": {
+   "collection": "Fatto A Mano Black Tie",
+   "shapes": [
+    "Riesling / Zinfandel"
+   ]
+  },
+  "Fatto A Mano Black Tie Riesling - Black Base": {
+   "collection": "Fatto A Mano Black Tie",
+   "shapes": [
+    "Riesling / Zinfandel"
+   ]
+  },
+  "Fatto A Mano by RIEDEL Cabernet / Merlot": {
+   "collection": "Fatto A Mano by RIEDEL",
+   "shapes": [
+    "Cabernet / Merlot"
+   ]
+  },
+  "Fatto A Mano by RIEDEL Champagne Wine Glass": {
+   "collection": "Fatto A Mano by RIEDEL",
+   "shapes": [
+    "Champagne Wine Glass"
+   ]
+  },
+  "Fatto A Mano by RIEDEL Oaked Chardonnay - Dragon Red": {
+   "collection": "Fatto A Mano by RIEDEL",
+   "shapes": [
+    "Oaked Chardonnay"
+   ]
+  },
+  "Fatto A Mano by RIEDEL Pinot Noir": {
+   "collection": "Fatto A Mano by RIEDEL",
+   "shapes": [
+    "Pinot Noir / Nebbiolo"
+   ]
+  },
+  "Fatto A Mano by RIEDEL Riesling / Zinfandel": {
+   "collection": "Fatto A Mano by RIEDEL",
+   "shapes": [
+    "Riesling / Zinfandel"
+   ]
+  },
+  "Fatto A Mano by RIEDEL Syrah": {
+   "collection": "Fatto A Mano by RIEDEL",
+   "shapes": [
+    "Syrah / Shiraz"
+   ]
+  },
+  "Fatto A Mano by RIEDEL Syrah - Dragon Red": {
+   "collection": "Fatto A Mano by RIEDEL",
+   "shapes": [
+    "Syrah / Shiraz"
+   ]
+  },
+  "Fatto A Mano by RIEDEL Syrah - Dunkelblau": {
+   "collection": "Fatto A Mano by RIEDEL",
+   "shapes": [
+    "Syrah / Shiraz"
+   ]
+  },
+  "Fatto A Mano Performance Cabernet Sauvignon": {
+   "collection": "Fatto A Mano",
+   "shapes": [
+    "Cabernet / Merlot"
+   ]
+  },
+  "Fatto A Mano Performance Champagne Glass": {
+   "collection": "Fatto A Mano",
+   "shapes": [
+    "Champagne Wine Glass"
+   ]
+  },
+  "Fatto A Mano Performance Pinot Noir": {
+   "collection": "Fatto A Mano",
+   "shapes": [
+    "Pinot Noir / Nebbiolo"
+   ]
+  },
+  "Performance Cabernet / Merlot": {
+   "collection": "Performance",
+   "shapes": [
+    "Cabernet / Merlot"
+   ]
+  },
+  "Performance Champagne Glass": {
+   "collection": "Performance",
+   "shapes": [
+    "Champagne Wine Glass"
+   ]
+  },
+  "Performance Chardonnay": {
+   "collection": "Performance",
+   "shapes": [
+    "Oaked Chardonnay"
+   ]
+  },
+  "Performance Pinot Noir": {
+   "collection": "Performance",
+   "shapes": [
+    "Pinot Noir / Nebbiolo"
+   ]
+  },
+  "Performance Riesling": {
+   "collection": "Performance",
+   "shapes": [
+    "Riesling / Zinfandel"
+   ]
+  },
+  "Performance Sauvignon Blanc": {
+   "collection": "Performance",
+   "shapes": [
+    "Sauvignon Blanc"
+   ]
+  },
+  "Performance Syrah / Shiraz": {
+   "collection": "Performance",
+   "shapes": [
+    "Syrah / Shiraz"
+   ]
+  },
+  "Sommeliers Black Tie Hermitage - Schwarzer Stiel": {
+   "collection": "Sommeliers",
+   "shapes": [
+    "Syrah / Shiraz"
+   ]
+  },
+  "Sommeliers Black Tie Riesling Grand Cru - Black Base": {
+   "collection": "Sommeliers",
+   "shapes": [
+    "Riesling / Zinfandel"
+   ]
+  },
+  "Sommeliers Bordeaux Grand Cru": {
+   "collection": "Sommeliers",
+   "shapes": [
+    "Cabernet / Merlot"
+   ]
+  },
+  "Sommeliers Burgundy Grand Cru": {
+   "collection": "Sommeliers",
+   "shapes": [
+    "Pinot Noir / Nebbiolo"
+   ]
+  },
+  "Sommeliers Hermitage": {
+   "collection": "Sommeliers",
+   "shapes": [
+    "Syrah / Shiraz"
+   ]
+  },
+  "Sommeliers Loire": {
+   "collection": "Sommeliers",
+   "shapes": [
+    "Sauvignon Blanc"
+   ]
+  },
+  "Sommeliers Mature Bordeaux / Chablis / Chardonnay": {
+   "collection": "Sommeliers",
+   "shapes": [
+    "Viognier / Chardonnay"
+   ]
+  },
+  "Sommeliers Montrachet": {
+   "collection": "Sommeliers",
+   "shapes": [
+    "Oaked Chardonnay"
+   ]
+  },
+  "Sommeliers Riesling / Zinfandel": {
+   "collection": "Sommeliers",
+   "shapes": [
+    "Riesling / Zinfandel"
+   ]
+  },
+  "Sommeliers Riesling Grand Cru / Zinfandel": {
+   "collection": "Sommeliers",
+   "shapes": [
+    "Riesling / Zinfandel"
+   ]
+  },
+  "Sommeliers Sherry / Tequila": {
+   "collection": "Sommeliers",
+   "shapes": [
+    "Sherry"
+   ]
+  },
+  "Sommeliers Vintage Port": {
+   "collection": "Sommeliers",
+   "shapes": [
+    "Port"
+   ]
+  },
+  "Superleggero Bordeaux Grand Cru": {
+   "collection": "Superleggero",
+   "shapes": [
+    "Cabernet / Merlot"
+   ]
+  },
+  "Superleggero Burgundy Grand Cru": {
+   "collection": "Superleggero",
+   "shapes": [
+    "Pinot Noir / Nebbiolo"
+   ]
+  },
+  "Superleggero Champagne Wine Glass": {
+   "collection": "Superleggero",
+   "shapes": [
+    "Champagne Wine Glass"
+   ]
+  },
+  "Superleggero Chardonnay": {
+   "collection": "Superleggero",
+   "shapes": [
+    "Oaked Chardonnay"
+   ]
+  },
+  "Superleggero Hermitage / Syrah": {
+   "collection": "Superleggero",
+   "shapes": [
+    "Syrah / Shiraz"
+   ]
+  },
+  "Superleggero Restaurant Sauvignon Blanc": {
+   "collection": "Superleggero",
+   "shapes": [
+    "Sauvignon Blanc"
+   ]
+  },
+  "Superleggero Riesling": {
+   "collection": "Superleggero",
+   "shapes": [
+    "Riesling / Zinfandel"
+   ]
+  },
+  "Superleggero Sauvignon Blanc": {
+   "collection": "Superleggero",
+   "shapes": [
+    "Sauvignon Blanc"
+   ]
+  },
+  "The O Wine Tumbler Alte Welt Syrah": {
+   "collection": "The O Wine Tumbler",
+   "shapes": [
+    "Syrah / Shiraz"
+   ]
+  },
+  "The O Wine Tumbler Cabernet": {
+   "collection": "The O Wine Tumbler",
+   "shapes": [
+    "Cabernet / Merlot"
+   ]
+  },
+  "The O Wine Tumbler Cabernet / Merlot": {
+   "collection": "The O Wine Tumbler",
+   "shapes": [
+    "Cabernet / Merlot"
+   ]
+  },
+  "The O Wine Tumbler Champagne Glass": {
+   "collection": "The O Wine Tumbler",
+   "shapes": [
+    "Champagne Wine Glass"
+   ]
+  },
+  "The O Wine Tumbler New World Pinot Noir": {
+   "collection": "The O Wine Tumbler",
+   "shapes": [
+    "Pinot Noir / Nebbiolo"
+   ]
+  },
+  "The O Wine Tumbler O To Go Rotwein": {
+   "collection": "The O Wine Tumbler",
+   "shapes": []
+  },
+  "The O Wine Tumbler Oaked Chardonnay": {
+   "collection": "The O Wine Tumbler",
+   "shapes": [
+    "Oaked Chardonnay"
+   ]
+  },
+  "The O Wine Tumbler Old World Syrah": {
+   "collection": "The O Wine Tumbler",
+   "shapes": [
+    "Syrah / Shiraz"
+   ]
+  },
+  "The O Wine Tumbler Pinot Noir / Nebbiolo": {
+   "collection": "The O Wine Tumbler",
+   "shapes": [
+    "Pinot Noir / Nebbiolo"
+   ]
+  },
+  "The O Wine Tumbler Riesling": {
+   "collection": "The O Wine Tumbler",
+   "shapes": [
+    "Riesling / Zinfandel"
+   ]
+  },
+  "The O Wine Tumbler Riesling / Sauvignon Blanc": {
+   "collection": "The O Wine Tumbler",
+   "shapes": [
+    "Riesling / Zinfandel",
+    "Sauvignon Blanc"
+   ]
+  },
+  "The O Wine Tumbler Spirits / Fortified Wines / Cask Aged Brandies": {
+   "collection": "The O Wine Tumbler",
+   "shapes": [
+    "Sherry"
+   ]
+  },
+  "The O Wine Tumbler Syrah / Shiraz": {
+   "collection": "The O Wine Tumbler",
+   "shapes": [
+    "Syrah / Shiraz"
+   ]
+  },
+  "The O Wine Tumbler Viognier / Chardonnay": {
+   "collection": "The O Wine Tumbler",
+   "shapes": [
+    "Viognier / Chardonnay"
+   ]
+  },
+  "Veloce Cabernet / Merlot": {
+   "collection": "Veloce",
+   "shapes": [
+    "Cabernet / Merlot"
+   ]
+  },
+  "Veloce Champagne Wine Glass": {
+   "collection": "Veloce",
+   "shapes": [
+    "Champagne Wine Glass"
+   ]
+  },
+  "Veloce Chardonnay": {
+   "collection": "Veloce",
+   "shapes": [
+    "Oaked Chardonnay"
+   ]
+  },
+  "Veloce Pinot Noir / Nebbiolo": {
+   "collection": "Veloce",
+   "shapes": [
+    "Pinot Noir / Nebbiolo"
+   ]
+  },
+  "Veloce Riesling": {
+   "collection": "Veloce",
+   "shapes": [
+    "Riesling / Zinfandel"
+   ]
+  },
+  "Veloce Rosé": {
+   "collection": "Veloce",
+   "shapes": [
+    "Rosé"
+   ]
+  },
+  "Veloce Sauvignon Blanc": {
+   "collection": "Veloce",
+   "shapes": [
+    "Sauvignon Blanc"
+   ]
+  },
+  "Veloce Syrah / Shiraz": {
+   "collection": "Veloce",
+   "shapes": [
+    "Syrah / Shiraz"
+   ]
+  },
+  "Veritas Alte Welt Syrah": {
+   "collection": "Veritas",
+   "shapes": [
+    "Syrah / Shiraz"
+   ]
+  },
+  "Veritas Cabernet / Merlot": {
+   "collection": "Veritas",
+   "shapes": [
+    "Cabernet / Merlot"
+   ]
+  },
+  "Veritas Champagne Wine Glass": {
+   "collection": "Veritas",
+   "shapes": [
+    "Champagne Wine Glass"
+   ]
+  },
+  "Veritas New World Pinot Noir / Nebbiolo / Rosé Champagne Glass": {
+   "collection": "Veritas",
+   "shapes": [
+    "Pinot Noir / Nebbiolo",
+    "Champagne Wine Glass"
+   ]
+  },
+  "Veritas New World Shiraz": {
+   "collection": "Veritas",
+   "shapes": [
+    "Syrah / Shiraz"
+   ]
+  },
+  "Veritas Oaked Chardonnay": {
+   "collection": "Veritas",
+   "shapes": [
+    "Oaked Chardonnay"
+   ]
+  },
+  "Veritas Old World Pinot Noir": {
+   "collection": "Veritas",
+   "shapes": [
+    "Pinot Noir / Nebbiolo"
+   ]
+  },
+  "Veritas Old World Syrah": {
+   "collection": "Veritas",
+   "shapes": [
+    "Syrah / Shiraz"
+   ]
+  },
+  "Veritas Riesling / Zinfandel": {
+   "collection": "Veritas",
+   "shapes": [
+    "Riesling / Zinfandel"
+   ]
+  },
+  "Veritas Sauvignon Blanc": {
+   "collection": "Veritas",
+   "shapes": [
+    "Sauvignon Blanc"
+   ]
+  },
+  "Veritas Viognier / Chardonnay": {
+   "collection": "Veritas",
+   "shapes": [
+    "Viognier / Chardonnay"
+   ]
+  },
+  "Vinum Cabernet / Merlot": {
+   "collection": "Vinum",
+   "shapes": [
+    "Cabernet / Merlot"
+   ]
+  },
+  "Vinum Cabernet Sauvignon / Merlot": {
+   "collection": "Vinum",
+   "shapes": [
+    "Cabernet / Merlot"
+   ]
+  },
+  "Vinum Cuvée Prestige": {
+   "collection": "Vinum",
+   "shapes": [
+    "Champagne Wine Glass"
+   ]
+  },
+  "Vinum Oaked Chardonnay (Montrachet)": {
+   "collection": "Vinum",
+   "shapes": [
+    "Oaked Chardonnay"
+   ]
+  },
+  "Vinum Pinot Noir (Burgundy Red)": {
+   "collection": "Vinum",
+   "shapes": [
+    "Pinot Noir / Nebbiolo"
+   ]
+  },
+  "Vinum Pinot Noir / Nebbiolo": {
+   "collection": "Vinum",
+   "shapes": [
+    "Pinot Noir / Nebbiolo"
+   ]
+  },
+  "Vinum Port": {
+   "collection": "Vinum",
+   "shapes": [
+    "Port"
+   ]
+  },
+  "Vinum Riesling": {
+   "collection": "Vinum",
+   "shapes": [
+    "Riesling / Zinfandel"
+   ]
+  },
+  "Vinum Riesling Grand Cru / Zinfandel": {
+   "collection": "Vinum",
+   "shapes": [
+    "Riesling / Zinfandel"
+   ]
+  },
+  "Vinum Sauvignon Blanc / Dessert Wine": {
+   "collection": "Vinum",
+   "shapes": [
+    "Sauvignon Blanc",
+    "Sweet Wine"
+   ]
+  },
+  "Vinum Syrah / Shiraz": {
+   "collection": "Vinum",
+   "shapes": [
+    "Syrah / Shiraz"
+   ]
+  },
+  "Vinum Viognier / Chardonnay": {
+   "collection": "Vinum",
+   "shapes": [
+    "Viognier / Chardonnay"
+   ]
+  },
+  "Winewings Champagne Wine Glass": {
+   "collection": "Winewings",
+   "shapes": [
+    "Champagne Wine Glass"
+   ]
+  },
+  "Winewings Chardonnay": {
+   "collection": "Winewings",
+   "shapes": [
+    "Oaked Chardonnay"
+   ]
+  },
+  "Winewings Pinot Noir / Nebbiolo": {
+   "collection": "Winewings",
+   "shapes": [
+    "Pinot Noir / Nebbiolo"
+   ]
+  },
+  "Winewings Riesling": {
+   "collection": "Winewings",
+   "shapes": [
+    "Riesling / Zinfandel"
+   ]
+  },
+  "Winewings Sauvignon Blanc": {
+   "collection": "Winewings",
+   "shapes": [
+    "Sauvignon Blanc"
+   ]
+  },
+  "Winewings Syrah": {
+   "collection": "Winewings",
+   "shapes": [
+    "Syrah / Shiraz"
+   ]
   }
  }
 };

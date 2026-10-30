@@ -18,7 +18,7 @@
 var DrinkventoryLogic = (function () {
   'use strict';
 
-  var VERSION = '2.2.0';
+  var VERSION = '2.3.0';
 
   var SCHEMA = {
     products: [
@@ -32,10 +32,14 @@ var DrinkventoryLogic = (function () {
     ],
     events: ['event_id', 'ts', 'user', 'type', 'bottle_id', 'product_id', 'location'],
     ops: ['op_id', 'received_at', 'ts', 'user', 'kind', 'result'],
-    climate: ['reading_id', 'ts', 'sensor', 'temp_c', 'rh_pct', 'battery_pct', 'received_at']
+    climate: ['reading_id', 'ts', 'sensor', 'temp_c', 'rh_pct', 'battery_pct', 'received_at'],
+    settings: ['key', 'value', 'updated_at', 'updated_by']
   };
 
-  var KEYS = { products: 'product_id', bottles: 'bottle_id', events: 'event_id', ops: 'op_id', climate: 'reading_id' };
+  var KEYS = { products: 'product_id', bottles: 'bottle_id', events: 'event_id', ops: 'op_id', climate: 'reading_id', settings: 'key' };
+
+  // Household settings shared by all phones. Values are stored as JSON text in the Sheet.
+  var SETTINGS = { owned_glasses: { maxItems: 200, maxLength: 120 } };
 
   var NUMERIC_FIELDS = ['abv', 'volume_ml', 'drink_from', 'drink_to', 'temp_c', 'rh_pct', 'battery_pct'];
 
@@ -119,6 +123,7 @@ var DrinkventoryLogic = (function () {
   }
 
   function upgradeState(state) {
+    if (!Array.isArray(state.settings)) state.settings = [];
     (state.products || []).forEach(function (p) {
       if (p.tags === undefined) p.tags = '';
     });
@@ -357,6 +362,49 @@ var DrinkventoryLogic = (function () {
     return { products: [p] };
   }
 
+  /** A list setting: trimmed, single spaces, " / " around slashes, no case-insensitive duplicates. */
+  function cleanSettingList(v, rules) {
+    var arr = v;
+    if (typeof v === 'string') {
+      try { arr = v.trim() ? JSON.parse(v) : []; } catch (e) { fail('setting value is not a list'); }
+    }
+    if (!Array.isArray(arr)) fail('setting value is not a list');
+    var seen = {};
+    var out = [];
+    arr.forEach(function (x) {
+      var s = clean(x).replace(/\s*\/\s*/g, ' / ').replace(/\s+/g, ' ');
+      if (!s) return;
+      if (s.length > rules.maxLength) fail('setting item too long');
+      var k = s.toLowerCase();
+      if (seen[k]) return;
+      seen[k] = true;
+      out.push(s);
+    });
+    if (out.length > rules.maxItems) fail('too many items in setting');
+    return out;
+  }
+
+  function setSetting(state, op) {
+    var d = op.data || {};
+    var key = clean(d.key);
+    if (!has(SETTINGS, key)) fail('unknown setting: ' + key);
+    var value = JSON.stringify(cleanSettingList(d.value, SETTINGS[key]));
+    if (!Array.isArray(state.settings)) state.settings = [];
+    var s = find(state.settings, 'key', key);
+    if (!s) { s = blankRecord('settings'); s.key = key; state.settings.push(s); }
+    s.value = value;
+    s.updated_at = String(op.ts);
+    s.updated_by = clean(op.user);
+    return { settings: [s] };
+  }
+
+  /** Parsed value of a list setting; [] when unset or unreadable. */
+  function getSetting(state, key) {
+    var s = find((state && state.settings) || [], 'key', key);
+    if (!s || !s.value) return [];
+    try { var v = JSON.parse(s.value); return Array.isArray(v) ? v : []; } catch (e) { return []; }
+  }
+
   /** Renames a tag on every product and bottle; an empty new name deletes it. No history entries. */
   function renameTag(state, op) {
     var d = op.data || {};
@@ -384,7 +432,8 @@ var DrinkventoryLogic = (function () {
     update_bottle: updateBottle,
     event: bottleEvent,
     set_photo: setPhoto,
-    rename_tag: renameTag
+    rename_tag: renameTag,
+    set_setting: setSetting
   };
 
   function applyOp(state, op) {
@@ -399,7 +448,8 @@ var DrinkventoryLogic = (function () {
         status: 'applied',
         products: patch.products || [],
         bottles: patch.bottles || [],
-        events: patch.events || []
+        events: patch.events || [],
+        settings: patch.settings || []
       };
     } catch (e) {
       return { status: 'error', error: (e && e.message) ? e.message : String(e) };
@@ -649,6 +699,7 @@ var DrinkventoryLogic = (function () {
     compareVersions: compareVersions,
     backendStatus: backendStatus,
     effectiveTags: effectiveTags,
+    getSetting: getSetting,
     SCHEMA: SCHEMA,
     KEYS: KEYS,
     NUMERIC_FIELDS: NUMERIC_FIELDS,
