@@ -34,13 +34,14 @@ GENERIC = re.compile(r'grape@riedel|wine friendly|white wine / champagne glass|\
                      r'all-purpose|decanter$', re.I)
 
 # Shape of one part of a glass name. First match wins; order matters.
+# Shape labels follow RIEDEL's Veritas names, which pair grapes that share a glass
+# ("Riesling / Zinfandel", "Pinot Noir / Nebbiolo"), so unexpected matches stay readable.
 SHAPES = [
     (r'oaked chardonnay|montrachet', 'Oaked Chardonnay'),
-    (r'chardonnay|viognier|chablis', 'Chardonnay / Viognier'),
-    (r'riesling|zinfandel', 'Riesling'),
+    (r'chardonnay|viognier|chablis', 'Viognier / Chardonnay'),
+    (r'riesling|zinfandel', 'Riesling / Zinfandel'),
     (r'sauvignon blanc|loire|sauvignon', 'Sauvignon Blanc'),
-    (r'nebbiolo|barolo|barbaresco', 'Nebbiolo'),
-    (r'pinot noir|burgundy|bourgogne|\bpinot\b', 'Pinot Noir'),
+    (r'nebbiolo|barolo|barbaresco|pinot noir|burgundy|bourgogne|\bpinot\b', 'Pinot Noir / Nebbiolo'),
     (r'cabernet|merlot|bordeaux', 'Cabernet / Merlot'),
     (r'syrah|shiraz|hermitage', 'Syrah / Shiraz'),
     (r'sangiovese|chianti|brunello', 'Sangiovese'),
@@ -48,7 +49,7 @@ SHAPES = [
     (r'grenache|garnacha', 'Grenache'),
     (r'gew[uü]rztraminer', 'Gewürztraminer'),
     (r'veltliner', 'Grüner Veltliner'),
-    (r'champagne|prestige cuv|sparkling|cuv[eé]e|sekt|prosecco|cava', 'Champagne'),
+    (r'champagne|prestige cuv|sparkling|cuv[eé]e|sekt|prosecco|cava', 'Champagne Wine Glass'),
     (r'ros[eé]', 'Rosé'),
     (r'sauternes|dessert|sweet wine|ice ?wine|tokaj|beerenauslese', 'Sweet Wine'),
     (r'\bport\b|tawny', 'Port'),
@@ -70,7 +71,7 @@ def shapes_of(title: str) -> list[str]:
     glass = re.split(r'\s+\+\s+', title)[0]          # "Veritas Riesling / Zinfandel + Mosel Decanter"
     # Sommeliers "Mature Bordeaux / Chablis / Chardonnay" is one white-wine glass.
     if re.search(r'mature bordeaux', glass, re.I) and re.search(r'chablis|chardonnay', glass, re.I):
-        return ['Chardonnay / Viognier']
+        return ['Viognier / Chardonnay']
     found: list[str] = []
     for part in glass.split('/'):
         for rx, name in SHAPES:
@@ -84,7 +85,8 @@ def shapes_of(title: str) -> list[str]:
 def related(entry: str, shape: str) -> bool:
     """Does the shape name a grape or style that also appears in the entry name?"""
     e = entry.lower()
-    return any(w in e for w in re.split(r'[ /]+', shape.lower()) if len(w) > 3)
+    words = [w for w in re.split(r'[ /]+', shape.lower()) if len(w) > 3 and w not in ('wine', 'glass')]
+    return any(w in e for w in words)
 
 
 def decide(products: list[str], entry: str = '') -> tuple[str | None, Counter]:

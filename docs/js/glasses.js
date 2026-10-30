@@ -27,6 +27,7 @@ var DrinkventoryGlasses = (function () {
 
   // Grape names and synonyms -> RIEDEL guide entry. Keys are normalized with norm().
   // Pinot Noir, Syrah, Chardonnay and Sauvignon Blanc are resolved in code (old/new world, oak).
+  // FALLBACK lists entries for the same grape under another name, used when the first has no glasses.
   var ALIASES = {
     // red
     'aglianico': 'Aglianico',
@@ -136,6 +137,17 @@ var DrinkventoryGlasses = (function () {
     'zierfandler': 'Zierfandler'
   };
 
+  var FALLBACK = {
+    'Müller-Thurgau': ['Rivaner'],
+    'Gewürztraminer': ['Traminer'],
+    'Grenache/Granacha': ['Cannonau'],
+    'Melon de Bourgogne (Muscadet)': ['Muscadet'],
+    'Pinot Noir Old World': ['Blauburgunder'],
+    'Pinot Noir New World': ['Pinot Noir Old World'],
+    'Shiraz New World': ['Syrah Old World'],
+    'Syrah Old World': ['Shiraz New World']
+  };
+
   // Aliases that are a different grape name for the same or a related variety: shown as a note.
   var ALIAS_NOTES = {
     'turbiana': 'Turbiana (Trebbiano di Lugana) is the same grape as Verdicchio.',
@@ -156,7 +168,8 @@ var DrinkventoryGlasses = (function () {
 
   /** Grapes of a product, in order of importance: highest percentage first, else as listed. */
   function grapeList(p) {
-    var items = String(p.grapes || '').split(',').map(function (raw, i) {
+    // Commas separate grapes; a comma followed by a digit is a decimal comma ("60,5 %").
+    var items = String(p.grapes || '').split(/,(?!\d)/).map(function (raw, i) {
       var pct = raw.match(/(\d+(?:[.,]\d+)?)\s*%/);
       var name = raw.replace(/\d+(?:[.,]\d+)?\s*%/g, '').replace(/\([^)]*\)/g, '').replace(/\s+/g, ' ').trim();
       return { name: name, pct: pct ? Number(pct[1].replace(',', '.')) : null, i: i };
@@ -184,6 +197,22 @@ var DrinkventoryGlasses = (function () {
     }
     if (k === 'fume blanc') return { name: 'Sauvignon Blanc (oaked)' };
     return ALIASES[k] ? { name: ALIASES[k], note: ALIAS_NOTES[k] } : null;
+  }
+
+  /** First entry with glasses among the match and its same-grape fallbacks; adds a note when a fallback is used. */
+  function resolve(m) {
+    if (!m) return null;
+    var names = [m.name].concat(FALLBACK[m.name] || []);
+    for (var i = 0; i < names.length; i++) {
+      if (!entry(names[i])) continue;
+      var out = { name: names[i], note: m.note, alt: m.alt, when: m.when };
+      if (i > 0) {
+        out.note = [m.note, 'RIEDEL lists no glasses on its ' + m.name + ' page; this uses its ' + names[i] + ' page for the same grape.']
+          .filter(Boolean).join(' ');
+      }
+      return out;
+    }
+    return null;
   }
 
   function has(text, re) { return re.test(norm(text)); }
@@ -244,8 +273,8 @@ var DrinkventoryGlasses = (function () {
     var unmatched = [];
     for (var i = 0; i < grapes.length; i++) {
       var g = grapes[i];
-      var m = grapeEntry(g.name, p);
-      if (!m || !entry(m.name)) { unmatched.push(g.name); continue; }
+      var m = resolve(grapeEntry(g.name, p));
+      if (!m) { unmatched.push(g.name); continue; }
       var notes = [];
       if (grapes.length > 1) {
         notes.push(grapes.some(function (x) { return x.pct !== null; })
@@ -260,8 +289,7 @@ var DrinkventoryGlasses = (function () {
         if (a.shape !== r.shape) r.alt = { entry: m.alt, shape: a.shape, url: a.url, when: m.when };
       }
       r.unmatched = unmatched.concat(grapes.slice(i + 1).filter(function (x) {
-        var mm = grapeEntry(x.name, p);
-        return !mm || !entry(mm.name);
+        return !resolve(grapeEntry(x.name, p));
       }).map(function (x) { return x.name; }));
       return r;
     }
@@ -283,7 +311,7 @@ var DrinkventoryGlasses = (function () {
     return r && r.shape ? r.shape : '';
   }
 
-  return { recommend: recommend, shapeOf: shapeOf, grapeList: grapeList, norm: norm, guide: GUIDE, ALIASES: ALIASES };
+  return { recommend: recommend, shapeOf: shapeOf, grapeList: grapeList, norm: norm, guide: GUIDE, ALIASES: ALIASES, FALLBACK: FALLBACK };
 })();
 
 if (typeof module !== 'undefined' && module.exports) { module.exports = DrinkventoryGlasses; }

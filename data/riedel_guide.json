@@ -1,0 +1,1674 @@
+{
+ "source": "RIEDEL Wine Glass Guide, riedel.com (one page per grape or style)",
+ "retrieved": "2026-10-30",
+ "entries": [
+  {
+   "entry": "Aglianico",
+   "url": "https://www.riedel.com/en/wineglassguide/aglianico",
+   "products": [],
+   "note": "Only a legacy /wineglassguide/ URL surfaced in search; WebFetch failed (client_error). No /wine-glass-guide/ URL found; search budget ran out before further attempts."
+  },
+  {
+   "entry": "Barbera",
+   "url": "https://www.riedel.com/en-int/wine-glass-guide/barbera",
+   "products": [
+    "RIEDEL Extreme Shiraz",
+    "RIEDEL Fatto A Mano Black Tie Hermitage - Black Base",
+    "RIEDEL Fatto A Mano by RIEDEL Syrah",
+    "RIEDEL Performance Syrah / Shiraz",
+    "RIEDEL Sommeliers Hermitage",
+    "RIEDEL Superleggero Hermitage / Syrah",
+    "RIEDEL The O Wine Tumbler O To Go Red Wine",
+    "RIEDEL The O Wine Tumbler Old World Syrah",
+    "RIEDEL Veloce Syrah / Shiraz",
+    "RIEDEL Veritas Old World Syrah",
+    "RIEDEL Vinum Syrah / Shiraz",
+    "RIEDEL Winewings Syrah"
+   ],
+   "note": "13 of the cards are colour variants of Fatto A Mano by RIEDEL Syrah (merged). Page rendered exactly 24 product cards with no load-more control in the fetched HTML; 24 may be a listing cap, so the list could be incomplete."
+  },
+  {
+   "entry": "Blauburgunder",
+   "url": "https://www.riedel.com/en-int/wine-glass-guide/blauburgunder",
+   "products": [
+    "RIEDEL Black Series Collector's Edition Burgundy Grand Cru - Red / Black",
+    "RIEDEL Extreme Pinot Noir",
+    "RIEDEL Fatto A Mano Black Tie Burgundy Grand Cru - Black Base",
+    "RIEDEL Fatto A Mano by RIEDEL Pinot Noir",
+    "RIEDEL Fatto A Mano Performance Pinot Noir",
+    "RIEDEL GRAPE@RIEDEL Pinot Noir / Nebbiolo / Aperitivo",
+    "RIEDEL Performance Pinot Noir",
+    "RIEDEL Sommeliers Burgundy Grand Cru",
+    "RIEDEL Superleggero Burgundy Grand Cru",
+    "RIEDEL The O Wine Tumbler Pinot Noir / Nebbiolo"
+   ],
+   "note": "12 Fatto A Mano by RIEDEL Pinot Noir colours and 2 Fatto A Mano Performance Pinot Noir variants (Black Base / Black Stem) merged. List ends at The O (no Veloce/Veritas/Vinum). Page rendered exactly 24 product cards with no load-more control in the fetched HTML; 24 may be a listing cap, so the list could be incomplete."
+  },
+  {
+   "entry": "Blauer Portugieser",
+   "url": "https://www.riedel.com/en-is/wine-glass-guide/blauer-portugieser",
+   "products": [
+    "RIEDEL Black Series Collector's Edition Riesling Grand Cru - Red / Black",
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL Fatto A Mano Black Tie Riesling - Black Base",
+    "RIEDEL Fatto A Mano by RIEDEL Riesling / Zinfandel",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Performance Riesling",
+    "RIEDEL Sommeliers Black Tie Riesling Grand Cru - Black Base",
+    "RIEDEL Sommeliers Riesling Grand Cru / Zinfandel",
+    "RIEDEL Superleggero Riesling",
+    "RIEDEL The O Wine Tumbler Riesling"
+   ],
+   "note": "Page lists Riesling/white-wine glasses for this red grape (recorded as shown). 13 Fatto A Mano by RIEDEL colours merged. Page rendered exactly 24 product cards with no load-more control in the fetched HTML; 24 may be a listing cap, so the list could be incomplete."
+  },
+  {
+   "entry": "Blaufränkisch",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/blaufraenkisch",
+   "products": [
+    "RIEDEL Extreme Shiraz",
+    "RIEDEL Fatto A Mano by RIEDEL Syrah",
+    "RIEDEL Sommeliers Hermitage",
+    "RIEDEL The O Wine Tumbler Old World Syrah",
+    "RIEDEL Veloce Syrah / Shiraz",
+    "RIEDEL Veritas Old World Syrah",
+    "RIEDEL Vinum Syrah / Shiraz"
+   ],
+   "note": "First query returned only a German de-at/weinglas-guide page; en-se legacy /wineglassguide/ URL failed (client_error); en-us /wine-glass-guide/ URL surfaced on a third query. Fatto A Mano by RIEDEL Syrah card shown as '- Dragon Red', recorded without colour."
+  },
+  {
+   "entry": "Bobal",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/bobal",
+   "products": [
+    "RIEDEL Extreme Shiraz",
+    "RIEDEL Fatto A Mano by RIEDEL Syrah",
+    "RIEDEL Sommeliers Hermitage",
+    "RIEDEL The O Wine Tumbler Old World Syrah",
+    "RIEDEL Veloce Syrah / Shiraz",
+    "RIEDEL Veritas Old World Syrah",
+    "RIEDEL Vinum Syrah / Shiraz"
+   ],
+   "note": "Fatto A Mano by RIEDEL Syrah card shown as '- Dragon Red', recorded without colour."
+  },
+  {
+   "entry": "Bonarda",
+   "url": "https://www.riedel.com/en/wineglassguide/bonarda",
+   "products": [],
+   "note": "Only a legacy /wineglassguide/ URL surfaced in search; WebFetch failed (client_error). No /wine-glass-guide/ URL found."
+  },
+  {
+   "entry": "Cabernet Franc",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/cabernet-franc",
+   "products": [
+    "RIEDEL Black Series Collector's Edition Bordeaux Grand Cru - Red / Black",
+    "RIEDEL Extreme Cabernet",
+    "RIEDEL Fatto A Mano Black Tie Bordeaux Grand Cru - Black Base",
+    "RIEDEL Fatto A Mano by RIEDEL Cabernet / Merlot",
+    "RIEDEL Fatto A Mano Performance Cabernet Sauvignon",
+    "RIEDEL GRAPE@RIEDEL Cabernet / Merlot / Cocktail",
+    "RIEDEL Performance Cabernet / Merlot",
+    "RIEDEL Sommeliers Bordeaux Grand Cru",
+    "RIEDEL Superleggero Bordeaux Grand Cru",
+    "RIEDEL The O Wine Tumbler Cabernet",
+    "RIEDEL The O Wine Tumbler Cabernet / Merlot",
+    "RIEDEL Veloce Cabernet / Merlot",
+    "RIEDEL Veritas Cabernet / Merlot"
+   ],
+   "note": "en-se and en-be legacy /wineglassguide/ pages had no products / failed; ko-int page showed only generic 'RIEDEL' titles with SKUs (not used). Fatto A Mano colour and Black Base/Black Stem variants merged. Page rendered exactly 24 product cards with no load-more control in the fetched HTML; 24 may be a listing cap, so the list could be incomplete."
+  },
+  {
+   "entry": "Cabernet Sauvignon",
+   "url": "https://www.riedel.com/en-ca/wine-glass-guide/cabernet-sauvignon",
+   "products": [
+    "RIEDEL Black Series Collector's Edition Bordeaux Grand Cru - Red / Black",
+    "RIEDEL Extreme Cabernet",
+    "RIEDEL Fatto A Mano Black Tie Bordeaux Grand Cru - Black Base",
+    "RIEDEL Fatto A Mano by RIEDEL Cabernet / Merlot",
+    "RIEDEL GRAPE@RIEDEL Cabernet / Merlot / Cocktail",
+    "RIEDEL Performance Cabernet / Merlot",
+    "RIEDEL Sommeliers Bordeaux Grand Cru",
+    "RIEDEL Superleggero Bordeaux Grand Cru",
+    "RIEDEL The O Wine Tumbler Cabernet",
+    "RIEDEL The O Wine Tumbler Cabernet / Merlot",
+    "RIEDEL Veloce Cabernet / Merlot",
+    "RIEDEL Veritas Cabernet / Merlot",
+    "RIEDEL Veritas Cabernet / Merlot + Mosel Decanter",
+    "RIEDEL Vinum Cabernet / Merlot",
+    "RIEDEL Vinum Cabernet Sauvignon / Merlot"
+   ],
+   "note": "Includes a glass+decanter special set (Veritas + Mosel Decanter). 'Vinum Cabernet / Merlot' card is an anniversary set marked no longer available; 'Vinum Cabernet Sauvignon / Merlot' is a separate card title. Page rendered exactly 24 product cards with no load-more control in the fetched HTML; 24 may be a listing cap, so the list could be incomplete."
+  },
+  {
+   "entry": "Cannonau",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/cannonau",
+   "products": [
+    "RIEDEL Extreme Shiraz",
+    "RIEDEL Fatto A Mano by RIEDEL Syrah",
+    "RIEDEL Sommeliers Hermitage",
+    "RIEDEL The O Wine Tumbler Old World Syrah",
+    "RIEDEL Veloce Syrah / Shiraz",
+    "RIEDEL Veritas Old World Syrah",
+    "RIEDEL Vinum Syrah / Shiraz"
+   ],
+   "note": "Fatto A Mano by RIEDEL Syrah card shown as '- Dragon Red', recorded without colour."
+  },
+  {
+   "entry": "Carignan",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/carignan",
+   "products": [
+    "RIEDEL Extreme Shiraz",
+    "RIEDEL Fatto A Mano by RIEDEL Syrah",
+    "RIEDEL Sommeliers Hermitage",
+    "RIEDEL The O Wine Tumbler Old World Syrah",
+    "RIEDEL Veloce Syrah / Shiraz",
+    "RIEDEL Veritas Old World Syrah",
+    "RIEDEL Vinum Syrah / Shiraz"
+   ],
+   "note": "Fatto A Mano by RIEDEL Syrah shown as '- Dragon Red' plus one further colour variant; merged."
+  },
+  {
+   "entry": "Carménère",
+   "url": "https://www.riedel.com/en-us/wineglassguide/carmenere",
+   "products": [],
+   "note": "Legacy /wineglassguide/ URL loads but shows only the guide's grape search list, no product recommendations. en-it legacy variant failed (client_error). No /wine-glass-guide/ URL found."
+  },
+  {
+   "entry": "Cinsault",
+   "url": null,
+   "products": [],
+   "note": "No Cinsault guide page found in two searches (only Côtes du Rhône pages surfaced)."
+  },
+  {
+   "entry": "Corvina",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/corvina",
+   "products": [
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Performance Sauvignon Blanc",
+    "RIEDEL Superleggero Sauvignon Blanc",
+    "RIEDEL Veloce Riesling",
+    "RIEDEL Veritas Sauvignon Blanc",
+    "RIEDEL Vinum Sauvignon Blanc / Dessert Wine",
+    "RIEDEL Winewings Sauvignon Blanc"
+   ],
+   "note": "Page lists white-wine (Sauvignon Blanc/Riesling) glasses for this red grape; cross-checked on en-nz/wine-glass-guide/corvina, which shows the same list minus Extreme Riesling."
+  },
+  {
+   "entry": "Dolcetto",
+   "url": "https://www.riedel.com/en-in/wineglassguide/dolcetto",
+   "products": [],
+   "note": "Only legacy /wineglassguide/ URLs found: en-in failed (client_error); en-us loads but shows no product recommendations. No /wine-glass-guide/ URL found."
+  },
+  {
+   "entry": "Dornfelder",
+   "url": "https://www.riedel.com/en-is/wine-glass-guide/dornfelder",
+   "products": [
+    "RIEDEL Black Series Collector's Edition Riesling Grand Cru - Red / Black",
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL Fatto A Mano Black Tie Riesling - Black Base",
+    "RIEDEL Fatto A Mano by RIEDEL Riesling / Zinfandel",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Performance Riesling",
+    "RIEDEL Sommeliers Black Tie Riesling Grand Cru - Black Base",
+    "RIEDEL Sommeliers Riesling / Zinfandel",
+    "RIEDEL Sommeliers Riesling Grand Cru / Zinfandel",
+    "RIEDEL Superleggero Riesling"
+   ],
+   "note": "Page lists Riesling/white-wine glasses for this red grape (recorded as shown). 13 Fatto A Mano by RIEDEL colours merged. Page rendered exactly 24 product cards with no load-more control in the fetched HTML; 24 may be a listing cap, so the list could be incomplete."
+  },
+  {
+   "entry": "Gamay",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/gamay",
+   "products": [
+    "RIEDEL Extreme Pinot Noir",
+    "RIEDEL Fatto A Mano by RIEDEL Pinot Noir",
+    "RIEDEL GRAPE@RIEDEL Pinot Noir / Nebbiolo / Aperitivo",
+    "RIEDEL Veloce Pinot Noir / Nebbiolo",
+    "RIEDEL Veritas Old World Pinot Noir",
+    "RIEDEL Vinum Pinot Noir (Burgundy Red)",
+    "RIEDEL Vinum Pinot Noir / Nebbiolo"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Graciano",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/graciano",
+   "products": [
+    "RIEDEL Extreme Shiraz",
+    "RIEDEL Fatto A Mano by RIEDEL Syrah",
+    "RIEDEL The O Wine Tumbler Old World Syrah",
+    "RIEDEL Veloce Syrah / Shiraz",
+    "RIEDEL Veritas Old World Syrah"
+   ],
+   "note": "Page has 5 product cards. First query found nothing; legacy en-us /wineglassguide/graciano failed (client_error); /wine-glass-guide/ URL found on a later query. Fatto A Mano card shown as '- Dragon Red', recorded without colour."
+  },
+  {
+   "entry": "Grenache/Granacha",
+   "url": "https://www.riedel.com/en-ch/wineglassguide/grenache-granacha",
+   "products": [],
+   "note": "Only legacy /wineglassguide/ URLs found: en-ch, en and en-se failed (client_error); en-us/wineglassguide/grenachegranacha loads but shows no product recommendations. No /wine-glass-guide/ URL found."
+  },
+  {
+   "entry": "Lagrein",
+   "url": "https://www.riedel.com/en-gb/wine-glass-guide/lagrein",
+   "products": [
+    "RIEDEL Extreme Shiraz",
+    "RIEDEL Performance Syrah / Shiraz",
+    "RIEDEL Sommeliers Hermitage",
+    "RIEDEL Superleggero Hermitage / Syrah",
+    "RIEDEL The O Wine Tumbler O To Go Red Wine",
+    "RIEDEL The O Wine Tumbler Old World Syrah",
+    "RIEDEL Veloce Syrah / Shiraz",
+    "RIEDEL Veritas Old World Syrah",
+    "RIEDEL Vinum Syrah / Shiraz",
+    "RIEDEL Winewings Syrah"
+   ],
+   "note": "11 cards; Vinum Syrah / Shiraz appears twice (set of 2 and anniversary set)."
+  },
+  {
+   "entry": "Lambrusco",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/lambrusco",
+   "products": [
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Performance Sauvignon Blanc",
+    "RIEDEL Superleggero Sauvignon Blanc",
+    "RIEDEL Veloce Sauvignon Blanc",
+    "RIEDEL Veritas Sauvignon Blanc",
+    "RIEDEL Vinum Sauvignon Blanc / Dessert Wine"
+   ],
+   "note": "Page lists white-wine (Sauvignon Blanc/Riesling) glasses."
+  },
+  {
+   "entry": "Malbec",
+   "url": "https://www.riedel.com/en-int/wine-glass-guide/malbec",
+   "products": [
+    "RIEDEL Extreme Shiraz",
+    "RIEDEL Fatto A Mano Black Tie Hermitage - Black Base",
+    "RIEDEL Performance Syrah / Shiraz",
+    "RIEDEL Sommeliers Hermitage",
+    "RIEDEL Superleggero Hermitage / Syrah",
+    "RIEDEL The O Wine Tumbler 4x Cabernet / Merlot + 1x Syrah Decanter",
+    "RIEDEL The O Wine Tumbler Syrah / Shiraz",
+    "RIEDEL Veloce Syrah / Shiraz",
+    "RIEDEL Veritas New World Shiraz",
+    "RIEDEL Vinum Syrah / Shiraz",
+    "RIEDEL Winewings Syrah"
+   ],
+   "note": "11 cards. Includes a tumbler+decanter set (The O 4x Cabernet / Merlot + 1x Syrah Decanter)."
+  },
+  {
+   "entry": "Marselan",
+   "url": null,
+   "products": [],
+   "note": "No Marselan guide page found in two searches (only Marsala pages surfaced)."
+  },
+  {
+   "entry": "Mencia",
+   "url": "https://www.riedel.com/en-us/wineglassguide/mencia",
+   "products": [],
+   "note": "Legacy /wineglassguide/ URL loads but shows only the guide's grape search list, no product recommendations. No /wine-glass-guide/ URL found."
+  },
+  {
+   "entry": "Merlot",
+   "url": "https://www.riedel.com/en/wineglassguide/merlot",
+   "products": [],
+   "note": "Legacy /wineglassguide/ URL loads with a 'Wine Glass Guide' heading and Merlot description but no product cards. No /wine-glass-guide/ URL found in three searches."
+  },
+  {
+   "entry": "Montepulciano",
+   "url": "https://www.riedel.com/en-int/wine-glass-guide/montepulciano",
+   "products": [
+    "RIEDEL Black Series Collector's Edition Bordeaux Grand Cru - Red / Black",
+    "RIEDEL Extreme Cabernet",
+    "RIEDEL Fatto A Mano Black Tie Bordeaux Grand Cru - Black Base",
+    "RIEDEL Fatto A Mano by RIEDEL Cabernet / Merlot",
+    "RIEDEL GRAPE@RIEDEL Cabernet / Merlot / Cocktail",
+    "RIEDEL Performance Cabernet / Merlot",
+    "RIEDEL Sommeliers Bordeaux Grand Cru",
+    "RIEDEL Superleggero Bordeaux Grand Cru"
+   ],
+   "note": "First query surfaced only en-ae legacy URL (client_error) and Vino Nobile di Montepulciano pages; en-int /wine-glass-guide/ URL found on second query. 13 Fatto A Mano by RIEDEL colours merged. List ends at Superleggero (no The O/Veloce/Veritas/Vinum, unlike the Cabernet pages). Page rendered exactly 24 product cards with no load-more control in the fetched HTML; 24 may be a listing cap, so the list could be incomplete."
+  },
+  {
+   "entry": "Mourvèdre",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/mourvedre",
+   "products": [
+    "RIEDEL Extreme Shiraz",
+    "RIEDEL Fatto A Mano by RIEDEL Syrah",
+    "RIEDEL Sommeliers Hermitage",
+    "RIEDEL The O Wine Tumbler Old World Syrah",
+    "RIEDEL Veloce Syrah / Shiraz",
+    "RIEDEL Veritas Old World Syrah",
+    "RIEDEL Vinum Syrah / Shiraz"
+   ],
+   "note": "Fatto A Mano by RIEDEL Syrah card shown as '- Dragon Red', recorded without colour."
+  },
+  {
+   "entry": "Nebbiolo",
+   "url": "https://www.riedel.com/en-int/wine-glass-guide/nebbiolo",
+   "products": [
+    "RIEDEL Black Series Collector's Edition Montrachet - Red / Black",
+    "RIEDEL Extreme Pinot Noir",
+    "RIEDEL Fatto A Mano Black Tie Burgundy Grand Cru - Black Base",
+    "RIEDEL Gin Set Classic",
+    "RIEDEL GRAPE@RIEDEL Pinot Noir / Nebbiolo / Aperitivo",
+    "RIEDEL Performance Pinot Noir",
+    "RIEDEL Sommeliers Montrachet",
+    "RIEDEL Superleggero Burgundy Grand Cru",
+    "RIEDEL The O Wine Tumbler New World Pinot Noir",
+    "RIEDEL Veloce Pinot Noir / Nebbiolo",
+    "RIEDEL Veritas New World Pinot Noir / Nebbiolo / Rosé Champagne Glass",
+    "RIEDEL Vinum Pinot Noir (Burgundy Red)",
+    "RIEDEL Vinum Pinot Noir / Nebbiolo",
+    "RIEDEL Winewings Pinot Noir / Nebbiolo"
+   ],
+   "note": "18 cards. List includes 'RIEDEL Gin Set Classic' and Montrachet glasses, as shown on the page."
+  },
+  {
+   "entry": "Nerello Mascalese",
+   "url": "https://www.riedel.com/en-int/wine-glass-guide/nerello-mascalese",
+   "products": [
+    "RIEDEL Black Series Collector's Edition Montrachet - Red / Black",
+    "RIEDEL Extreme Pinot Noir",
+    "RIEDEL Fatto A Mano Black Tie Burgundy Grand Cru - Black Base",
+    "RIEDEL Gin Set Classic",
+    "RIEDEL GRAPE@RIEDEL Pinot Noir / Nebbiolo / Aperitivo",
+    "RIEDEL Performance Pinot Noir",
+    "RIEDEL Sommeliers Montrachet",
+    "RIEDEL Superleggero Burgundy Grand Cru",
+    "RIEDEL The O Wine Tumbler New World Pinot Noir",
+    "RIEDEL Veloce Pinot Noir / Nebbiolo",
+    "RIEDEL Veritas New World Pinot Noir / Nebbiolo / Rosé Champagne Glass",
+    "RIEDEL Vinum Pinot Noir (Burgundy Red)",
+    "RIEDEL Vinum Pinot Noir / Nebbiolo",
+    "RIEDEL Winewings Pinot Noir / Nebbiolo"
+   ],
+   "note": "18 cards; identical list to the Nebbiolo page, including 'RIEDEL Gin Set Classic'."
+  },
+  {
+   "entry": "Nero d'Avola",
+   "url": "https://www.riedel.com/en-us/wineglassguide/nero-d-avola",
+   "products": [],
+   "note": "Only legacy /wineglassguide/ URLs found: en-us loads but shows no product recommendations; en-se, en-nz, en-nl failed (client_error). No /wine-glass-guide/ URL found."
+  },
+  {
+   "entry": "Petit Verdot",
+   "url": "https://www.riedel.com/en/wineglassguide/petit-verdot",
+   "products": [],
+   "note": "Only an old /wineglassguide/ URL found in 2 searches; it rendered the generic guide index with no product listing."
+  },
+  {
+   "entry": "Petite Sirah",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/petite-sirah",
+   "products": [
+    "RIEDEL Extreme Shiraz",
+    "RIEDEL Fatto A Mano by RIEDEL Syrah - Dragon Red",
+    "RIEDEL Sommeliers Hermitage",
+    "RIEDEL The O Wine Tumbler Old World Syrah",
+    "RIEDEL Veloce Syrah / Shiraz",
+    "RIEDEL Veritas Old World Syrah",
+    "RIEDEL Vinum Syrah / Shiraz"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Pinot Noir New World",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/pinot-noir-new-world",
+   "products": [
+    "RIEDEL Extreme Pinot Noir",
+    "RIEDEL GRAPE@RIEDEL Pinot Noir / Nebbiolo / Aperitivo",
+    "RIEDEL Performance Pinot Noir",
+    "RIEDEL Sommeliers Montrachet",
+    "RIEDEL Superleggero Burgundy Grand Cru",
+    "RIEDEL The O Wine Tumbler New World Pinot Noir",
+    "RIEDEL Veloce Pinot Noir / Nebbiolo",
+    "RIEDEL Veritas New World Pinot Noir / Nebbiolo / Rosé Champagne Glass",
+    "RIEDEL Vinum Pinot Noir (Burgundy Red)",
+    "RIEDEL Vinum Pinot Noir / Nebbiolo"
+   ],
+   "note": "'RIEDEL Vinum Pinot Noir / Nebbiolo' tile is an Anniversary Set."
+  },
+  {
+   "entry": "Pinot Noir Old World",
+   "url": "https://www.riedel.com/en-int/wine-glass-guide/pinot-noir-old-world",
+   "products": [
+    "RIEDEL Black Series Collector's Edition Burgundy Grand Cru - Red / Black",
+    "RIEDEL Extreme Pinot Noir",
+    "RIEDEL Fatto A Mano Black Tie Burgundy Grand Cru - Black Base",
+    "RIEDEL Fatto A Mano by RIEDEL Pinot Noir",
+    "RIEDEL GRAPE@RIEDEL Pinot Noir / Nebbiolo / Aperitivo",
+    "RIEDEL Performance Pinot Noir",
+    "RIEDEL Sommeliers Burgundy Grand Cru",
+    "RIEDEL Superleggero Burgundy Grand Cru"
+   ],
+   "note": "Listing shows exactly 24 product tiles in alphabetical order with no load-more control in the fetched HTML; appears capped at 24, so products later in the alphabet may be missing. List ends at Superleggero (13 Fatto A Mano colour tiles fill the cap). No complete alternative: en-us /wineglassguide/ URL redirects to product page 'RIEDEL Restaurant Old World Pinot Noir', en-se fetch failed, en-fr showed no products."
+  },
+  {
+   "entry": "Pinotage",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/pinotage",
+   "products": [
+    "RIEDEL Extreme Shiraz",
+    "RIEDEL Fatto A Mano by RIEDEL Syrah - Dragon Red",
+    "RIEDEL Sommeliers Hermitage",
+    "RIEDEL The O Wine Tumbler Old World Syrah",
+    "RIEDEL Veloce Syrah / Shiraz",
+    "RIEDEL Veritas Old World Syrah",
+    "RIEDEL Vinum Syrah / Shiraz"
+   ],
+   "note": "en-fr /wineglassguide/ version had no product listing; en-us page used."
+  },
+  {
+   "entry": "Primitivo",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/primitivo",
+   "products": [
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL Fatto A Mano by RIEDEL Riesling / Zinfandel",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Performance Riesling",
+    "RIEDEL Sommeliers Riesling / Zinfandel",
+    "RIEDEL Superleggero Riesling",
+    "RIEDEL The O Wine Tumbler Riesling / Sauvignon Blanc",
+    "RIEDEL Veloce Riesling",
+    "RIEDEL Veritas Riesling / Zinfandel",
+    "RIEDEL Veritas Riesling / Zinfandel + Mosel Decanter",
+    "RIEDEL Vinum Riesling",
+    "RIEDEL Vinum Riesling Grand Cru / Zinfandel"
+   ],
+   "note": "'Veritas Riesling / Zinfandel + Mosel Decanter' is a glass+decanter bundle listed as its own tile."
+  },
+  {
+   "entry": "Refosco",
+   "url": "https://www.riedel.com/en-int/wine-glass-guide/refosco",
+   "products": [
+    "RIEDEL Extreme Shiraz",
+    "RIEDEL Fatto A Mano Black Tie Hermitage - Black Base",
+    "RIEDEL Fatto A Mano by RIEDEL Syrah",
+    "RIEDEL Performance Syrah / Shiraz",
+    "RIEDEL Sommeliers Hermitage",
+    "RIEDEL Superleggero Hermitage / Syrah",
+    "RIEDEL The O Wine Tumbler O To Go Red Wine",
+    "RIEDEL The O Wine Tumbler Old World Syrah",
+    "RIEDEL Veloce Syrah / Shiraz",
+    "RIEDEL Veritas Old World Syrah",
+    "RIEDEL Vinum Syrah / Shiraz"
+   ],
+   "note": "Listing shows exactly 24 product tiles in alphabetical order with no load-more control in the fetched HTML; appears capped at 24, so products later in the alphabet may be missing. List reaches Vinum, so at most the last item(s) could be missing."
+  },
+  {
+   "entry": "Sangiovese",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/sangiovese",
+   "products": [
+    "RIEDEL Extreme Shiraz",
+    "RIEDEL Fatto A Mano by RIEDEL Syrah - Dragon Red",
+    "RIEDEL Sommeliers Hermitage",
+    "RIEDEL The O Wine Tumbler Old World Syrah",
+    "RIEDEL Veloce Syrah / Shiraz",
+    "RIEDEL Veritas Old World Syrah",
+    "RIEDEL Vinum Syrah / Shiraz"
+   ],
+   "note": "Page lists Syrah/Shiraz glasses only; confirmed on a second fetch (Sangiovese description text present)."
+  },
+  {
+   "entry": "Saperavi",
+   "url": "https://www.riedel.com/en-it/wineglassguide/saperavi",
+   "products": [],
+   "note": "Only an old /wineglassguide/ URL found in 2 searches; it rendered the generic guide index with no product listing."
+  },
+  {
+   "entry": "Schilcher",
+   "url": "https://www.riedel.com/en/wineglassguide/schilcher",
+   "products": [],
+   "note": "Old /wineglassguide/ page shows a Schilcher description but no product listing; en-se and en-it versions failed to fetch; no /wine-glass-guide/ URL found."
+  },
+  {
+   "entry": "Shiraz New World",
+   "url": "https://www.riedel.com/en-us/wineglassguide/shiraz-new-world",
+   "products": [],
+   "note": "No guide listing retrieved. en-us and en-au /wineglassguide/shiraz-new-world resolve to the product page 'RIEDEL Restaurant New World Shiraz' (Art. No. 0446/30), not a guide entry; en, en-de, en-no and de/weinglas-guide versions failed to fetch."
+  },
+  {
+   "entry": "St. Laurent",
+   "url": "https://www.riedel.com/en-li/wineglassguide/st-laurent",
+   "products": [],
+   "note": "en-li and en-us /wineglassguide/ pages show a St. Laurent description with an unfilled template placeholder (%%INTERNAL_COUNTRY%%) and no product listing."
+  },
+  {
+   "entry": "Syrah Old World",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/syrah-old-world",
+   "products": [
+    "RIEDEL Extreme Shiraz",
+    "RIEDEL Fatto A Mano by RIEDEL Syrah - Dragon Red",
+    "RIEDEL Sommeliers Hermitage",
+    "RIEDEL The O Wine Tumbler Old World Syrah",
+    "RIEDEL Veloce Syrah / Shiraz",
+    "RIEDEL Veritas Old World Syrah"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Tannat",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/tannat",
+   "products": [
+    "RIEDEL Extreme Shiraz",
+    "RIEDEL Fatto A Mano Black Tie Bordeaux Grand Cru - Black Base",
+    "RIEDEL Superleggero Bordeaux Grand Cru",
+    "RIEDEL The O Wine Tumbler Syrah / Shiraz",
+    "RIEDEL Veloce Syrah / Shiraz",
+    "RIEDEL Vinum Syrah / Shiraz"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Tempranillo",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/tempranillo",
+   "products": [
+    "RIEDEL Extreme Shiraz",
+    "RIEDEL Fatto A Mano by RIEDEL Syrah - Dragon Red",
+    "RIEDEL The O Wine Tumbler Old World Syrah",
+    "RIEDEL Veloce Syrah / Shiraz",
+    "RIEDEL Veritas Old World Syrah"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Teroldego",
+   "url": "https://www.riedel.com/en-gb/wine-glass-guide/teroldego",
+   "products": [
+    "RIEDEL Extreme Shiraz",
+    "RIEDEL Performance Syrah / Shiraz",
+    "RIEDEL Sommeliers Hermitage",
+    "RIEDEL Superleggero Hermitage / Syrah",
+    "RIEDEL The O Wine Tumbler O To Go Red Wine",
+    "RIEDEL The O Wine Tumbler Old World Syrah",
+    "RIEDEL Veloce Syrah / Shiraz",
+    "RIEDEL Veritas Old World Syrah",
+    "RIEDEL Vinum Syrah / Shiraz",
+    "RIEDEL Winewings Syrah"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Tinta de Toro",
+   "url": "https://www.riedel.com/en-ca/wine-glass-guide/tinta-de-toro",
+   "products": [
+    "RIEDEL Extreme Shiraz",
+    "RIEDEL Fatto A Mano by RIEDEL Syrah - Dragon Red",
+    "RIEDEL The O Wine Tumbler Old World Syrah",
+    "RIEDEL Veloce Syrah / Shiraz",
+    "RIEDEL Veritas Old World Syrah"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Touriga Nacional",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/touriga-nacional",
+   "products": [
+    "RIEDEL Extreme Shiraz",
+    "RIEDEL Fatto A Mano by RIEDEL Syrah - Dragon Red",
+    "RIEDEL Sommeliers Hermitage",
+    "RIEDEL The O Wine Tumbler Old World Syrah",
+    "RIEDEL Veloce Syrah / Shiraz",
+    "RIEDEL Veritas Old World Syrah",
+    "RIEDEL Vinum Syrah / Shiraz"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Xinomavro",
+   "url": null,
+   "products": [],
+   "note": "No riedel.com guide page found in 2 searches."
+  },
+  {
+   "entry": "Zinfandel",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/zinfandel",
+   "products": [
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL Fatto A Mano by RIEDEL Riesling / Zinfandel",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Performance Riesling",
+    "RIEDEL Sommeliers Riesling / Zinfandel",
+    "RIEDEL Sommeliers Riesling Grand Cru / Zinfandel",
+    "RIEDEL Superleggero Riesling",
+    "RIEDEL The O Wine Tumbler Riesling / Sauvignon Blanc",
+    "RIEDEL Veloce Riesling",
+    "RIEDEL Veritas Riesling / Zinfandel",
+    "RIEDEL Veritas Riesling / Zinfandel + Mosel Decanter",
+    "RIEDEL Vinum Riesling Grand Cru / Zinfandel"
+   ],
+   "note": "en-us page (21 tiles, uncapped) used. en-int page is capped at 24 tiles (ends at Superleggero) and additionally lists 'RIEDEL Black Series Collector's Edition Riesling Grand Cru - Red / Black' and 'RIEDEL Fatto A Mano Black Tie Riesling - Black Base'."
+  },
+  {
+   "entry": "Zweigelt",
+   "url": "https://www.riedel.com/en-us/wineglassguide/zweigelt",
+   "products": [],
+   "note": "Only old /wineglassguide/ URLs found; en-us rendered the generic guide index with no products; en-it and en-in failed to fetch."
+  },
+  {
+   "entry": "Rosé",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/rose",
+   "products": [
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL Fatto A Mano by RIEDEL Riesling / Zinfandel",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Performance Riesling",
+    "RIEDEL Sommeliers Riesling / Zinfandel",
+    "RIEDEL Sommeliers Riesling Grand Cru / Zinfandel",
+    "RIEDEL Superleggero Riesling",
+    "RIEDEL The O Wine Tumbler Riesling / Sauvignon Blanc",
+    "RIEDEL Veloce Rosé",
+    "RIEDEL Veritas Riesling / Zinfandel",
+    "RIEDEL Veritas Riesling / Zinfandel + Mosel Decanter",
+    "RIEDEL Vinum Riesling",
+    "RIEDEL Vinum Riesling Grand Cru / Zinfandel",
+    "RIEDEL Winewings Riesling"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Rosé Champagne",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/rose-champagne",
+   "products": [
+    "RIEDEL Extreme Pinot Noir",
+    "RIEDEL Extreme Rosé Champagne Glass / Rosé Wine",
+    "RIEDEL Fatto A Mano Black Tie Champagne Wine Glass / Sauvignon Blanc - Black Base",
+    "RIEDEL Fatto A Mano by RIEDEL Champagne Wine Glass",
+    "RIEDEL Fatto A Mano by RIEDEL Pinot Noir",
+    "RIEDEL GRAPE@RIEDEL Champagne Flute",
+    "RIEDEL GRAPE@RIEDEL Pinot Noir / Nebbiolo / Aperitivo",
+    "RIEDEL Performance Champagne Glass",
+    "RIEDEL Performance Pinot Noir"
+   ],
+   "note": "Listing shows exactly 24 product tiles in alphabetical order with no load-more control in the fetched HTML; appears capped at 24, so products later in the alphabet may be missing. List ends at Performance. The en-int page is also capped (ends inside Fatto A Mano colour tiles) and additionally lists 'RIEDEL Black Series Collector's Edition Burgundy Grand Cru - Red / Black' and 'RIEDEL Fatto A Mano Black Tie Burgundy Grand Cru - Black Base'."
+  },
+  {
+   "entry": "Champagne",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/champagne",
+   "products": [
+    "RIEDEL Extreme Rosé Champagne Glass / Rosé Wine",
+    "RIEDEL Fatto A Mano Black Tie Champagne Wine Glass / Sauvignon Blanc - Black Base",
+    "RIEDEL Fatto A Mano by RIEDEL Champagne Wine Glass",
+    "RIEDEL GRAPE@RIEDEL Champagne Flute",
+    "RIEDEL Performance Champagne Glass",
+    "RIEDEL Superleggero Champagne Wine Glass",
+    "RIEDEL The O Wine Tumbler Champagne Glass",
+    "RIEDEL Veloce Champagne Wine Glass",
+    "RIEDEL Veritas Champagne Wine Glass",
+    "RIEDEL Vinum Cuvée Prestige",
+    "RIEDEL Winewings Champagne Wine Glass"
+   ],
+   "note": "en-us page (21 tiles, uncapped) used. en-int page is capped at 24 tiles (ends at Superleggero) and additionally lists 'RIEDEL Sommeliers Champagne Wine Glass' and 'RIEDEL Superleggero Restaurant Champagne Wine Glass'."
+  },
+  {
+   "entry": "Blanc de Blancs",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/blanc-de-blancs",
+   "products": [
+    "RIEDEL Black Series Collector's Edition Sparkling Wine - Red / Black",
+    "RIEDEL Extreme Rosé Champagne Glass / Rosé Wine",
+    "RIEDEL Fatto A Mano Black Tie Champagne Wine Glass / Sauvignon Blanc - Black Base",
+    "RIEDEL Fatto A Mano by RIEDEL Champagne Wine Glass",
+    "RIEDEL Fatto A Mano Performance Champagne Glass",
+    "RIEDEL Performance Champagne Glass",
+    "RIEDEL Superleggero Champagne Wine Glass",
+    "RIEDEL The O Wine Tumbler Champagne Glass",
+    "RIEDEL Veloce Champagne Wine Glass",
+    "RIEDEL Veritas Champagne Wine Glass",
+    "RIEDEL Winewings Champagne Wine Glass"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Blanc de Noirs",
+   "url": "https://www.riedel.com/en-at/wineglassguide/blanc-de-noirs",
+   "products": [],
+   "note": "Only old /wineglassguide/ URLs found (en-at, en-be); both failed to fetch. A further search for a /wine-glass-guide/ URL was blocked by the search budget."
+  },
+  {
+   "entry": "Cava",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/cava",
+   "products": [
+    "RIEDEL Black Series Collector's Edition Sparkling Wine - Red / Black",
+    "RIEDEL Extreme Rosé Champagne Glass / Rosé Wine",
+    "RIEDEL Fatto A Mano Black Tie Champagne Wine Glass / Sauvignon Blanc - Black Base",
+    "RIEDEL Fatto A Mano by RIEDEL Champagne Wine Glass",
+    "RIEDEL Fatto A Mano Performance Champagne Glass",
+    "RIEDEL Performance Champagne Glass",
+    "RIEDEL Superleggero Champagne Wine Glass",
+    "RIEDEL The O Wine Tumbler Champagne Glass",
+    "RIEDEL Veloce Champagne Wine Glass",
+    "RIEDEL Veritas Champagne Wine Glass",
+    "RIEDEL Winewings Champagne Wine Glass"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Prosecco",
+   "url": "https://www.riedel.com/en-ca/wine-glass-guide/prosecco",
+   "products": [
+    "RIEDEL Extreme Rosé Champagne Glass / Rosé Wine",
+    "RIEDEL Fatto A Mano Black Tie Champagne Wine Glass / Sauvignon Blanc - Black Base",
+    "RIEDEL Fatto A Mano by RIEDEL Champagne Wine Glass",
+    "RIEDEL Performance Champagne Glass",
+    "RIEDEL Superleggero Champagne Wine Glass",
+    "RIEDEL The O Wine Tumbler Champagne Glass",
+    "RIEDEL Veloce Champagne Wine Glass",
+    "RIEDEL Veritas Champagne Wine Glass",
+    "RIEDEL Vinum Cuvée Prestige"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Sekt",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/sekt",
+   "products": [
+    "RIEDEL Extreme Rosé Champagne Glass / Rosé Wine",
+    "RIEDEL Fatto A Mano Black Tie Champagne Wine Glass / Sauvignon Blanc - Black Base",
+    "RIEDEL Fatto A Mano by RIEDEL Champagne Wine Glass",
+    "RIEDEL GRAPE@RIEDEL Champagne Flute",
+    "RIEDEL Performance Champagne Glass",
+    "RIEDEL Superleggero Champagne Wine Glass",
+    "RIEDEL The O Wine Tumbler Champagne Glass",
+    "RIEDEL Veloce Champagne Wine Glass",
+    "RIEDEL Veritas Champagne Wine Glass",
+    "RIEDEL Vinum Syrah / Shiraz",
+    "RIEDEL Winewings Champagne Wine Glass"
+   ],
+   "note": "'RIEDEL Vinum Syrah / Shiraz' really appears in the Sekt listing (two tiles: Set of 2 641600030 and Anniversary Set 741604030); confirmed on a second fetch."
+  },
+  {
+   "entry": "Franciacorta",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/franciacorta",
+   "products": [
+    "RIEDEL Extreme Rosé Champagne Glass / Rosé Wine",
+    "RIEDEL Fatto A Mano Black Tie Champagne Wine Glass / Sauvignon Blanc - Black Base",
+    "RIEDEL Fatto A Mano by RIEDEL Champagne Wine Glass",
+    "RIEDEL Performance Champagne Glass",
+    "RIEDEL Superleggero Champagne Wine Glass",
+    "RIEDEL The O Wine Tumbler Champagne Glass",
+    "RIEDEL Veloce Champagne Wine Glass",
+    "RIEDEL Veritas Champagne Wine Glass",
+    "RIEDEL Vinum Cuvée Prestige",
+    "RIEDEL Winewings Champagne Wine Glass"
+   ],
+   "note": "en-us page (20 tiles, uncapped) used. en-int page is capped at 24 tiles (ends at The O) and additionally lists 'RIEDEL Sommeliers Champagne Wine Glass' and 'RIEDEL Superleggero Restaurant Champagne Wine Glass'."
+  },
+  {
+   "entry": "Sparkling Wine",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/sparkling-wine",
+   "products": [
+    "RIEDEL Extreme Rosé Champagne Glass / Rosé Wine",
+    "RIEDEL Fatto A Mano Black Tie Champagne Wine Glass / Sauvignon Blanc - Black Base",
+    "RIEDEL Fatto A Mano by RIEDEL Champagne Wine Glass",
+    "RIEDEL Performance Champagne Glass",
+    "RIEDEL Superleggero Champagne Wine Glass",
+    "RIEDEL The O Wine Tumbler Champagne Glass",
+    "RIEDEL Veloce Champagne Wine Glass",
+    "RIEDEL Veritas Champagne Wine Glass",
+    "RIEDEL Vinum Cuvée Prestige",
+    "RIEDEL Winewings Champagne Wine Glass"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Albariño",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/albarino",
+   "products": [
+    "RIEDEL Performance Sauvignon Blanc",
+    "RIEDEL Sommeliers Mature Bordeaux / Chablis / Chardonnay",
+    "RIEDEL Superleggero Riesling",
+    "RIEDEL The O Wine Tumbler Viognier / Chardonnay",
+    "RIEDEL Tumbler Collection Optical \"O“ Whisky",
+    "RIEDEL Veloce Riesling",
+    "RIEDEL Veritas Viognier / Chardonnay",
+    "RIEDEL Vinum Viognier / Chardonnay",
+    "RIEDEL Winewings Sauvignon Blanc"
+   ],
+   "note": "Includes a whisky tumbler (RIEDEL Tumbler Collection Optical \"O“ Whisky) as listed on the page."
+  },
+  {
+   "entry": "Aligoté",
+   "url": "https://www.riedel.com/en-ch/wineglassguide/aligote",
+   "products": [],
+   "note": "Only old /wineglassguide/ URL(s) found in search; fetch failed at site (client_error), no products retrieved. Tried en-ch URL; en-us /wine-glass-guide/aligote not in search results (allowlist rejected)."
+  },
+  {
+   "entry": "Arneis",
+   "url": null,
+   "products": [],
+   "note": "No riedel.com wine glass guide page found in two searches."
+  },
+  {
+   "entry": "Auxerrois",
+   "url": null,
+   "products": [],
+   "note": "No riedel.com wine glass guide page found in two searches."
+  },
+  {
+   "entry": "Bacchus",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/bacchus",
+   "products": [
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Performance Sauvignon Blanc",
+    "RIEDEL Superleggero Sauvignon Blanc",
+    "RIEDEL Veloce Riesling",
+    "RIEDEL Veritas Sauvignon Blanc",
+    "RIEDEL Vinum Sauvignon Blanc / Dessert Wine"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Chardonnay (oaked)",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/chardonnay-oaked",
+   "products": [
+    "RIEDEL Extreme Oaked Chardonnay",
+    "RIEDEL Fatto A Mano Black Tie Chardonnay - Black Base",
+    "RIEDEL Fatto A Mano by RIEDEL Oaked Chardonnay - Dragon Red",
+    "RIEDEL GRAPE@RIEDEL Chardonnay / Gin Tonic",
+    "RIEDEL Performance Chardonnay",
+    "RIEDEL Sommeliers Montrachet",
+    "RIEDEL Superleggero Chardonnay",
+    "RIEDEL The O Wine Tumbler Oaked Chardonnay",
+    "RIEDEL Veloce Chardonnay",
+    "RIEDEL Veritas Oaked Chardonnay",
+    "RIEDEL Vinum Oaked Chardonnay (Montrachet)",
+    "RIEDEL Winewings Chardonnay"
+   ],
+   "note": "Fatto A Mano title includes colour 'Dragon Red' as written on page (only colour shown)."
+  },
+  {
+   "entry": "Chardonnay (unoaked)",
+   "url": "https://www.riedel.com/en-int/wine-glass-guide/chardonnay-unoaked",
+   "products": [
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL Fatto A Mano Black Tie Riesling - Black Base",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Sommeliers Mature Bordeaux / Chablis / Chardonnay",
+    "RIEDEL Superleggero Riesling",
+    "RIEDEL The O Wine Tumbler Viognier / Chardonnay",
+    "RIEDEL Veloce Riesling",
+    "RIEDEL Veritas Viognier / Chardonnay",
+    "RIEDEL Vinum Viognier / Chardonnay",
+    "RIEDEL Winewings Chardonnay"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Chasselas",
+   "url": "https://www.riedel.com/en-ch/wineglassguide/chasselas",
+   "products": [],
+   "note": "Only old /wineglassguide/ URL(s) found in search; fetch failed at site (client_error), no products retrieved. Tried en-ch and en-at URLs."
+  },
+  {
+   "entry": "Chenin Blanc",
+   "url": "https://www.riedel.com/en-au/wine-glass-guide/chenin-blanc",
+   "products": [
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL Fatto A Mano by RIEDEL Champagne Wine Glass",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Performance Sauvignon Blanc",
+    "RIEDEL Superleggero Sauvignon Blanc",
+    "RIEDEL Veloce Riesling",
+    "RIEDEL Veritas Champagne Wine Glass",
+    "RIEDEL Vinum Sauvignon Blanc / Dessert Wine"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Cortese",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/cortese",
+   "products": [
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Sommeliers Mature Bordeaux / Chablis / Chardonnay",
+    "RIEDEL Superleggero Riesling",
+    "RIEDEL The O Wine Tumbler Viognier / Chardonnay",
+    "RIEDEL Veloce Riesling",
+    "RIEDEL Veritas Viognier / Chardonnay",
+    "RIEDEL Vinum Viognier / Chardonnay"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Falanghina",
+   "url": "https://www.riedel.com/en/wineglassguide/falanghina",
+   "products": [],
+   "note": "Old /wineglassguide/ page found; fetched OK (heading matches) but it shows no product recommendations. Same result for en-se URL."
+  },
+  {
+   "entry": "Fiano",
+   "url": "https://www.riedel.com/en-is/wine-glass-guide/fiano",
+   "products": [
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL Fatto A Mano Black Tie Riesling - Black Base",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Sommeliers Mature Bordeaux / Chablis / Chardonnay",
+    "RIEDEL Superleggero Riesling",
+    "RIEDEL The O Wine Tumbler Viognier / Chardonnay",
+    "RIEDEL Tumbler Collection Optical \"O“ Whisky",
+    "RIEDEL Veloce Riesling",
+    "RIEDEL Veritas Viognier / Chardonnay",
+    "RIEDEL Vinum Viognier / Chardonnay"
+   ],
+   "note": "Includes a whisky tumbler as listed on the page."
+  },
+  {
+   "entry": "Friulano",
+   "url": "https://www.riedel.com/en-is/wine-glass-guide/friulano",
+   "products": [
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL Fatto A Mano Black Tie Riesling - Black Base",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Sommeliers Mature Bordeaux / Chablis / Chardonnay",
+    "RIEDEL Superleggero Riesling",
+    "RIEDEL The O Wine Tumbler Viognier / Chardonnay",
+    "RIEDEL Veloce Riesling",
+    "RIEDEL Veritas Viognier / Chardonnay",
+    "RIEDEL Vinum Viognier / Chardonnay",
+    "RIEDEL Winewings Chardonnay"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Furmint",
+   "url": "https://www.riedel.com/en-int/wine-glass-guide/furmint",
+   "products": [
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Performance Sauvignon Blanc",
+    "RIEDEL Sommeliers Loire",
+    "RIEDEL Superleggero Restaurant Sauvignon Blanc",
+    "RIEDEL Superleggero Sauvignon Blanc",
+    "RIEDEL Veloce Sauvignon Blanc",
+    "RIEDEL Veritas Sauvignon Blanc",
+    "RIEDEL Vinum Sauvignon Blanc / Dessert Wine",
+    "RIEDEL Winewings Sauvignon Blanc"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Garnatxa Blanca",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/garnatxa-blanca",
+   "products": [
+    "RIEDEL Extreme Oaked Chardonnay",
+    "RIEDEL Fatto A Mano Black Tie Chardonnay - Black Base",
+    "RIEDEL GRAPE@RIEDEL Chardonnay / Gin Tonic",
+    "RIEDEL Performance Chardonnay",
+    "RIEDEL Sommeliers Montrachet",
+    "RIEDEL Superleggero Chardonnay",
+    "RIEDEL Veloce Chardonnay",
+    "RIEDEL Veritas Oaked Chardonnay",
+    "RIEDEL Vinum Oaked Chardonnay (Montrachet)",
+    "RIEDEL Winewings Chardonnay"
+   ],
+   "note": "Oaked-Chardonnay-style list, differs from the separate 'Grenache Blanc/Granacha Blanca' page (Riesling/Viognier-style). Superleggero Chardonnay single and 270 Years Anniversary 2-pack (marked no longer available) merged."
+  },
+  {
+   "entry": "Gelber Muskateller",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/gelber-muskateller",
+   "products": [
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Performance Sauvignon Blanc",
+    "RIEDEL Superleggero Sauvignon Blanc",
+    "RIEDEL Veloce Sauvignon Blanc",
+    "RIEDEL Veritas Sauvignon Blanc",
+    "RIEDEL Vinum Sauvignon Blanc / Dessert Wine",
+    "RIEDEL Winewings Sauvignon Blanc"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Gewürztraminer",
+   "url": "https://www.riedel.com/en-us/wineglassguide/gewuerztraminer",
+   "products": [],
+   "note": "Only old /wineglassguide/gewuerztraminer URLs in search. en-us URL returned the generic Wine Glass Guide index (no grape heading, no products); en-li and en-si failed (client_error). A separate new-format 'Traminer' page exists (https://www.riedel.com/en-us/wine-glass-guide/traminer), not fetched since slug differs."
+  },
+  {
+   "entry": "Godello",
+   "url": null,
+   "products": [],
+   "note": "No riedel.com wine glass guide page found in two searches."
+  },
+  {
+   "entry": "Greco di Tufo",
+   "url": "https://www.riedel.com/en/wineglassguide/greco-di-tufo",
+   "products": [],
+   "note": "Old /wineglassguide/ page found; fetched OK (heading matches) but it shows no product recommendations."
+  },
+  {
+   "entry": "Grenache Blanc/Granacha Blanca",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/grenache-blanc-granacha-blanca",
+   "products": [
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Sommeliers Mature Bordeaux / Chablis / Chardonnay",
+    "RIEDEL Superleggero Riesling",
+    "RIEDEL The O Wine Tumbler Viognier / Chardonnay",
+    "RIEDEL Veloce Riesling",
+    "RIEDEL Veritas Viognier / Chardonnay",
+    "RIEDEL Vinum Viognier / Chardonnay",
+    "RIEDEL Winewings Chardonnay"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Grüner Veltliner",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/gruener-veltliner",
+   "products": [
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL Fatto A Mano by RIEDEL Riesling / Zinfandel",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Performance Riesling",
+    "RIEDEL Sommeliers Riesling / Zinfandel",
+    "RIEDEL Sommeliers Riesling Grand Cru / Zinfandel",
+    "RIEDEL Superleggero Riesling",
+    "RIEDEL The O Wine Tumbler Riesling / Sauvignon Blanc",
+    "RIEDEL Veloce Riesling",
+    "RIEDEL Veritas Riesling / Zinfandel",
+    "RIEDEL Veritas Riesling / Zinfandel + Mosel Decanter",
+    "RIEDEL Vinum Riesling",
+    "RIEDEL Vinum Riesling Grand Cru / Zinfandel",
+    "RIEDEL Winewings Riesling"
+   ],
+   "note": "Page does not list the dedicated RIEDEL Sommeliers Grüner Veltliner glass (which exists in the shop). Includes a glass+decanter set."
+  },
+  {
+   "entry": "Kerner",
+   "url": "https://www.riedel.com/en-int/wine-glass-guide/kerner",
+   "products": [
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL Fatto A Mano Black Tie Riesling - Black Base",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Superleggero Riesling",
+    "RIEDEL Veloce Riesling",
+    "RIEDEL Veritas Viognier / Chardonnay",
+    "RIEDEL Vinum Viognier / Chardonnay"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Macabeo",
+   "url": "https://www.riedel.com/en-it/wineglassguide/macabeo",
+   "products": [],
+   "note": "Only old /wineglassguide/ URL(s) found in search; fetch failed at site (client_error), no products retrieved."
+  },
+  {
+   "entry": "Malvazija Istriana",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/malvazija-istriana",
+   "products": [
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Performance Sauvignon Blanc",
+    "RIEDEL Superleggero Sauvignon Blanc",
+    "RIEDEL Veloce Riesling",
+    "RIEDEL Veritas Sauvignon Blanc",
+    "RIEDEL Vinum Sauvignon Blanc / Dessert Wine",
+    "RIEDEL Winewings Sauvignon Blanc"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Marsanne",
+   "url": "https://www.riedel.com/en-us/wineglassguide/marsanne",
+   "products": [],
+   "note": "Only old /wineglassguide/ URL(s) found in search; fetch failed at site (client_error), no products retrieved. Tried en-fr and en-us URLs."
+  },
+  {
+   "entry": "Melon de Bourgogne (Muscadet)",
+   "url": "https://www.riedel.com/en/wineglassguide/melon-de-bourgogne-muscadet",
+   "products": [],
+   "note": "Old /wineglassguide/ page found; fetched OK (heading matches) but it shows no product recommendations. en-ee and en-no URLs failed (client_error). A separate new-format 'Muscadet' page exists (https://www.riedel.com/en-us/wine-glass-guide/muscadet), not fetched since slug differs."
+  },
+  {
+   "entry": "Müller-Thurgau",
+   "url": "https://www.riedel.com/en/wineglassguide/mueller-thurgau",
+   "products": [],
+   "note": "Old /wineglassguide/ page found; fetched OK (heading matches) but it shows no product recommendations. A separate new-format 'Rivaner' page exists (https://www.riedel.com/en-us/wine-glass-guide/rivaner), not fetched since slug differs."
+  },
+  {
+   "entry": "Muskateller",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/muskateller",
+   "products": [
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Performance Sauvignon Blanc",
+    "RIEDEL Superleggero Sauvignon Blanc",
+    "RIEDEL Veloce Riesling",
+    "RIEDEL Veritas Sauvignon Blanc",
+    "RIEDEL Vinum Sauvignon Blanc / Dessert Wine",
+    "RIEDEL Winewings Sauvignon Blanc"
+   ],
+   "note": "Differs from Gelber Muskateller page only in Veloce (Riesling here vs Sauvignon Blanc there)."
+  },
+  {
+   "entry": "Muskat-Ottonel",
+   "url": "https://www.riedel.com/en-int/wine-glass-guide/muskat-ottonel",
+   "products": [
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Performance Sauvignon Blanc",
+    "RIEDEL Sommeliers Loire",
+    "RIEDEL Superleggero Restaurant Sauvignon Blanc",
+    "RIEDEL Superleggero Sauvignon Blanc",
+    "RIEDEL Veloce Riesling",
+    "RIEDEL Veritas Sauvignon Blanc",
+    "RIEDEL Vinum Sauvignon Blanc / Dessert Wine",
+    "RIEDEL Winewings Sauvignon Blanc"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Neuburger",
+   "url": "https://www.riedel.com/en-us/wineglassguide/neuburger",
+   "products": [],
+   "note": "Old /wineglassguide/ page found; fetched OK (heading matches) but it shows no product recommendations. en-de and en-ae URLs failed (client_error)."
+  },
+  {
+   "entry": "Pinot (Blanc, Grigio, Gris)",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/pinot-blanc-grigio-gris",
+   "products": [],
+   "note": "Page states 'No products found for this grape variety.' Same result on https://www.riedel.com/en-no/wineglassguide/pinot-blanc-grigio-gris (og:url there is /grapes/pinot-blanc-grigio,-gris, i.e. a slug with a comma)."
+  },
+  {
+   "entry": "Ribolla Gialla",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/ribolla-gialla",
+   "products": [
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Sommeliers Mature Bordeaux / Chablis / Chardonnay",
+    "RIEDEL Superleggero Riesling",
+    "RIEDEL The O Wine Tumbler Viognier / Chardonnay",
+    "RIEDEL Veloce Riesling",
+    "RIEDEL Veritas Viognier / Chardonnay",
+    "RIEDEL Vinum Viognier / Chardonnay",
+    "RIEDEL Winewings Chardonnay"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Riesling",
+   "url": "https://www.riedel.com/en-int/wine-glass-guide/riesling",
+   "products": [
+    "RIEDEL Black Series Collector's Edition Riesling Grand Cru",
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL Fatto A Mano Black Tie Riesling",
+    "RIEDEL Fatto A Mano by RIEDEL Riesling / Zinfandel",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Performance Riesling",
+    "RIEDEL Sommeliers Riesling / Zinfandel",
+    "RIEDEL Sommeliers Riesling Grand Cru / Zinfandel",
+    "RIEDEL Superleggero Riesling"
+   ],
+   "note": "Likely TRUNCATED: en-int pages render at most 24 product tiles (verified on en-int Welschriesling: 24 tiles, 13 of them Fatto A Mano colour variants, list cut after Superleggero, while en-us Welschriesling continues with The O Wine Tumbler, Veloce, Veritas, Vinum). This Riesling list also stops alphabetically at Superleggero. No en-us /wine-glass-guide/riesling URL appeared in search; https://www.riedel.com/en-us/wineglassguide/riesling redirects to the grapes index. en-int also shows Black Series / Black Tie items not shown on en-us pages."
+  },
+  {
+   "entry": "Riesling (Spätlese/late harvest dry)",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/riesling-spaetlese-late-harvest-dry",
+   "products": [
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL Fatto A Mano by RIEDEL Riesling / Zinfandel",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Performance Riesling",
+    "RIEDEL Sommeliers Riesling / Zinfandel",
+    "RIEDEL Superleggero Riesling",
+    "RIEDEL The O Wine Tumbler Riesling / Sauvignon Blanc",
+    "RIEDEL Veloce Riesling",
+    "RIEDEL Veritas Riesling / Zinfandel",
+    "RIEDEL Veritas Riesling / Zinfandel + Mosel Decanter",
+    "RIEDEL Vinum Riesling",
+    "RIEDEL Vinum Riesling Grand Cru / Zinfandel",
+    "RIEDEL Winewings Riesling"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Riesling Smaragd",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/riesling-smaragd",
+   "products": [
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL Fatto A Mano by RIEDEL Riesling / Zinfandel",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Performance Riesling",
+    "RIEDEL Sommeliers Riesling / Zinfandel",
+    "RIEDEL Superleggero Riesling",
+    "RIEDEL The O Wine Tumbler Riesling / Sauvignon Blanc",
+    "RIEDEL Veloce Riesling",
+    "RIEDEL Veritas Riesling / Zinfandel",
+    "RIEDEL Veritas Riesling / Zinfandel + Mosel Decanter",
+    "RIEDEL Vinum Riesling",
+    "RIEDEL Vinum Riesling Grand Cru / Zinfandel",
+    "RIEDEL Winewings Riesling"
+   ],
+   "note": "en-us page used. The en-int page (https://www.riedel.com/en-int/wine-glass-guide/riesling-smaragd) gives a different, likely 24-tile-truncated list identical to the en-int Riesling list."
+  },
+  {
+   "entry": "Rivaner",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/rivaner",
+   "products": [
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL Fatto A Mano by RIEDEL Riesling / Zinfandel",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Performance Riesling",
+    "RIEDEL Sommeliers Riesling / Zinfandel",
+    "RIEDEL Superleggero Riesling",
+    "RIEDEL The O Wine Tumbler Riesling / Sauvignon Blanc",
+    "RIEDEL Veloce Riesling",
+    "RIEDEL Veritas Riesling / Zinfandel",
+    "RIEDEL Veritas Riesling / Zinfandel + Mosel Decanter",
+    "RIEDEL Vinum Riesling",
+    "RIEDEL Vinum Riesling Grand Cru / Zinfandel"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Rotgipfler",
+   "url": null,
+   "products": [],
+   "note": "No riedel.com wine-glass-guide page found in two searches."
+  },
+  {
+   "entry": "Roussanne",
+   "url": null,
+   "products": [],
+   "note": "No riedel.com wine-glass-guide page found in two searches (only a /shop/roussanne search URL)."
+  },
+  {
+   "entry": "Sauvignon Blanc (oaked)",
+   "url": "https://www.riedel.com/en/wineglassguide/sauvignon-blanc-oaked",
+   "products": [],
+   "note": "Only an old-format /wineglassguide/ URL was found; fetched page shows the entry heading and description but zero product tiles. Old-format pages for other entries (e.g. /en/wineglassguide/sauternes) also showed no products, so the empty list may reflect the old page format rather than RIEDEL having no recommendation. Search budget was exhausted before a new-format URL could be sought."
+  },
+  {
+   "entry": "Sauvignon Blanc (unoaked)",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/sauvignon-blanc-unoaked",
+   "products": [
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Performance Sauvignon Blanc",
+    "RIEDEL Superleggero Sauvignon Blanc",
+    "RIEDEL Veloce Sauvignon Blanc",
+    "RIEDEL Veritas Sauvignon Blanc",
+    "RIEDEL Vinum Sauvignon Blanc / Dessert Wine",
+    "RIEDEL Winewings Sauvignon Blanc"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Scheurebe",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/scheurebe",
+   "products": [
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL Fatto A Mano by RIEDEL Riesling / Zinfandel",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Performance Riesling",
+    "RIEDEL Sommeliers Riesling / Zinfandel",
+    "RIEDEL Sommeliers Riesling Grand Cru / Zinfandel",
+    "RIEDEL Superleggero Riesling",
+    "RIEDEL The O Wine Tumbler Riesling / Sauvignon Blanc",
+    "RIEDEL Veloce Riesling",
+    "RIEDEL Veritas Riesling / Zinfandel",
+    "RIEDEL Veritas Riesling / Zinfandel + Mosel Decanter",
+    "RIEDEL Vinum Riesling Grand Cru / Zinfandel"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Sémillon",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/semillon",
+   "products": [
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Performance Sauvignon Blanc",
+    "RIEDEL Superleggero Sauvignon Blanc",
+    "RIEDEL Veloce Sauvignon Blanc",
+    "RIEDEL Veritas Sauvignon Blanc",
+    "RIEDEL Vinum Sauvignon Blanc / Dessert Wine",
+    "RIEDEL Winewings Sauvignon Blanc"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Sylvaner",
+   "url": "https://www.riedel.com/en/wineglassguide/sylvaner",
+   "products": [],
+   "note": "Only an old-format /wineglassguide/ URL was found; fetched page shows the entry heading and description but zero product tiles. Old-format pages for other entries (e.g. /en/wineglassguide/sauternes) also showed no products, so the empty list may reflect the old page format rather than RIEDEL having no recommendation. Search budget was exhausted before a new-format URL could be sought. https://www.riedel.com/en-us/wineglassguide/sylvaner failed to load."
+  },
+  {
+   "entry": "Timorasso",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/timorasso",
+   "products": [
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Sommeliers Mature Bordeaux / Chablis / Chardonnay",
+    "RIEDEL Superleggero Riesling",
+    "RIEDEL The O Wine Tumbler Viognier / Chardonnay",
+    "RIEDEL Veloce Riesling",
+    "RIEDEL Veritas Viognier / Chardonnay",
+    "RIEDEL Vinum Viognier / Chardonnay",
+    "RIEDEL Winewings Chardonnay"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Traminer",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/traminer",
+   "products": [
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Performance Sauvignon Blanc",
+    "RIEDEL Superleggero Sauvignon Blanc",
+    "RIEDEL Veloce Riesling",
+    "RIEDEL Veritas Sauvignon Blanc",
+    "RIEDEL Vinum Sauvignon Blanc / Dessert Wine",
+    "RIEDEL Winewings Sauvignon Blanc"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Trebbiano",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/trebbiano",
+   "products": [
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Sommeliers Mature Bordeaux / Chablis / Chardonnay",
+    "RIEDEL Superleggero Riesling",
+    "RIEDEL The O Wine Tumbler Viognier / Chardonnay",
+    "RIEDEL Tumbler Collection Optical \"O“ Whisky",
+    "RIEDEL Veloce Riesling",
+    "RIEDEL Veritas Viognier / Chardonnay",
+    "RIEDEL Vinum Viognier / Chardonnay"
+   ],
+   "note": "Page lists 'RIEDEL Tumbler Collection Optical \"O“ Whisky' among the recommendations (recorded verbatim, mixed quote characters as on page); unlike similar pages, no Winewings Chardonnay listed."
+  },
+  {
+   "entry": "Treixadura",
+   "url": null,
+   "products": [],
+   "note": "No riedel.com wine-glass-guide page found in two searches."
+  },
+  {
+   "entry": "Verdelho",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/verdelho",
+   "products": [
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Sommeliers Mature Bordeaux / Chablis / Chardonnay",
+    "RIEDEL Superleggero Riesling",
+    "RIEDEL The O Wine Tumbler Viognier / Chardonnay",
+    "RIEDEL Tumbler Collection Optical \"O“ Whisky",
+    "RIEDEL Veloce Riesling",
+    "RIEDEL Veritas Viognier / Chardonnay",
+    "RIEDEL Vinum Viognier / Chardonnay"
+   ],
+   "note": "Page lists 'RIEDEL Tumbler Collection Optical \"O“ Whisky' among the recommendations (recorded verbatim, mixed quote characters as on page); unlike similar pages, no Winewings Chardonnay listed."
+  },
+  {
+   "entry": "Verdicchio",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/verdicchio",
+   "products": [
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Sommeliers Mature Bordeaux / Chablis / Chardonnay",
+    "RIEDEL Superleggero Riesling",
+    "RIEDEL The O Wine Tumbler Viognier / Chardonnay",
+    "RIEDEL Tumbler Collection Optical \"O“ Whisky",
+    "RIEDEL Veloce Riesling",
+    "RIEDEL Veritas Viognier / Chardonnay",
+    "RIEDEL Vinum Viognier / Chardonnay"
+   ],
+   "note": "Page lists 'RIEDEL Tumbler Collection Optical \"O“ Whisky' among the recommendations (recorded verbatim, mixed quote characters as on page); unlike similar pages, no Winewings Chardonnay listed."
+  },
+  {
+   "entry": "Vermentino",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/vermentino",
+   "products": [
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Performance Sauvignon Blanc",
+    "RIEDEL Superleggero Sauvignon Blanc",
+    "RIEDEL Veloce Riesling",
+    "RIEDEL Veritas Sauvignon Blanc",
+    "RIEDEL Vinum Sauvignon Blanc / Dessert Wine",
+    "RIEDEL Winewings Sauvignon Blanc"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Vernaccia",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/vernaccia",
+   "products": [
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL Fatto A Mano by RIEDEL Riesling / Zinfandel",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Performance Riesling",
+    "RIEDEL Sommeliers Riesling / Zinfandel",
+    "RIEDEL Sommeliers Riesling Grand Cru / Zinfandel",
+    "RIEDEL Superleggero Riesling",
+    "RIEDEL The O Wine Tumbler Riesling / Sauvignon Blanc",
+    "RIEDEL Veloce Riesling",
+    "RIEDEL Veritas Riesling / Zinfandel",
+    "RIEDEL Veritas Riesling / Zinfandel + Mosel Decanter",
+    "RIEDEL Vinum Riesling Grand Cru / Zinfandel"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Viognier",
+   "url": "https://www.riedel.com/en-int/wine-glass-guide/viognier",
+   "products": [
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL Fatto A Mano Black Tie Riesling",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Sommeliers Mature Bordeaux / Chablis / Chardonnay",
+    "RIEDEL Superleggero Riesling",
+    "RIEDEL The O Wine Tumbler Viognier / Chardonnay",
+    "RIEDEL Veloce Riesling",
+    "RIEDEL Veritas Viognier / Chardonnay",
+    "RIEDEL Vinum Viognier / Chardonnay",
+    "RIEDEL Winewings Chardonnay"
+   ],
+   "note": "en-int locale (no en-us URL in search results); 16 tiles, below the 24-tile cap, so not truncated. Black Tie listed on page as 'RIEDEL Fatto A Mano Black Tie Riesling - Black Base'."
+  },
+  {
+   "entry": "Welschriesling",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/welschriesling",
+   "products": [
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL Fatto A Mano by RIEDEL Riesling / Zinfandel",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Performance Riesling",
+    "RIEDEL Sommeliers Riesling / Zinfandel",
+    "RIEDEL Sommeliers Riesling Grand Cru / Zinfandel",
+    "RIEDEL Superleggero Riesling",
+    "RIEDEL The O Wine Tumbler Riesling / Sauvignon Blanc",
+    "RIEDEL Veloce Riesling",
+    "RIEDEL Veritas Riesling / Zinfandel",
+    "RIEDEL Veritas Riesling / Zinfandel + Mosel Decanter",
+    "RIEDEL Vinum Riesling Grand Cru / Zinfandel"
+   ],
+   "note": "en-us page used; en-int page is cut at 24 tiles after Superleggero."
+  },
+  {
+   "entry": "Xarel-Lo",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/xarel-lo",
+   "products": [
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Sommeliers Mature Bordeaux / Chablis / Chardonnay",
+    "RIEDEL Superleggero Riesling",
+    "RIEDEL The O Wine Tumbler Viognier / Chardonnay",
+    "RIEDEL Tumbler Collection Optical \"O“ Whisky",
+    "RIEDEL Veloce Riesling",
+    "RIEDEL Veritas Viognier / Chardonnay",
+    "RIEDEL Vinum Viognier / Chardonnay"
+   ],
+   "note": "Page lists 'RIEDEL Tumbler Collection Optical \"O“ Whisky' among the recommendations (recorded verbatim, mixed quote characters as on page); unlike similar pages, no Winewings Chardonnay listed."
+  },
+  {
+   "entry": "Zierfandler",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/zierfandler",
+   "products": [
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL Fatto A Mano by RIEDEL Riesling / Zinfandel",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Performance Riesling",
+    "RIEDEL Sommeliers Riesling / Zinfandel",
+    "RIEDEL Sommeliers Riesling Grand Cru / Zinfandel",
+    "RIEDEL Superleggero Riesling",
+    "RIEDEL The O Wine Tumbler Riesling / Sauvignon Blanc",
+    "RIEDEL Veloce Riesling",
+    "RIEDEL Veritas Riesling / Zinfandel",
+    "RIEDEL Veritas Riesling / Zinfandel + Mosel Decanter",
+    "RIEDEL Vinum Riesling Grand Cru / Zinfandel",
+    "RIEDEL Winewings Riesling"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Dessertwine",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/dessertwine",
+   "products": [
+    "RIEDEL Extreme Rosé Champagne Glass / Rosé Wine",
+    "RIEDEL Performance Champagne Glass",
+    "RIEDEL Superleggero Sauvignon Blanc",
+    "RIEDEL Veloce Sauvignon Blanc",
+    "RIEDEL Veritas Sauvignon Blanc",
+    "RIEDEL Vinum Sauvignon Blanc / Dessert Wine"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Sauternes",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/sauternes",
+   "products": [
+    "RIEDEL Extreme Rosé Champagne Glass / Rosé Wine",
+    "RIEDEL Performance Champagne Glass",
+    "RIEDEL Superleggero Sauvignon Blanc",
+    "RIEDEL Veloce Sauvignon Blanc",
+    "RIEDEL Veritas Sauvignon Blanc",
+    "RIEDEL Vinum Sauvignon Blanc / Dessert Wine",
+    "RIEDEL Winewings Sauvignon Blanc"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Ice wine",
+   "url": "https://www.riedel.com/en-fr/wineglassguide/icewine",
+   "products": [],
+   "note": "Only old-format /wineglassguide/icewine URLs found. en-fr shows the 'Ice wine' heading and description but zero product tiles; /en/, /en-be/ and /en-ca/ variants load the generic guide index; /en-mc/ failed to load. Empty list may reflect the old page format. Search budget was exhausted before a new-format URL could be sought."
+  },
+  {
+   "entry": "Trockenbeerenauslese",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/trockenbeerenauslese",
+   "products": [
+    "RIEDEL Extreme Rosé Champagne Glass / Rosé Wine",
+    "RIEDEL Performance Champagne Glass",
+    "RIEDEL Superleggero Sauvignon Blanc",
+    "RIEDEL Veloce Sauvignon Blanc",
+    "RIEDEL Veritas Sauvignon Blanc",
+    "RIEDEL Vinum Sauvignon Blanc / Dessert Wine"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Auslese (sweet)",
+   "url": "https://www.riedel.com/en-us/wine-glass-guide/auslese-sweet",
+   "products": [
+    "RIEDEL Extreme Riesling",
+    "RIEDEL Extreme Riesling / Sauvignon Blanc",
+    "RIEDEL GRAPE@RIEDEL White Wine / Champagne Glass / Rosé / Spritz Drinks",
+    "RIEDEL Performance Sauvignon Blanc",
+    "RIEDEL Superleggero Sauvignon Blanc",
+    "RIEDEL Veloce Sauvignon Blanc",
+    "RIEDEL Veritas Sauvignon Blanc",
+    "RIEDEL Vinum Sauvignon Blanc / Dessert Wine"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Vintage Port",
+   "url": "https://www.riedel.com/en-gb/wine-glass-guide/vintage-port",
+   "products": [
+    "RIEDEL Sommeliers Vintage Port",
+    "RIEDEL The O Wine Tumbler Spirits / Fortified Wines / Cask Aged Brandies",
+    "RIEDEL Vinum Port"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Tawny Port",
+   "url": "https://www.riedel.com/en-au/wine-glass-guide/tawny-port",
+   "products": [
+    "RIEDEL Sommeliers Vintage Port",
+    "RIEDEL The O Wine Tumbler Spirits / Fortified Wines / Cask Aged Brandies",
+    "RIEDEL Vinum Port"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Sherry",
+   "url": "https://www.riedel.com/en-int/wine-glass-guide/sherry",
+   "products": [
+    "RIEDEL Sommeliers Sherry / Tequila"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Madeira",
+   "url": "https://www.riedel.com/en-int/wine-glass-guide/madeira",
+   "products": [
+    "RIEDEL Sommeliers Vintage Port",
+    "RIEDEL The O Wine Tumbler Spirits / Fortified Wines / Cask Aged Brandies",
+    "RIEDEL Veloce Sauvignon Blanc",
+    "RIEDEL Vinum Port"
+   ],
+   "note": ""
+  },
+  {
+   "entry": "Qvevri Kakhetian",
+   "url": null,
+   "products": [],
+   "note": "No riedel.com wine-glass-guide page found in two searches."
+  }
+ ]
+}
