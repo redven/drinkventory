@@ -1,0 +1,112 @@
+/* Tests for docs/js/glasses.js (RIEDEL glass recommendation) with the generated guide data. */
+'use strict';
+const path = require('path');
+const assert = require('assert/strict');
+
+const root = path.join(__dirname, '..');
+const G = require(path.join(root, 'docs/js/glasses.js'));
+const GUIDE = require(path.join(root, 'docs/js/glasses-data.js'));
+
+let passed = 0;
+function test(name, fn) {
+  try { fn(); passed++; console.log('  ok  ' + name); }
+  catch (e) { console.error('  FAIL ' + name + '\n' + e.stack); process.exitCode = 1; }
+}
+const rec = (p) => G.recommend(Object.assign({ type: 'white', grapes: '', name: '', producer: '', region: '', country: '' }, p));
+
+console.log('glasses');
+
+test('guide data is loaded and every alias points to an entry that was looked up', () => {
+  assert.ok(Object.keys(GUIDE.entries).length > 50);
+  const missing = [...new Set(Object.values(G.ALIASES))].filter((e) => !(e in GUIDE.entries));
+  assert.deepEqual(missing, [], 'aliases without a guide entry');
+});
+
+test('every entry with a shape has a riedel.com URL and its glasses', () => {
+  for (const [name, e] of Object.entries(GUIDE.entries)) {
+    if (!e.shape) continue;
+    assert.match(e.url, /^https:\/\/www\.riedel\.com\//, name);
+    assert.ok(e.glasses.length > 0, name);
+    assert.ok(!e.glasses.some((g) => /grape@riedel/i.test(g)), name + ': wine-friendly glasses removed');
+  }
+});
+
+test('grape list: percentages decide the order, otherwise as listed', () => {
+  assert.deepEqual(G.grapeList({ grapes: 'Kerner 20%, Souvignier Gris 50%, Goldmuskateller 30%' }).map((g) => g.name),
+    ['Souvignier Gris', 'Goldmuskateller', 'Kerner']);
+  assert.deepEqual(G.grapeList({ grapes: 'Merlot, Cabernet Sauvignon' }).map((g) => g.name), ['Merlot', 'Cabernet Sauvignon']);
+  assert.deepEqual(G.grapeList({ grapes: 'Pinot Noir (Spätburgunder) 60,5 %, Pinot Meunier' }).map((g) => [g.name, g.pct]),
+    [['Pinot Noir', 60.5], ['Pinot Meunier', null]]);
+  assert.deepEqual(G.grapeList({ grapes: '' }), []);
+});
+
+test('synonyms: German, Italian and Spanish names find the RIEDEL entry', () => {
+  const entryOf = (grapes, extra) => rec(Object.assign({ grapes }, extra)).entry;
+  assert.equal(entryOf('Silvaner'), 'Sylvaner');
+  assert.equal(entryOf('Grauburgunder'), 'Pinot (Blanc, Grigio, Gris)');
+  assert.equal(entryOf('Pinot Bianco'), 'Pinot (Blanc, Grigio, Gris)');
+  assert.equal(entryOf('Weißburgunder'), 'Pinot (Blanc, Grigio, Gris)');
+  assert.equal(entryOf('Lemberger', { type: 'red' }), 'Blaufränkisch');
+  assert.equal(entryOf('Garnacha', { type: 'red' }), 'Grenache/Granacha');
+  assert.equal(entryOf('Monastrell', { type: 'red' }), 'Mourvèdre');
+  assert.equal(entryOf('Tinta Roriz', { type: 'red' }), 'Tempranillo');
+  assert.equal(entryOf('Goldmuskateller'), 'Muskateller');
+  assert.equal(entryOf('Turbiana'), 'Verdicchio');
+  assert.equal(entryOf('Riesling Italico'), 'Welschriesling', 'not Riesling');
+});
+
+test('Pinot Noir and Syrah: old world by default, new world by country', () => {
+  assert.equal(rec({ type: 'red', grapes: 'Spätburgunder', country: 'Germany' }).entry, 'Pinot Noir Old World');
+  assert.equal(rec({ type: 'red', grapes: 'Pinot Noir', country: 'New Zealand' }).entry, 'Pinot Noir New World');
+  assert.equal(rec({ type: 'red', grapes: 'Shiraz', country: 'Australia' }).entry, 'Shiraz New World');
+  assert.equal(rec({ type: 'red', grapes: 'Syrah', country: 'France' }).entry, 'Syrah Old World');
+});
+
+test('Chardonnay: unoaked entry with the oaked glass as alternative', () => {
+  const r = rec({ grapes: 'Chardonnay' });
+  assert.equal(r.entry, 'Chardonnay (unoaked)');
+  assert.equal(r.alt.entry, 'Chardonnay (oaked)');
+  assert.equal(r.alt.when, 'if aged in oak');
+});
+
+test('blends: first matching grape decides, unknown grapes are reported', () => {
+  const r = rec({ grapes: 'Souvignier Gris 50%, Goldmuskateller 30%, Kerner 20%' });
+  assert.equal(r.from, 'Goldmuskateller');
+  assert.deepEqual(r.unmatched, ['Souvignier Gris']);
+  assert.match(r.note, /largest share/);
+  assert.match(r.note, /no glass for Souvignier Gris/);
+  const b = rec({ type: 'red', grapes: 'Merlot, Cabernet Sauvignon' });
+  assert.equal(b.from, 'Merlot');
+  assert.match(b.note, /listed first/);
+});
+
+test('no match: null shape, grapes listed, link to the guide', () => {
+  const r = rec({ grapes: 'Souvignier Gris' });
+  assert.equal(r.shape, null);
+  assert.deepEqual(r.unmatched, ['Souvignier Gris']);
+  assert.match(r.url, /riedel\.com/);
+  assert.equal(rec({ grapes: '' }).shape, null);
+  assert.equal(G.shapeOf({ type: 'white', grapes: 'Souvignier Gris' }), '');
+});
+
+test('styles: sparkling, sweet, fortified and rosé ignore the grapes', () => {
+  assert.equal(rec({ type: 'sparkling', name: 'Cava Carta Rotiña', region: 'Cava', country: 'Spain' }).entry, 'Cava');
+  assert.equal(rec({ type: 'sparkling', producer: 'Pierre Péters', region: 'Champagne', country: 'France', grapes: 'Chardonnay' }).entry, 'Champagne');
+  assert.equal(rec({ type: 'sparkling', name: 'Brut Rosé', region: 'Champagne', country: 'France' }).entry, 'Rosé Champagne');
+  assert.equal(rec({ type: 'sparkling', name: 'Riesling Sekt brut', country: 'Germany', grapes: 'Riesling' }).entry, 'Sekt');
+  assert.equal(rec({ type: 'sparkling', name: 'Ammonites Dosaggio Zero', region: 'Lombardy', country: 'Italy' }).entry, 'Sparkling Wine');
+  assert.equal(rec({ type: 'sweet', name: 'Riesling Eiswein', grapes: 'Riesling' }).entry, 'Ice wine');
+  assert.equal(rec({ type: 'sweet', name: 'Château X', region: 'Sauternes' }).entry, 'Sauternes');
+  assert.equal(rec({ type: 'fortified', name: '20 Year Old Tawny', country: 'Portugal' }).entry, 'Tawny Port');
+  assert.equal(rec({ type: 'fortified', name: 'Vintage Port 2011', country: 'Portugal', region: 'Douro' }).entry, 'Vintage Port');
+  assert.equal(rec({ type: 'fortified', name: 'Fino', region: 'Jerez' }).entry, 'Sherry');
+  assert.equal(rec({ type: 'rose', grapes: 'Grenache' }).entry, 'Rosé');
+});
+
+test('spirits get no recommendation', () => {
+  assert.equal(G.recommend({ type: 'whisky', grapes: '' }), null);
+  assert.equal(G.shapeOf({ type: 'rum' }), '');
+});
+
+module.exports = { passed: () => passed };
+if (require.main === module) console.log(`glasses: ${passed} passed`);

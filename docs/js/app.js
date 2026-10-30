@@ -7,6 +7,7 @@
   'use strict';
 
   var L = window.DrinkventoryLogic;
+  var GL = window.DrinkventoryGlasses;
   var S = L.stats;
 
   var app = {
@@ -1035,6 +1036,35 @@
       '</article>';
   }
 
+  // ==================================================================
+  // RIEDEL glass recommendation (docs/js/glasses.js)
+  // ==================================================================
+
+  function glassBlock(p) {
+    var r = GL ? GL.recommend(p) : null;
+    if (!r) return '';
+    var guide = function (url, text) {
+      return url ? '<a href="' + esc(url) + '" target="_blank" rel="noopener">' + esc(text || 'RIEDEL guide') + '</a>' : '';
+    };
+    if (!r.shape) {
+      var why = r.unmatched.length
+        ? 'RIEDEL lists no glass for ' + esc(r.unmatched.join(', ')) + '. '
+        : 'Add the grapes to see the glass RIEDEL recommends. ';
+      return '<section class="glass none" aria-label="RIEDEL glass"><p class="glass-k">RIEDEL glass</p>' +
+        '<p class="glass-why">' + why + guide(r.url, 'Search the RIEDEL guide') + '</p></section>';
+    }
+    var from = 'Recommended for ' + r.from + '.';
+    var glasses = r.glasses.length
+      ? '<details class="glass-list"><summary>' + r.glasses.length + ' RIEDEL glasses for ' + esc(r.entry) + '</summary><ul>' +
+        r.glasses.map(function (g) { return '<li>' + esc(g) + '</li>'; }).join('') + '</ul></details>'
+      : '';
+    return '<section class="glass" aria-label="RIEDEL glass"><p class="glass-k">RIEDEL glass</p>' +
+      '<p class="glass-v">' + esc(r.shape) + (r.also.length ? '<span class="glass-also">, also ' + esc(r.also.join(', ')) + '</span>' : '') + '</p>' +
+      '<p class="glass-why">' + esc(from) + (r.note ? ' ' + esc(r.note) : '') + ' ' + guide(r.url) + '</p>' +
+      (r.alt ? '<p class="glass-why">' + esc(r.alt.when.charAt(0).toUpperCase() + r.alt.when.slice(1)) + ': <strong>' + esc(r.alt.shape) + '</strong>. ' + guide(r.alt.url) + '</p>' : '') +
+      glasses + '</section>';
+  }
+
   function viewBottle(main, code) {
     code = L.normalizeCode(code);
     var b = bottle(code);
@@ -1070,6 +1100,7 @@
       '</div></div>' +
       labelBlock(p) +
       '<div class="action-grid">' + actions + '</div>' +
+      glassBlock(p) +
       (st !== 'void' ? '<h2>Tags</h2>' +
         (p.tags ? '<div class="tag-group"><p class="tag-group-k">From the product, for every bottle. <a href="#/p/' + encodeURIComponent(b.product_id) + '">Change</a></p>' +
           tagChips(p.tags, 'Product tags') + '</div>' : '') +
@@ -1121,6 +1152,7 @@
       findOnlineLink(p) +
       '<a class="btn" href="#/p/' + encodeURIComponent(pid) + '/edit">Edit product</a>' +
       '</div>' +
+      glassBlock(p) +
       '<h2>Tags</h2><div class="tag-group ptags"><p class="tag-group-k">For every bottle of this product</p>' +
       tagEditor(p.tags, '', { key: 'p', label: 'Product tags', placeholder: 'Add a tag, e.g. Christmas' }) + '</div>' +
       '<h2>In stock (' + stock.length + ')</h2>' +
@@ -1223,7 +1255,7 @@
       if (f.status === 'stock' ? b.status !== 'in_stock' : b.status !== 'out') return false;
       var p = pm[b.product_id] || {};
       if (f.cat !== 'all' && L.categoryOf(p.type) !== f.cat) return false;
-      if (f.facet && !S.matchFacet(f.facet, b, p, year)) return false;
+      if (f.facet && !(f.facet.kind === 'glass' ? glassFacet(p) === f.facet.value : S.matchFacet(f.facet, b, p, year))) return false;
       if (tokens.length) {
         var hay = [p.producer, p.distillery, p.name, p.vintage, p.region, p.country, p.grapes, p.age, b.location, p.tags, b.tags, b.bottle_id, typeLabel(p.type)].join(' ').toLowerCase();
         if (!tokens.every(function (t) { return hay.indexOf(t) >= 0; })) return false;
@@ -1346,7 +1378,27 @@
     }));
   }
 
-  var FACET_TITLES = { win: '', grape: 'Grape', tag: 'Tag', type: 'Type', country: 'Country', location: 'Location' };
+  var FACET_TITLES = { win: '', grape: 'Grape', tag: 'Tag', type: 'Type', country: 'Country', location: 'Location', glass: 'RIEDEL glass' };
+  var NO_GLASS = 'No RIEDEL entry';
+
+  /** Glass shape for the statistics slice; spirits get null, wines without a match NO_GLASS. */
+  function glassFacet(p) {
+    if (!GL || L.categoryOf(p.type) !== 'wine') return null;
+    return GL.shapeOf(p) || NO_GLASS;
+  }
+
+  function stockByGlass() {
+    var pm = {};
+    app.state.products.forEach(function (p) { pm[p.product_id] = p; });
+    var m = {};
+    app.state.bottles.forEach(function (b) {
+      if (!L.isInStock(b)) return;
+      var g = glassFacet(pm[b.product_id] || {});
+      if (g) m[g] = (m[g] || 0) + 1;
+    });
+    return Object.keys(m).map(function (k) { return { key: k, n: m[k] }; })
+      .sort(function (a, b) { return (a.key === NO_GLASS) - (b.key === NO_GLASS) || b.n - a.n || a.key.localeCompare(b.key); });
+  }
   var WIN_LABELS = { ready: 'Ready to drink', young: 'Too young', past: 'Past window', unknown: 'No window set' };
 
   function showFacet(kind, value, title) {
@@ -1375,6 +1427,7 @@
     var byLoc = S.stockBy(app.state, 'location').slice(0, 12);
     var byGrape = S.stockByList(app.state, 'grapes').slice(0, 15);
     var byTag = S.stockByList(app.state, 'tags').slice(0, 15);
+    var byGlass = stockByGlass();
     var vint = S.vintageHistogram(app.state);
     var users = S.perUser(app.state);
     var anyOut = outs.wine.concat(outs.spirit, outs.other).some(function (x) { return x > 0; });
@@ -1410,6 +1463,8 @@
       hBarBlock('chCountry', 'Stock by country', byCountry, 'Bottles in stock by country') +
       hBarBlock('chGrape', 'Stock by grape', byGrape, 'Wine bottles in stock by grape. A blend counts for each of its grapes.') +
       (byGrape.length ? '<p class="footnote">A blend counts once for each of its grapes.</p>' : '') +
+      hBarBlock('chGlass', 'Glasses for wine in stock', byGlass, 'Wine bottles in stock by recommended RIEDEL glass') +
+      (byGlass.length ? '<p class="footnote">Glass shape from the RIEDEL Wine Glass Guide, by the main grape or the wine style. Tap a bar to see the bottles.</p>' : '') +
       hBarBlock('chTag', 'Stock by tag', byTag, 'Bottles in stock by tag') +
       (vint.length ? '<h2>Wine vintages in stock</h2><div class="chart"><canvas id="chVint" role="img" aria-label="Wine bottles in stock by vintage"></canvas></div>' : '') +
 
@@ -1444,6 +1499,7 @@
     barChart('chLoc', keys(byLoc), counts(byLoc), c.other, true, 'location');
     barChart('chCountry', keys(byCountry), counts(byCountry), c.other, true, 'country');
     barChart('chGrape', keys(byGrape), counts(byGrape), c.wine, true, 'grape');
+    barChart('chGlass', keys(byGlass), counts(byGlass), c.wine, true, 'glass');
     barChart('chTag', keys(byTag), counts(byTag), c.other, true, 'tag');
     barChart('chVint', vint.map(function (x) { return x.key; }), vint.map(function (x) { return x.n; }), c.wine, false);
     renderClimate();
