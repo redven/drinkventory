@@ -28,6 +28,8 @@ Why this split: Google Drive cannot host web pages, and an Apps Script page cann
 | `apps-script/Code.gs` | Backend: sync, photos, climate, e-mail alerts. |
 | `apps-script/Logic.gs` | Identical copy of `docs/js/logic.js`. |
 | `sensor/` | MicroPython script for an ESP32 + SHT4x climate sensor. |
+| `docs/js/glasses.js` | RIEDEL glass recommendation (app only, no backend change). |
+| `data/riedel_guide.json`, `tools/build_glasses.py` | RIEDEL guide data and the script that builds `docs/js/glasses-data.js` from it. |
 | `analysis/load_drinkventory.py` | Loads everything into pandas DataFrames. |
 | `tests/` | Backend tests, end-to-end browser test, sensor test. |
 
@@ -106,6 +108,31 @@ The app rejects a sticker that is already in use, so a duplicate from a re-order
 
 Offline: every change is stored on the phone first and sent when there is a connection. The sync badge in the header shows waiting changes. If both phones change the same bottle while one is offline, the first change that reaches the backend wins, and the other phone shows **rejected** in the badge with details in **Settings**.
 
+## RIEDEL glass recommendation
+
+Every wine shows the RIEDEL glass shape for it on the product and bottle pages, with a link to RIEDEL's page and the list of RIEDEL glasses for it. **Stats > Glasses for wine in stock** counts your bottles per glass; tap a bar to see them.
+
+How the app picks the glass:
+
+| Wine | Basis |
+|---|---|
+| Sparkling | Style: Champagne, Rosé Champagne, Cava, Prosecco, Franciacorta, Sekt (Germany, Austria) or Sparkling Wine, from name, region and country. |
+| Sweet, fortified | Style: Ice wine, Trockenbeerenauslese, Auslese, Sauternes, Dessertwine; Vintage Port, Tawny Port, Sherry, Madeira. |
+| Rosé | RIEDEL's Rosé entry. |
+| Red, white, orange | Grapes: the largest share if percentages are given, else the first grape listed. Grapes without a RIEDEL entry are skipped and named. Pinot Noir and Syrah use the New World entry for wines from the Americas, Australia, New Zealand and South Africa. Chardonnay and Sauvignon Blanc show the oaked glass as an alternative. |
+
+Grape names: common synonyms work (Spätburgunder, Grauburgunder, Weißburgunder, Lemberger, Garnacha, Monastrell, Turbiana, ...). A long name with one wrong, missing or extra letter is read as the known grape, and the app says so ("Read "Rieslng" as Riesling").
+
+Source and limits:
+- Data: RIEDEL's Wine Glass Guide on riedel.com, one page per grape or style, read on 2026-10-30 (`data/riedel_guide.json`). The shape of an entry is the most frequent shape among the glasses RIEDEL lists for it. When a second shape is nearly as frequent (75 %), the app shows it as "also ...", because RIEDEL's collections differ.
+- Shape names follow RIEDEL's Veritas glasses, which name grapes that share a glass: "Riesling / Zinfandel", "Pinot Noir / Nebbiolo", "Viognier / Chardonnay".
+- RIEDEL's own assignments include some surprises, kept as listed: Sangiovese, Tempranillo and Barbera get the Syrah glass; Dornfelder, Primitivo and Rosé the Riesling glass; Corvina and Lambrusco the Sauvignon Blanc glass.
+- RIEDEL's guide lists no glasses for Silvaner/Sylvaner, Pinot Blanc/Grigio/Gris, Zweigelt and about 20 rarer grapes. The app says so and links the guide. Where RIEDEL lists the same grape under another name, the app uses that page and says so (Müller-Thurgau: Rivaner; Grenache: Cannonau; Ice wine: Dessertwine).
+- Merlot: RIEDEL's guide page shows no glasses; the entry uses the RIEDEL glasses named for Merlot ("Cabernet / Merlot").
+- Spirits get no recommendation.
+
+To update the data: edit `data/riedel_guide.json`, run `python3 tools/build_glasses.py --report`, check the votes, then run `node tests/glasses.test.js`.
+
 ## Climate sensor and alerts
 
 See `sensor/README.md` for hardware, wiring and setup.
@@ -182,6 +209,7 @@ Every release changes `VERSION`, so every release needs step 7. Until then, the 
 
 ```bash
 node tests/backend.test.js                       # Code.gs + Logic.gs in a mocked Apps Script
+node tests/glasses.test.js                       # RIEDEL glass recommendation
 python3 tests/sensor_test.py                     # sensor script against the local backend
 pip install playwright qrcode && python3 -m playwright install chromium
 python3 tests/e2e.py <qr.mjpeg> <screenshot-dir> # two phones, fake camera, offline, conflict

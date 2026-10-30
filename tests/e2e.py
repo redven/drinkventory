@@ -111,6 +111,13 @@ try:
 
         # ---------- phone A: product tag on the product page, inherited by its bottles ----------
         a.goto(APP + '#/p/p_keller')
+        expect(a.locator('.glass .glass-v')).to_have_text('Riesling / Zinfandel')
+        expect(a.locator('.glass .glass-why')).to_contain_text('Recommended for Riesling')
+        assert a.get_attribute('.glass .glass-why a', 'href').startswith('https://www.riedel.com/')
+        a.goto(APP + '#/p/p_spring')
+        expect(a.locator('.glass')).to_have_count(0)
+        a.goto(APP + '#/p/p_keller')
+        print('ok  RIEDEL glass shown for the Riesling, not for the whisky')
         a.fill('.ptags .tag-input', 'Christmas')
         a.press('.ptags .tag-input', 'Enter')
         expect(a.locator('.ptags .tag-chip')).to_have_text(['Christmas\u00d7'])
@@ -206,6 +213,10 @@ try:
 
         # ---------- stats and settings ----------
         a.goto(APP + '#/stats')
+        a.wait_for_selector('#chGlass', timeout=15000)
+        labels = a.evaluate("() => Chart.getChart('chGlass').data.labels")
+        assert 'Riesling / Zinfandel' in labels and 'Champagne Wine Glass' in labels, labels
+        print('ok  stats: glasses for wine in stock', labels)
         a.wait_for_selector('#chTemp', timeout=15000)
         a.wait_for_timeout(800)
         shot(a, '06-stats', full=True)
