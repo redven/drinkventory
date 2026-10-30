@@ -1499,7 +1499,7 @@
     barChart('chLoc', keys(byLoc), counts(byLoc), c.other, true, 'location');
     barChart('chCountry', keys(byCountry), counts(byCountry), c.other, true, 'country');
     barChart('chGrape', keys(byGrape), counts(byGrape), c.wine, true, 'grape');
-    barChart('chGlass', keys(byGlass), counts(byGlass), c.wine, true, 'glass');
+    barChart('chGlass', keys(byGlass), counts(byGlass), keys(byGlass).map(function (k) { return k === NO_GLASS ? c.muted : c.wine; }), true, 'glass');
     barChart('chTag', keys(byTag), counts(byTag), c.other, true, 'tag');
     barChart('chVint', vint.map(function (x) { return x.key; }), vint.map(function (x) { return x.n; }), c.wine, false);
     renderClimate();

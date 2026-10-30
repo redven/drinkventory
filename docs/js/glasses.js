@@ -145,15 +145,17 @@ var DrinkventoryGlasses = (function () {
     'Pinot Noir Old World': ['Blauburgunder'],
     'Pinot Noir New World': ['Pinot Noir Old World'],
     'Shiraz New World': ['Syrah Old World'],
-    'Syrah Old World': ['Shiraz New World']
+    'Syrah Old World': ['Shiraz New World'],
+    'Ice wine': ['Dessertwine'],
+    'Blanc de Noirs': ['Sparkling Wine']
   };
 
   // Aliases that are a different grape name for the same or a related variety: shown as a note.
   var ALIAS_NOTES = {
     'turbiana': 'Turbiana (Trebbiano di Lugana) is the same grape as Verdicchio.',
     'trebbiano di lugana': 'Trebbiano di Lugana (Turbiana) is the same grape as Verdicchio.',
-    'goldmuskateller': 'RIEDEL has no own entry for Goldmuskateller; it belongs to the Muscat family.',
-    'moscato giallo': 'RIEDEL has no own entry for Moscato Giallo; it belongs to the Muscat family.'
+    'goldmuskateller': 'Goldmuskateller is a Muscat; this uses RIEDEL\'s Muskateller page.',
+    'moscato giallo': 'Moscato Giallo is a Muscat; this uses RIEDEL\'s Muskateller page.'
   };
 
   var NEW_WORLD = ['usa', 'united states', 'us', 'america', 'canada', 'chile', 'argentina', 'australia',
@@ -180,9 +182,62 @@ var DrinkventoryGlasses = (function () {
     return items;
   }
 
+  /** True when a and b differ by at most one inserted, deleted or replaced letter. */
+  function oneEdit(a, b) {
+    if (Math.abs(a.length - b.length) > 1) return false;
+    var i = 0, j = 0, diff = 0;
+    while (i < a.length && j < b.length) {
+      if (a[i] === b[j]) { i++; j++; continue; }
+      if (++diff > 1) return false;
+      if (a.length > b.length) i++;
+      else if (b.length > a.length) j++;
+      else { i++; j++; }
+    }
+    return diff + (a.length - i) + (b.length - j) <= 1;
+  }
+
+  var SPECIAL = ['pinot noir', 'pinot nero', 'spatburgunder', 'spaetburgunder', 'syrah', 'shiraz', 'chardonnay',
+    'morillon', 'sauvignon blanc', 'sauvignon', 'muskat sylvaner', 'fume blanc'];
+
+  /** Known grape name for a typed name: exact, or one letter off for names of 7 or more letters. */
+  function knownName(k) {
+    if (ALIASES[k] || SPECIAL.indexOf(k) >= 0) return k;
+    if (k.length < 7) return null;
+    var keys = SPECIAL.concat(Object.keys(ALIASES));
+    var hits = keys.filter(function (x) { return x.length >= 7 && oneEdit(k, x); });
+    return hits.length === 1 ? hits[0] : null;
+  }
+
+  var DISPLAY = {
+    'spatburgunder': 'Spätburgunder', 'spaetburgunder': 'Spätburgunder', 'weissburgunder': 'Weißburgunder',
+    'weisser burgunder': 'Weißer Burgunder', 'rulander': 'Ruländer', 'gruner silvaner': 'Grüner Silvaner',
+    'samling 88': 'Sämling 88', 'gruner veltliner': 'Grüner Veltliner', 'muller thurgau': 'Müller-Thurgau',
+    'blaufrankisch': 'Blaufränkisch', 'gewurztraminer': 'Gewürztraminer', 'nero d avola': 'Nero d\'Avola'
+  };
+
+  /** Readable name for a normalized grape key: the RIEDEL entry name if it is the same grape, else title case. */
+  function displayName(k) {
+    if (DISPLAY[k]) return DISPLAY[k];
+    var e = ALIASES[k];
+    if (e && norm(e) === k) return e;
+    return k.replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+  }
+
   /** RIEDEL entry for one grape, or null. */
   function grapeEntry(grape, p) {
-    var k = norm(grape);
+    var typed = norm(grape);
+    var k = knownName(typed);
+    if (!k) return null;
+    var read = k !== typed ? 'Read "' + grape + '" as ' + displayName(k) + '.' : '';
+    var m = grapeEntryKnown(k, p);
+    if (m && read) {
+      m.note = [read, m.note].filter(Boolean).join(' ');
+      m.display = displayName(k);
+    }
+    return m;
+  }
+
+  function grapeEntryKnown(k, p) {
     if (k === 'pinot noir' || k === 'pinot nero' || k === 'spatburgunder' || k === 'spaetburgunder') {
       return { name: isNewWorld(p) ? 'Pinot Noir New World' : 'Pinot Noir Old World' };
     }
@@ -205,7 +260,7 @@ var DrinkventoryGlasses = (function () {
     var names = [m.name].concat(FALLBACK[m.name] || []);
     for (var i = 0; i < names.length; i++) {
       if (!entry(names[i])) continue;
-      var out = { name: names[i], note: m.note, alt: m.alt, when: m.when };
+      var out = { name: names[i], note: m.note, alt: m.alt, when: m.when, display: m.display };
       if (i > 0) {
         out.note = [m.note, 'RIEDEL lists no glasses on its ' + m.name + ' page; this uses its ' + names[i] + ' page for the same grape.']
           .filter(Boolean).join(' ');
@@ -255,6 +310,9 @@ var DrinkventoryGlasses = (function () {
     var r = { entry: name, shape: e.shape, also: e.also || [], url: e.url, glasses: e.glasses || [], basis: basis, from: from,
       note: '', alt: null, unmatched: [] };
     if (extra) Object.keys(extra).forEach(function (k) { r[k] = extra[k]; });
+    if (e.source === 'glass-name') {
+      r.note = [r.note, 'RIEDEL\'s guide page for ' + name + ' shows no glasses; these RIEDEL glasses carry its name.'].filter(Boolean).join(' ');
+    }
     return r;
   }
 
@@ -264,8 +322,9 @@ var DrinkventoryGlasses = (function () {
     if (wineTypes.indexOf(p.type) < 0) return null;
 
     var style = styleEntry(p);
-    if (style) {
-      var rs = result(style, 'style', style);
+    var ms = style ? resolve({ name: style }) : null;
+    if (ms) {
+      var rs = result(ms.name, 'style', style, { note: ms.note || '' });
       if (rs) return rs;
     }
 
@@ -276,14 +335,16 @@ var DrinkventoryGlasses = (function () {
       var m = resolve(grapeEntry(g.name, p));
       if (!m) { unmatched.push(g.name); continue; }
       var notes = [];
-      if (grapes.length > 1) {
-        notes.push(grapes.some(function (x) { return x.pct !== null; })
-          ? g.name + ' has the largest share of the blend.'
-          : g.name + ' is listed first in the blend.');
+      var name = m.display || g.name;
+      var byShare = grapes.some(function (x) { return x.pct !== null; });
+      if (i === 0 && grapes.length > 1) {
+        notes.push(name + (byShare ? ' has the largest share of the blend.' : ' is listed first in the blend.'));
+      } else if (i > 0) {
+        notes.push('RIEDEL lists no glass for ' + unmatched.join(', ') + '; ' + name + ' is the next grape' +
+          (byShare ? ' by share.' : ' in the list.'));
       }
-      if (unmatched.length) notes.push('RIEDEL lists no glass for ' + unmatched.join(', ') + '.');
       if (m.note) notes.push(m.note);
-      var r = result(m.name, 'grape', g.name, { note: notes.join(' ') });
+      var r = result(m.name, 'grape', name, { note: notes.join(' ') });
       if (m.alt && entry(m.alt)) {
         var a = entry(m.alt);
         if (a.shape !== r.shape) r.alt = { entry: m.alt, shape: a.shape, url: a.url, when: m.when };

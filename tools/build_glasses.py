@@ -40,9 +40,9 @@ SHAPES = [
     (r'oaked chardonnay|montrachet', 'Oaked Chardonnay'),
     (r'chardonnay|viognier|chablis', 'Viognier / Chardonnay'),
     (r'riesling|zinfandel', 'Riesling / Zinfandel'),
+    (r'cabernet|merlot|bordeaux', 'Cabernet / Merlot'),       # before Sauvignon: "Cabernet Sauvignon"
     (r'sauvignon blanc|loire|sauvignon', 'Sauvignon Blanc'),
     (r'nebbiolo|barolo|barbaresco|pinot noir|burgundy|bourgogne|\bpinot\b', 'Pinot Noir / Nebbiolo'),
-    (r'cabernet|merlot|bordeaux', 'Cabernet / Merlot'),
     (r'syrah|shiraz|hermitage', 'Syrah / Shiraz'),
     (r'sangiovese|chianti|brunello', 'Sangiovese'),
     (r'tempranillo|rioja', 'Tempranillo'),
@@ -126,6 +126,7 @@ def main() -> None:
             'url': row.get('url'),
             'shape': shape,
             'also': also,
+            'source': row.get('source', 'guide'),
             'glasses': [p for p in products if not GENERIC.search(p)],
         }
     data = {

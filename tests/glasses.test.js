@@ -42,20 +42,42 @@ test('grape list: percentages decide the order, otherwise as listed', () => {
 
 test('synonyms: German, Italian and Spanish names find the RIEDEL entry', () => {
   const entryOf = (grapes, extra) => rec(Object.assign({ grapes }, extra)).entry;
-  assert.equal(entryOf('Silvaner'), 'Sylvaner');
-  assert.equal(entryOf('Grauburgunder'), 'Pinot (Blanc, Grigio, Gris)');
-  assert.equal(entryOf('Pinot Bianco'), 'Pinot (Blanc, Grigio, Gris)');
-  assert.equal(entryOf('Weißburgunder'), 'Pinot (Blanc, Grigio, Gris)');
   assert.equal(entryOf('Lemberger', { type: 'red' }), 'Blaufränkisch');
-  assert.equal(entryOf('Garnacha', { type: 'red' }), 'Grenache/Granacha');
   assert.equal(entryOf('Monastrell', { type: 'red' }), 'Mourvèdre');
   assert.equal(entryOf('Tinta Roriz', { type: 'red' }), 'Tempranillo');
   assert.equal(entryOf('Goldmuskateller'), 'Muskateller');
   assert.equal(entryOf('Turbiana'), 'Verdicchio');
   assert.equal(entryOf('Riesling Italico'), 'Welschriesling', 'not Riesling');
+  assert.equal(entryOf('Spätburgunder', { type: 'red' }), 'Pinot Noir Old World');
+});
+
+test('RIEDEL pages without glasses: same-grape page if there is one, else no glass', () => {
+  const mt = rec({ grapes: 'Müller-Thurgau' });
+  assert.equal(mt.entry, 'Rivaner');
+  assert.match(mt.note, /no glasses on its Müller-Thurgau page; this uses its Rivaner page/);
+  assert.equal(rec({ type: 'red', grapes: 'Garnacha' }).entry, 'Cannonau');
+  assert.equal(rec({ grapes: 'Gewürztraminer' }).entry, 'Gewürztraminer', 'own page found on retry');
+  for (const g of ['Silvaner', 'Pinot Bianco', 'Grauburgunder', 'Weißburgunder']) {
+    const r = rec({ grapes: g });
+    assert.equal(r.shape, null, g + ': RIEDEL lists no glass');
+    assert.deepEqual(r.unmatched, [g]);
+  }
+  const zw = rec({ type: 'red', grapes: 'Zweigelt' });
+  assert.equal(zw.shape, null);
+});
+
+test('Merlot: from the RIEDEL glasses named for it, and marked as such', () => {
+  const r = rec({ type: 'red', grapes: 'Merlot, Cabernet Sauvignon' });
+  assert.equal(r.entry, 'Merlot');
+  assert.equal(r.shape, 'Cabernet / Merlot');
+  assert.match(r.note, /listed first/);
+  assert.match(r.note, /guide page for Merlot shows no glasses; these RIEDEL glasses carry its name/);
+  assert.equal(GUIDE.entries['Merlot'].source, 'glass-name');
+  assert.equal(GUIDE.entries['Riesling'].source, 'guide');
 });
 
 test('Pinot Noir and Syrah: old world by default, new world by country', () => {
+  assert.equal(rec({ type: 'red', grapes: 'Pinot Noir' }).shape, 'Pinot Noir / Nebbiolo');
   assert.equal(rec({ type: 'red', grapes: 'Spätburgunder', country: 'Germany' }).entry, 'Pinot Noir Old World');
   assert.equal(rec({ type: 'red', grapes: 'Pinot Noir', country: 'New Zealand' }).entry, 'Pinot Noir New World');
   assert.equal(rec({ type: 'red', grapes: 'Shiraz', country: 'Australia' }).entry, 'Shiraz New World');
@@ -72,12 +94,25 @@ test('Chardonnay: unoaked entry with the oaked glass as alternative', () => {
 test('blends: first matching grape decides, unknown grapes are reported', () => {
   const r = rec({ grapes: 'Souvignier Gris 50%, Goldmuskateller 30%, Kerner 20%' });
   assert.equal(r.from, 'Goldmuskateller');
+  const typo = rec({ grapes: 'Souvignier Gris 50%, Goldmuskatelle 30%' });
+  assert.equal(typo.from, 'Goldmuskateller', 'corrected name, not the typo');
+  assert.match(typo.note, /Goldmuskateller is the next grape by share\. Read "Goldmuskatelle" as Goldmuskateller\./);
   assert.deepEqual(r.unmatched, ['Souvignier Gris']);
-  assert.match(r.note, /largest share/);
-  assert.match(r.note, /no glass for Souvignier Gris/);
-  const b = rec({ type: 'red', grapes: 'Merlot, Cabernet Sauvignon' });
-  assert.equal(b.from, 'Merlot');
+  assert.match(r.note, /no glass for Souvignier Gris; Goldmuskateller is the next grape by share/);
+  assert.doesNotMatch(r.note, /largest share/);
+  const b = rec({ type: 'red', grapes: 'Cabernet Franc, Merlot' });
+  assert.equal(b.from, 'Cabernet Franc');
   assert.match(b.note, /listed first/);
+});
+
+test('typos: one letter off in a long grape name is read as the known name', () => {
+  const r = rec({ grapes: 'Rieslng' });
+  assert.equal(r.entry, 'Riesling');
+  assert.match(r.note, /Read "Rieslng" as Riesling\./);
+  assert.match(rec({ type: 'red', grapes: 'Spätbugunder' }).note, /as Spätburgunder\./);
+  assert.match(rec({ grapes: 'Goldmuskatelle' }).note, /as Goldmuskateller\./);
+  assert.equal(rec({ type: 'red', grapes: 'Merlo' }).shape, null, 'short names need an exact match');
+  assert.equal(rec({ grapes: 'Pinot Gris' }).shape, null, 'no fuzzy jump to Pinot Grigio data');
 });
 
 test('no match: null shape, grapes listed, link to the guide', () => {
@@ -95,7 +130,10 @@ test('styles: sparkling, sweet, fortified and rosé ignore the grapes', () => {
   assert.equal(rec({ type: 'sparkling', name: 'Brut Rosé', region: 'Champagne', country: 'France' }).entry, 'Rosé Champagne');
   assert.equal(rec({ type: 'sparkling', name: 'Riesling Sekt brut', country: 'Germany', grapes: 'Riesling' }).entry, 'Sekt');
   assert.equal(rec({ type: 'sparkling', name: 'Ammonites Dosaggio Zero', region: 'Lombardy', country: 'Italy' }).entry, 'Sparkling Wine');
-  assert.equal(rec({ type: 'sweet', name: 'Riesling Eiswein', grapes: 'Riesling' }).entry, 'Ice wine');
+  const ice = rec({ type: 'sweet', name: 'Riesling Eiswein', grapes: 'Riesling' });
+  assert.equal(ice.entry, 'Dessertwine', 'RIEDEL ice wine page is empty: dessert wine page');
+  assert.equal(ice.from, 'Ice wine');
+  assert.match(ice.note, /Ice wine page/);
   assert.equal(rec({ type: 'sweet', name: 'Château X', region: 'Sauternes' }).entry, 'Sauternes');
   assert.equal(rec({ type: 'fortified', name: '20 Year Old Tawny', country: 'Portugal' }).entry, 'Tawny Port');
   assert.equal(rec({ type: 'fortified', name: 'Vintage Port 2011', country: 'Portugal', region: 'Douro' }).entry, 'Vintage Port');
