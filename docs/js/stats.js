@@ -106,8 +106,18 @@ var DrinkStats = (function () {
     return f.map(function (x) { return { key: x, label: x }; });
   }
 
+  /** Whisky region of a bottle from Scotland: map key ('Islay', 'Skye', ...), else the region text. */
+  function wregionKeys(b, p) {
+    if (WM.resolve(p.country) !== 'SCT') return [];
+    var t = clean(p.region);
+    if (!t) return [{ key: '', label: NOT_SET }];
+    var k = WM.scotlandRegion(t);
+    return [k ? { key: k, label: k } : { key: 'raw:' + lower(t), label: t }];
+  }
+
   var FACETS = {
     ctry: { title: 'Country', keys: countryKeys },
+    wregion: { title: 'Whisky region', keys: wregionKeys },
     region: { title: 'Region', keys: regionKeys },
     age: { title: 'Age', keys: ageKeys },
     cask: { title: 'Cask', keys: caskKeys }

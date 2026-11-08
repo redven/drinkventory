@@ -1520,7 +1520,7 @@
 
   var FACET_TITLES = {
     win: '', grape: 'Grape', tag: 'Tag', type: 'Type', country: 'Country', location: 'Location', glass: 'Glass',
-    ctry: 'Country', region: 'Region', age: 'Age', cask: 'Cask'
+    ctry: 'Country', region: 'Region', age: 'Age', cask: 'Cask', wregion: 'Whisky region'
   };
 
   /** Does a bottle belong to the Cellar filter that a tap in Stats set? */
@@ -1564,6 +1564,7 @@
   function showFacet(kind, value, title, shown) {
     if (shown === undefined) {
       if (kind === 'ctry') shown = value === '' ? DS.NOT_SET : (value.indexOf('raw:') === 0 ? value.slice(4) : WM.nameOf(value));
+      else if (kind === 'wregion') shown = value === '' ? DS.NOT_SET : (value.indexOf('raw:') === 0 ? value.slice(4) : value);
       else if (kind === 'age' && /^\d+$/.test(value)) shown = value;
       else shown = value === '' ? DS.NOT_SET : value;
     }
@@ -1647,7 +1648,7 @@
     if (!rows.length) {
       html += '<p class="empty">No ' + esc(noun) + ' in stock.</p>';
     } else {
-      html += mapBlock(cat, rows) +
+      html += mapBlock(cat) +
         hBarBlock('chCountry', 'Stock by country', byCountry.slice(0, 12), 'Bottles of ' + noun + ' in stock by country') +
         hBarBlock('chRegion', 'Stock by region', byRegion, 'Bottles of ' + noun + ' in stock by region');
       if (cat === 'wine') {
@@ -1706,7 +1707,7 @@
     function keys(list) { return list.map(function (x) { return x.key; }); }
     function labelsOf(list) { return list.map(function (x) { return x.label; }); }
     function nums(list) { return list.map(function (x) { return x.n; }); }
-    renderWorldMap();
+    renderMapBox();
     var bc = byCountry.slice(0, 12);
     barChart('chCountry', labelsOf(bc), nums(bc), color, true, 'ctry', null, keys(bc));
     barChart('chRegion', labelsOf(byRegion), nums(byRegion), color, true, 'region', null, keys(byRegion));
@@ -1734,24 +1735,65 @@
 
   // ---------- world map ----------
 
-  function mapBlock(cat, rows) {
+  function mapBlock(cat) {
     var title = cat === 'wine' ? 'Where your wine comes from' : (cat === 'spirit' ? 'Where your spirits come from' : 'Where they come from');
+    return '<h2>' + esc(title) + '</h2><div id="mapBox"></div>';
+  }
+
+  function legendHtml(max, empty) {
+    if (!max) return '<div class="wm-legend">' + esc(empty) + '</div>';
+    return '<div class="wm-legend"><span>Bottles</span>' + WM.legend(max).map(function (l) {
+      return '<span class="wm-key"><i class="wm-k' + l.cls + '"></i>' + esc(l.label) + '</span>';
+    }).join('') + '</div>';
+  }
+
+  /** Map card: world (your countries or all) or Scotland with its whisky regions, legend, view buttons, notes. */
+  function renderMapBox() {
+    var box = $('#mapBox');
+    if (!box || !WM) return;
+    var cat = app.stats.cat;
+    var rows = DS.stock(app.state, cat);
     var tally = DS.tally(rows, 'ctry');
-    var onMap = tally.filter(function (x) { return x.key && WM.onMap(x.key); });
-    var max = onMap.reduce(function (m, x) { return Math.max(m, x.n); }, 0);
+    var scot = tally.filter(function (x) { return x.key === 'SCT'; })[0];
+    if (app.stats.map === 'scotland' && !scot) app.stats.map = 'fit';
+    var mode = app.stats.map;
+    var view = function (v, label) {
+      return '<button type="button" class="seg-btn" data-act="map-view" data-view="' + v + '" aria-pressed="' + (mode === v) + '">' + label + '</button>';
+    };
+    var buttons = '<div class="seg map-view" role="group" aria-label="Map area">' + view('fit', 'Yours') + view('world', 'World') +
+      (scot ? view('scotland', 'Scotland') : '') + '</div>';
+    var html;
+    if (mode === 'scotland') {
+      var reg = DS.tally(rows, 'wregion');
+      var onMap = reg.filter(function (x) { return x.key && x.key.indexOf('raw:') !== 0; });
+      var other = reg.filter(function (x) { return x.key.indexOf('raw:') === 0; });
+      var none = reg.filter(function (x) { return x.key === ''; })[0];
+      var max = onMap.reduce(function (m, x) { return Math.max(m, x.n); }, 0);
+      html = '<div class="map-card cat-' + cat + '"><div id="worldMap"></div><div class="map-foot">' +
+        legendHtml(max, 'No Scotch with a region yet.') + buttons + '</div></div>' +
+        '<p class="footnote">Scotch whisky regions, drawn from council areas, so the borders are approximate. Speyside: Moray. Campbeltown: the town. Islands: each island on its own.</p>' +
+        (other.length || none ? '<div class="map-unknown">' +
+          (other.length ? '<p>Region not on the map:</p><ul>' + other.map(function (x) {
+            return '<li><button type="button" class="link-btn" data-act="facet" data-kind="wregion" data-value="' + esc(x.key) + '">' + esc(x.label) + ', ' + plural(x.n, 'bottle') + '</button></li>';
+          }).join('') + '</ul>' : '') +
+          (none ? '<p><button type="button" class="link-btn" data-act="facet" data-kind="wregion" data-value="">' + plural(none.n, 'bottle') + ' from Scotland without a region</button></p>' : '') +
+          '</div>' : '');
+      box.innerHTML = html;
+      var el = $('#worldMap');
+      var desc = onMap.map(function (x) { return x.label + ' ' + x.n; }).join(', ');
+      el.innerHTML = WM.renderScotland(onMap.map(function (x) { return { key: x.key, n: x.n }; }), {
+        px: el.clientWidth || 340,
+        title: function (k, n) { return k + ': ' + plural(n, 'bottle'); },
+        label: 'Map of Scotland with whisky regions of the bottles in stock' + (desc ? ': ' + desc : '')
+      });
+      return;
+    }
+    var mapped = tally.filter(function (x) { return x.key && WM.onMap(x.key); });
+    var maxC = mapped.reduce(function (m, x) { return Math.max(m, x.n); }, 0);
     var unknown = DS.unknownCountries(app.state, cat);
     var notSet = tally.filter(function (x) { return x.key === ''; })[0];
-    var view = function (v, label) {
-      return '<button type="button" class="seg-btn" data-act="map-view" data-view="' + v + '" aria-pressed="' + (app.stats.map === v) + '">' + label + '</button>';
-    };
-    return '<h2>' + esc(title) + '</h2>' +
-      '<div class="map-card cat-' + cat + '"><div id="worldMap"></div>' +
-      '<div class="map-foot">' +
-      (max ? '<div class="wm-legend"><span>Bottles</span>' + WM.legend(max).map(function (l) {
-        return '<span class="wm-key"><i class="wm-k' + l.cls + '"></i>' + esc(l.label) + '</span>';
-      }).join('') + '</div>' : '<div class="wm-legend">No country set yet.</div>') +
-      '<div class="seg map-view" role="group" aria-label="Map area">' + view('fit', 'Yours') + view('world', 'World') + '</div>' +
-      '</div></div>' +
+    html = '<div class="map-card cat-' + cat + '"><div id="worldMap"></div><div class="map-foot">' +
+      legendHtml(maxC, 'No country set yet.') + buttons + '</div></div>' +
       (unknown.length || notSet ? '<div class="map-unknown">' +
         (unknown.length ? '<p>Not on the map. Rename to the country name:</p><ul>' + unknown.map(function (u) {
           return '<li><span>' + esc(u.text) + ', ' + plural(u.n, 'bottle') + '</span>' +
@@ -1759,18 +1801,14 @@
         }).join('') + '</ul>' : '') +
         (notSet ? '<p><button type="button" class="link-btn" data-act="facet" data-kind="ctry" data-value="">' + plural(notSet.n, 'bottle') + ' without a country</button></p>' : '') +
         '</div>' : '');
-  }
-
-  function renderWorldMap() {
-    var el = $('#worldMap');
-    if (!el || !WM) return;
-    var rows = DS.tally(DS.stock(app.state, app.stats.cat), 'ctry').filter(function (x) { return x.key && WM.onMap(x.key); });
-    var desc = rows.map(function (x) { return x.label + ' ' + x.n; }).join(', ');
-    el.innerHTML = WM.render(rows.map(function (x) { return { key: x.key, n: x.n }; }), {
-      view: app.stats.map,
-      px: el.clientWidth || 340,
+    box.innerHTML = html;
+    var mapEl = $('#worldMap');
+    var descC = mapped.map(function (x) { return x.label + ' ' + x.n; }).join(', ');
+    mapEl.innerHTML = WM.render(mapped.map(function (x) { return { key: x.key, n: x.n }; }), {
+      view: mode,
+      px: mapEl.clientWidth || 340,
       title: function (k, n) { return WM.nameOf(k) + ': ' + plural(n, 'bottle'); },
-      label: 'Map of ' + CAT_NOUN[app.stats.cat] + ' in stock by country' + (desc ? ': ' + desc : ', no countries yet')
+      label: 'Map of ' + CAT_NOUN[cat] + ' in stock by country' + (descC ? ': ' + descC : ', no countries yet')
     });
   }
 
@@ -2094,11 +2132,7 @@
     'tag-rename': function (el) { renameTagDialog(el.dataset.tag); },
     'tag-delete': function (el) { deleteTag(el.dataset.tag); },
     'stats-cat': function (el) { app.stats.cat = el.dataset.cat; destroyCharts(); viewStats($('#main')); },
-    'map-view': function (el) {
-      app.stats.map = el.dataset.view;
-      Array.prototype.forEach.call(document.querySelectorAll('[data-act=map-view]'), function (b) { b.setAttribute('aria-pressed', String(b.dataset.view === app.stats.map)); });
-      renderWorldMap();
-    },
+    'map-view': function (el) { app.stats.map = el.dataset.view; renderMapBox(); },
     'country-rename': function (el) { renameCountryDialog(el.dataset.text); },
     'climate-days': function (el) { app.climate.days = Number(el.dataset.days); destroyClimateCharts(); renderClimate(); },
     'test-conn': function () {

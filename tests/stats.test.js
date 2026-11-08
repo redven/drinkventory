@@ -95,6 +95,57 @@ test('badges that overlap are pushed apart and get a leader line', () => {
   assert.ok(/class="wm-lead"/.test(svg));
 });
 
+/** Badge circles and leader lines of an SVG. */
+function badgesOf(svg) {
+  const b = [...svg.matchAll(/<g class="wm-b"[^>]*data-value="([^"]*)"><title>[^<]*<\/title><circle cx="([\d.]+)" cy="([\d.]+)" r="([\d.]+)"/g)]
+    .map((m) => ({ key: m[1], x: +m[2], y: +m[3], r: +m[4] }));
+  const lines = [...svg.matchAll(/<line class="wm-lead" x1="([\d.]+)" y1="([\d.]+)" x2="([\d.]+)" y2="([\d.]+)"/g)].map((m) => m.slice(1).map(Number));
+  return { b, lines };
+}
+
+test('small countries get their number outside, with a line; large ones keep it inside', () => {
+  const svg = WM.render([{ key: 'SCT', n: 11 }, { key: 'ENG', n: 1 }, { key: 'IRL', n: 2 }, { key: 'USA', n: 1 }], { view: 'fit', px: 358 });
+  const { b, lines } = badgesOf(svg);
+  assert.equal(b.length, 4);
+  const at = (k) => b.find((x) => x.key === k);
+  const unitOf = (k) => WM.data.units.find((u) => u.k === k);
+  for (const k of ['SCT', 'ENG', 'IRL']) {
+    const u = unitOf(k); const p = at(k);
+    const insideBox = p.x > u.b[0] && p.x < u.b[2] && p.y > u.b[1] && p.y < u.b[3];
+    assert.ok(!insideBox, k + ': number not on the country');
+    assert.ok(lines.some((l) => Math.abs(l[2] - p.x) < 0.02 && Math.abs(l[3] - p.y) < 0.02), k + ': has a line');
+  }
+  assert.equal(lines.length, 3, 'the USA keeps its number inside');
+  for (let i = 0; i < b.length; i++) for (let j = i + 1; j < b.length; j++) {
+    assert.ok(Math.hypot(b[i].x - b[j].x, b[i].y - b[j].y) >= b[i].r + b[j].r, b[i].key + '/' + b[j].key + ' overlap');
+  }
+});
+
+test('Scotch whisky regions: names, shapes, Campbeltown as a point, Islands as a group', () => {
+  const cases = {
+    'Isle Of Skye': 'Skye', Lowland: 'Lowlands', Orkney: 'Orkney', Speyside: 'Speyside', Islay: 'Islay', Highland: 'Highlands',
+    'Western Highlands': 'Highlands', Campbeltown: 'Campbeltown', 'Isle of Arran': 'Arran', 'Isle of Jura': 'Jura',
+    Islands: 'Islands', 'Isle of Mull': 'Mull', Kintyre: 'Campbeltown', Raasay: 'Raasay', 'Isle of Harris': 'Lewis and Harris'
+  };
+  for (const [t, k] of Object.entries(cases)) assert.equal(WM.scotlandRegion(t), k, t);
+  for (const t of ['', 'Kentucky', 'Glasgow', 'Cork']) assert.equal(WM.scotlandRegion(t), '', t);
+  const keys = WM.scotland.units.map((u) => u.k).sort();
+  assert.deepEqual(keys, ['Arran', 'Highlands', 'Islay', 'Jura', 'Lewis and Harris', 'Lowlands', 'Mull', 'Orkney', 'Other islands', 'Raasay', 'Skye', 'Speyside']);
+  assert.ok(WM.scotland.groups.Islands.units.includes('Skye') && !WM.scotland.groups.Islands.units.includes('Islay'));
+  const svg = WM.renderScotland([{ key: 'Lowlands', n: 3 }, { key: 'Highlands', n: 2 }, { key: 'Skye', n: 1 }, { key: 'Speyside', n: 1 },
+    { key: 'Islay', n: 1 }, { key: 'Orkney', n: 1 }, { key: 'Campbeltown', n: 1 }], { px: 358 });
+  assert.match(svg, /<svg class="wm wm-sc"/);
+  assert.match(svg, /<circle class="wm-pt wm-k1"[^>]*data-kind="wregion" data-value="Campbeltown"/);
+  const { b, lines } = badgesOf(svg);
+  assert.equal(b.length, 7);
+  assert.equal(lines.length, 5, 'only Highlands and Lowlands keep the number inside');
+  for (let i = 0; i < b.length; i++) for (let j = i + 1; j < b.length; j++) {
+    assert.ok(Math.hypot(b[i].x - b[j].x, b[i].y - b[j].y) >= b[i].r + b[j].r, b[i].key + '/' + b[j].key + ' overlap');
+  }
+  const grp = WM.renderScotland([{ key: 'Islands', n: 2 }], { px: 358 });
+  assert.equal((grp.match(/wm-u wm-k2"[^>]*data-value="Islands"/g) || []).length, 8, 'all island shapes except Islay');
+});
+
 // ---------- per-category statistics ----------
 
 const state = {
@@ -174,6 +225,9 @@ test('facets match the same bottles that the charts count', () => {
     }
   }
   assert.ok(DS.match('region', 'kentucky', {}, { region: 'Kentucky' }), 'region ignores case');
+  const w = DS.tally(rows, 'wregion');
+  assert.deepEqual(w.map((x) => [x.key, x.n]), [['Islay', 1]], 'only bottles from Scotland; "Scottland" is not Scotland');
+  for (const t of w) assert.equal(rows.filter((r) => DS.match('wregion', t.key, r.b, r.p)).length, t.n, 'wregion ' + t.key);
 });
 
 console.log(passed + ' passed');

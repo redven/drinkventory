@@ -635,6 +635,10 @@ a.row:active, button.row:active { background: var(--surface-2); }
 .wm-b text { fill: var(--ink); font-family: var(--sans); font-weight: 650; text-anchor: middle; font-variant-numeric: tabular-nums; pointer-events: none; }
 .wm-lead { stroke: var(--ink-2); stroke-width: 1px; vector-effect: non-scaling-stroke; }
 .wm-dot { fill: var(--ink-2); }
+.wm-ctx { fill: var(--map-land); opacity: 0.45; }
+.wm-sc .wm-u { stroke-width: 1.4px; }
+.wm-pt { fill: var(--map-land); stroke: var(--ink-2); stroke-width: 1.2px; vector-effect: non-scaling-stroke; }
+.wm-pt[data-act] { cursor: pointer; }
 .wm-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; padding: 2px 4px; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .wm-key { display: inline-flex; align-items: center; gap: 5px; }
 .wm-key i { width: 14px; height: 10px; border-radius: 3px; }

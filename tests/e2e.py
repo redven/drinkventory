@@ -287,6 +287,18 @@ try:
         assert a.locator('#cellarList .row').count() == 2, 'Springbank and Ardbeg'
         print('ok  stats: spirits tab with age and cask; "Scottland" renamed to Scotland on the backend; map tap filters')
         a.goto(APP + '#/stats')
+        a.click('button[data-act=stats-cat][data-cat=spirit]')
+        a.click('button[data-act=map-view][data-view=scotland]')
+        expect(a.locator('#worldMap svg.wm-sc')).to_have_count(1)
+        regions = a.eval_on_selector_all('#worldMap .wm-b', 'els => els.map(e => e.dataset.value)')
+        assert sorted(regions) == ['Campbeltown', 'Islay'], regions
+        assert a.locator('#worldMap line.wm-lead').count() == 2, 'both numbers outside, with lines'
+        shot(a, '06b-stats-scotland')
+        a.click('#worldMap .wm-b[data-value=Islay]')
+        expect(a.locator('.facet-chip')).to_have_text('Whisky region: Islay')
+        assert a.locator('#cellarList .row').count() == 1, 'Ardbeg'
+        print('ok  stats: Scotland view with whisky regions; tapping Islay lists the Islay bottle')
+        a.goto(APP + '#/stats')
         a.click('button[data-act=stats-cat][data-cat=wine]')
         a.wait_for_selector('#chTemp', timeout=15000)
         a.wait_for_timeout(800)
