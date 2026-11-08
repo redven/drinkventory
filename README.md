@@ -97,7 +97,7 @@ The app rejects a sticker that is already in use, so a duplicate from a re-order
 | Add a bottle | Scan an unused sticker. Choose an existing product or create a new one (photo optional). Set location and, optionally, tags (where it came from, an occasion, a trip). |
 | Add several identical bottles | Tick **Add more bottles of this product next**, then scan the stickers one after another. |
 | Take a wine out | Scan, then **Take out** on the bottle card. |
-| Open and finish a spirit | Spirits have three states: **In storage**, **Open**, **Empty**. Scan, then **Open**; later **Empty**. Open bottles stay in stock, show "Open since …" and are listed under **Cellar > Open** and **Stats > Open bottles**. **Take out unopened** is for a sealed bottle that leaves (a gift). |
+| Open and finish a spirit | Spirits have three states: **In storage**, **Open**, **Empty**. Scan, then **Open**; later **Empty**. Open bottles stay in stock, show "Open since …" and are listed under **Cellar > Open** and in the **Open bottles** list in **Stats**. **Take out unopened** is for a sealed bottle that leaves (a gift). |
 | Many bottles in a row | Switch the scan screen to **Take out**. A scanned wine leaves the stock; a scanned spirit moves one step (storage to open, open to empty). Each scan has **Undo**. |
 | Move | Scan, **Move**, pick or type the location. |
 | Tags for one bottle | On the bottle page, under **Only this bottle**, tap a suggested tag or type a new one; tap × to remove it. Separate several with commas. |

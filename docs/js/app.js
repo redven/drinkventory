@@ -1544,7 +1544,6 @@
       fig(sum.total, 'bottles in stock', sum.wine + ' wine, ' + sum.spirit + ' spirits' + (sum.other ? ', ' + sum.other + ' other' : '')) +
       fig(sum.products, 'different products', sum.locations + ' locations') +
       fig(sum.out12m, 'taken out in 12 months', '') +
-      (sum.open ? fig(sum.open, 'open bottles', openList.length ? 'longest open ' + (openList[0].days === '' ? '' : openList[0].days + ' days') : '') : '') +
       '</div>' +
 
       '<h2>Drinking windows</h2>' +
