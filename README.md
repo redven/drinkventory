@@ -29,6 +29,8 @@ Why this split: Google Drive cannot host web pages, and an Apps Script page cann
 | `apps-script/Logic.gs` | Identical copy of `docs/js/logic.js`. |
 | `sensor/` | MicroPython script for an ESP32 + SHT4x climate sensor. |
 | `docs/js/glasses.js` | RIEDEL glass recommendation (app only, no backend change). |
+| `docs/js/stats.js`, `docs/js/worldmap.js` | Statistics per category and the world map (app only, no backend change). |
+| `docs/js/worldmap-data.js`, `tools/build_worldmap.js` | Country shapes from Natural Earth and the script that builds them. |
 | `data/riedel_guide.json`, `tools/build_glasses.py` | RIEDEL guide data and the script that builds `docs/js/glasses-data.js` from it. |
 | `analysis/load_drinkventory.py` | Loads everything into pandas DataFrames. |
 | `tests/` | Backend tests, end-to-end browser test, sensor test. |
@@ -104,7 +106,10 @@ The app rejects a sticker that is already in use, so a duplicate from a re-order
 | Tags for a whole product | On the product page (or in **Edit product**), add tags under **For every bottle of this product**. Every bottle of that product shows them, outlined, on its bottle page. Change them only on the product. |
 | Manage tags | **Settings > Tags** lists every tag with its number of bottles and products. Rename or delete a tag there; this changes it on every product and bottle. Search, statistics and the tag slices use product and bottle tags together; a tag on both counts once per bottle. |
 | Browse labels | **Cellar > Labels** shows the label photos as a grid. Tap a label to open that bottle (or the product, if there are several). |
-| From statistics to bottles | Tap a drinking-window number or a bar in **Stats** to list exactly those bottles. |
+| Statistics | **Stats** has one tab for **Wine** and one for **Spirits** (and **Other**, if you have such bottles). Wine: drinking windows, country, region, grape, glasses, vintage. Spirits: country, region, age, cask, open bottles. Both: type, location, tag, bottles taken out per month. |
+| World map | **Stats** shows where the bottles in stock come from: darker colour for more bottles, the number on each country. **Yours** zooms to your countries, **World** shows all. Scotland, England, Wales and Northern Ireland have their own shapes. |
+| Fix a country name | A country the map does not know (for example a typo such as "Scottland") shows under the map with **Rename**. The app suggests the nearest country name and changes all products with that name at once. The product form also warns about unknown names. English and German names both work ("Schottland", "Frankreich"). |
+| From statistics to bottles | Tap a drinking-window number, a bar or a country on the map in **Stats** to list exactly those bottles. |
 | Look a product up | **Find online** opens a Google search for producer, name and vintage (or distillery, name and age). |
 | Mistake | **Back in stock**, **Back to open** and **Back to storage** undo one step. **Remove** takes a wrongly labelled bottle out of all lists; the sticker can be used again. The history keeps every entry. |
 
@@ -216,16 +221,18 @@ You can add your own columns to the right of a tab. The backend keeps them.
 6. Push. GitHub Pages updates within a minute.
 7. In the Apps Script editor, replace both `Code.gs` and `Logic.gs`, then deploy a new version (see section 2).
 
-Every release changes `VERSION`, so every release needs step 7. Until then, the app shows the red version message.
+A release that changes `logic.js` or `Code.gs` raises `VERSION` and needs step 7; until then, the app shows the red version message. A release that changes only app files (`app.js`, `stats.js`, `worldmap.js`, `styles.css`) skips steps 2, 3 and 7.
 
 ## Tests
 
 ```bash
 node tests/backend.test.js                       # Code.gs + Logic.gs in a mocked Apps Script
 node tests/glasses.test.js                       # RIEDEL glass recommendation
+node tests/stats.test.js                         # world map names and view, statistics per category
 python3 tests/sensor_test.py                     # sensor script against the local backend
 pip install playwright qrcode && python3 -m playwright install chromium
 python3 tests/e2e.py <qr.mjpeg> <screenshot-dir> # two phones, fake camera, offline, conflict
 ```
 
 Third-party code in `docs/vendor/`: jsQR 1.4.0 (Apache-2.0), Chart.js 4.6.1 (MIT). Licence files are next to them.
+Map data: Natural Earth 1:50m Admin 0 map units v5.1.2 (public domain), simplified by `tools/build_worldmap.js`.

@@ -1,7 +1,7 @@
 /*
  * Drinkventory web app: views, local-first changes, sync with the Apps Script backend.
  * Depends on: DrinkventoryLogic (logic.js), Store (store.js), Scanner (scanner.js),
- * jsQR and Chart.js (vendor/).
+ * WorldMap (worldmap.js), DrinkStats (stats.js), jsQR and Chart.js (vendor/).
  */
 (function () {
   'use strict';
@@ -9,6 +9,8 @@
   var L = window.DrinkventoryLogic;
   var GL = window.DrinkventoryGlasses;
   var S = L.stats;
+  var WM = window.WorldMap;
+  var DS = window.DrinkStats;
 
   var app = {
     state: { products: [], bottles: [], events: [] },
@@ -29,6 +31,7 @@
     lastProductId: '',
     signature: '',
     cellar: { q: '', cat: 'all', status: 'stock', sort: 'name', mode: 'list', facet: null },
+    stats: { cat: 'wine', map: 'fit' },
     backendIssue: null,
     backendIssueKey: '',
     climate: { days: 14, data: null, loadedAt: 0, loading: false, error: '' },
@@ -848,6 +851,7 @@
       field('country', 'Country', p.country, 'list="dl_country" autocapitalize="words"') +
       field('region', 'Region', p.region, 'list="dl_region" autocapitalize="words"') +
       '</div>' +
+      '<p class="field-hint country-hint" hidden></p>' +
       '<div class="only-wine">' + field('grapes', 'Grapes (separate with commas)', p.grapes, 'autocapitalize="words" placeholder="e.g. Merlot, Cabernet Franc"') + '</div>' +
       '<div class="only-spirit">' + field('cask', 'Cask', p.cask, 'placeholder="e.g. sherry butt"') + '</div>' +
       '<div class="grid2">' +
@@ -867,7 +871,7 @@
       '</div>' +
       datalist('dl_producer', distinct('producer')) + datalist('dl_distillery', distinct('distillery')) +
       datalist('dl_bottler', ['Official'].concat(distinct('bottler').filter(function (x) { return x !== 'Official'; }))) +
-      datalist('dl_country', distinct('country')) + datalist('dl_region', distinct('region')) +
+      datalist('dl_country', countryOptions()) + datalist('dl_region', distinct('region')) +
       '</div>';
   }
 
@@ -892,7 +896,41 @@
     });
     var ptags = $('.ptags', pf);
     bindTagEditor(ptags, $('input[name=p_tags]', ptags).value);
+    bindCountryHint(pf);
     hydratePhotos(pf);
+  }
+
+  /** Under the Country field: a note when the map does not know the name, with a spelling suggestion. */
+  function bindCountryHint(pf) {
+    var input = $('input[name=country]', pf);
+    var hint = $('.country-hint', pf);
+    if (!input || !hint || !WM) return;
+    function check() {
+      var t = input.value.trim();
+      if (!t || WM.resolve(t)) { hint.hidden = true; hint.innerHTML = ''; return; }
+      var s = WM.suggest(t);
+      hint.innerHTML = '<span>Not on the map.</span>' +
+        (s ? '<button type="button" class="link-btn" data-use="' + esc(s) + '">Use ' + esc(s) + '</button>' : '<span>Use the English or German country name.</span>');
+      hint.hidden = false;
+    }
+    input.addEventListener('change', check);
+    input.addEventListener('blur', check);
+    hint.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-use]');
+      if (!b) return;
+      input.value = b.dataset.use;
+      check();
+    });
+    check();
+  }
+
+  /** Country suggestions: the names in use, then the map's country names. */
+  function countryOptions() {
+    var used = distinct('country');
+    var seen = {};
+    used.forEach(function (x) { seen[x.toLowerCase()] = true; });
+    var names = WM ? WM.data.units.map(function (u) { return u.n; }).concat(['United Kingdom']) : [];
+    return used.concat(names.filter(function (n) { return !seen[n.toLowerCase()] && (seen[n.toLowerCase()] = true); }).sort());
   }
 
   function readProductFields(root) {
@@ -1344,7 +1382,7 @@
       if (f.status === 'out' && b.status !== 'out') return false;
       var p = pm[b.product_id] || {};
       if (f.cat !== 'all' && L.categoryOf(p.type) !== f.cat) return false;
-      if (f.facet && !(f.facet.kind === 'glass' ? glassFacet(p) === f.facet.value : S.matchFacet(f.facet, b, p, year))) return false;
+      if (f.facet && !facetMatch(f.facet, b, p, year)) return false;
       if (tokens.length) {
         var hay = [p.producer, p.distillery, p.bottler, p.name, p.vintage, p.region, p.country, p.grapes, p.age, b.location, p.tags, b.tags, b.bottle_id, typeLabel(p.type)].join(' ').toLowerCase();
         if (!tokens.every(function (t) { return hay.indexOf(t) >= 0; })) return false;
@@ -1456,14 +1494,21 @@
     return horizontal ? { x: valueAxis, y: catAxis } : { x: catAxis, y: valueAxis };
   }
 
-  /** kind: optional facet kind; tapping a bar then lists those bottles in the Cellar tab. */
-  function barChart(id, labels, values, color, horizontal, kind, title) {
+  /**
+   * kind: optional facet kind; tapping a bar then lists those bottles in the Cellar tab.
+   * facetValues: optional facet value per bar, when it differs from the bar label (map keys, ages).
+   */
+  function barChart(id, labels, values, color, horizontal, kind, title, facetValues) {
     var el = document.getElementById(id);
     if (!el || !window.Chart) return;
     var c = chartBase();
     var options = { indexAxis: horizontal ? 'y' : 'x', scales: axes(c, horizontal), plugins: { legend: { display: false } } };
     if (kind) {
-      options.onClick = function (evt, els) { if (els.length) showFacet(kind, labels[els[0].index], title); };
+      options.onClick = function (evt, els) {
+        if (!els.length) return;
+        var i = els[0].index;
+        showFacet(kind, facetValues ? facetValues[i] : labels[i], title, labels[i]);
+      };
       options.onHover = function (evt, els) { evt.native.target.style.cursor = els.length ? 'pointer' : 'default'; };
     }
     app.charts.push(new Chart(el, {
@@ -1473,7 +1518,17 @@
     }));
   }
 
-  var FACET_TITLES = { win: '', grape: 'Grape', tag: 'Tag', type: 'Type', country: 'Country', location: 'Location', glass: 'Glass' };
+  var FACET_TITLES = {
+    win: '', grape: 'Grape', tag: 'Tag', type: 'Type', country: 'Country', location: 'Location', glass: 'Glass',
+    ctry: 'Country', region: 'Region', age: 'Age', cask: 'Cask'
+  };
+
+  /** Does a bottle belong to the Cellar filter that a tap in Stats set? */
+  function facetMatch(facet, b, p, year) {
+    if (facet.kind === 'glass') return glassFacet(p) === facet.value;
+    if (DS && DS.FACETS[facet.kind]) return DS.match(facet.kind, facet.value, b, p);
+    return S.matchFacet(facet, b, p, year);
+  }
   var NO_GLASS = 'No RIEDEL entry';
 
   /**
@@ -1505,11 +1560,18 @@
   }
   var WIN_LABELS = { ready: 'Ready to drink', young: 'Too young', past: 'Past window', unknown: 'No window set' };
 
-  function showFacet(kind, value, title) {
-    var label = kind === 'win' ? WIN_LABELS[value] : (title || FACET_TITLES[kind]) + ': ' + value;
+  /** Show the bottles of one statistics slice in the Cellar tab, for the category shown in Stats. */
+  function showFacet(kind, value, title, shown) {
+    if (shown === undefined) {
+      if (kind === 'ctry') shown = value === '' ? DS.NOT_SET : (value.indexOf('raw:') === 0 ? value.slice(4) : WM.nameOf(value));
+      else if (kind === 'age' && /^\d+$/.test(value)) shown = value;
+      else shown = value === '' ? DS.NOT_SET : value;
+    }
+    if (kind === 'age' && /^\d+$/.test(value)) shown = value + (value === '1' ? ' year' : ' years');
+    var label = kind === 'win' ? WIN_LABELS[value] : (title || FACET_TITLES[kind]) + ': ' + shown;
     app.cellar.facet = { kind: kind, value: value, label: label };
     app.cellar.status = 'stock';
-    app.cellar.cat = 'all';
+    app.cellar.cat = app.stats.cat;
     app.cellar.q = '';
     go('cellar');
   }
@@ -1519,107 +1581,222 @@
     return '<h2>' + esc(title) + '</h2><div class="chart" style="height:' + (60 + rows.length * 28) + 'px"><canvas id="' + id + '" role="img" aria-label="' + esc(label) + '"></canvas></div>';
   }
 
+  var CAT_NOUN = { wine: 'wine', spirit: 'spirits', other: 'other drinks' };
+
+  function plural(n, one, many) { return n + ' ' + (n === 1 ? one : (many || one + 's')); }
+
   function viewStats(main) {
     chartDefaults();
     var c = chartBase();
     var year = new Date().getFullYear();
-    var sum = S.summary(app.state);
-    var openList = S.openBottles(app.state);
-    var win = S.drinkWindows(app.state, year);
+    var counts = DS.categoryCounts(app.state);
+    var cats = [['wine', 'Wine'], ['spirit', 'Spirits']];
+    if (counts.other) cats.push(['other', 'Other']);
+    if (app.stats.cat === 'other' && !counts.other) app.stats.cat = 'wine';
+    var cat = app.stats.cat;
+    var noun = CAT_NOUN[cat];
+    var color = cat === 'wine' ? c.wine : (cat === 'spirit' ? c.spirit : c.other);
+    var rows = DS.stock(app.state, cat);
+    var sum = DS.summary(app.state, cat);
     var outs = S.outByMonth(app.state, 24);
-    var byType = S.stockBy(app.state, 'type');
-    var byCountry = S.stockBy(app.state, 'country').slice(0, 10);
-    var byLoc = S.stockBy(app.state, 'location').slice(0, 12);
-    var byGrape = S.stockByList(app.state, 'grapes').slice(0, 15);
-    var byTag = S.stockByList(app.state, 'tags').slice(0, 15);
-    var byGlass = stockByGlass();
-    var vint = S.vintageHistogram(app.state);
+    var outSeries = outs[cat];
+    var anyOut = outSeries.some(function (x) { return x > 0; });
     var users = S.perUser(app.state);
-    var anyOut = outs.wine.concat(outs.spirit, outs.other).some(function (x) { return x > 0; });
 
-    main.innerHTML =
-      '<section class="page stats">' +
+    var byCountry = DS.tally(rows, 'ctry');
+    var byRegion = DS.tally(rows, 'region').slice(0, 15);
+    var byType = DS.countBy(rows, function (r) { return typeLabel(r.p.type); });
+    var byLoc = DS.countBy(rows, function (r) { return r.b.location; }).slice(0, 12);
+    if (byLoc.length === 1 && byLoc[0].key === DS.NOT_SET) byLoc = [];   // no locations in use
+    if (byType.length < 2) byType = [];                                  // one type: nothing to compare
+    var byTag = DS.countBy(rows, function (r) { return L.splitList(L.effectiveTags(r.b, r.p)); }).slice(0, 15);
+    var topCountry = byCountry.filter(function (x) { return x.key; })[0];
+
+    var html = '<section class="page stats">' +
       '<h1 class="sr-only">Statistics</h1>' +
+      '<div class="seg stats-tabs" role="group" aria-label="Statistics for">' + cats.map(function (x) {
+        return '<button type="button" class="seg-btn" data-act="stats-cat" data-cat="' + x[0] + '" aria-pressed="' + (cat === x[0]) + '">' +
+          esc(x[1]) + '<span class="seg-n">' + counts[x[0]] + '</span></button>';
+      }).join('') + '</div>' +
       '<div class="figures">' +
-      fig(sum.total, 'bottles in stock', sum.wine + ' wine, ' + sum.spirit + ' spirits' + (sum.other ? ', ' + sum.other + ' other' : '')) +
-      fig(sum.products, 'different products', sum.locations + ' locations') +
-      fig(sum.out12m, 'taken out in 12 months', '') +
-      '</div>' +
+      fig(sum.total, 'bottles in stock', sum.types.slice(0, 3).map(function (t) { return t.n + ' ' + t.key.toLowerCase(); }).join(', ')) +
+      fig(sum.products, 'different products', sum.locations ? plural(sum.locations, 'location') : '') +
+      fig(sum.countries, sum.countries === 1 ? 'country' : 'countries', topCountry ? 'most from ' + topCountry.label : '') +
+      fig(sum.out12m, cat === 'spirit' ? 'emptied or taken out in 12 months' : 'taken out in 12 months', '') +
+      '</div>';
 
-      '<h2>Drinking windows</h2>' +
-      '<div class="windows">' +
-      winCell('ready', win.counts.ready, 'Ready') + winCell('young', win.counts.young, 'Too young') +
-      winCell('past', win.counts.past, 'Past window') + winCell('unknown', win.counts.unknown, 'No window set') +
-      '</div>' +
-      '<p class="footnote">Tap a number or a bar to see those bottles.</p>' +
-      (win.next.length ? '<h3>Drink next</h3><ul class="list compact">' + win.next.slice(0, 8).map(function (x) {
-        var locs = {};
-        x.bottles.forEach(function (bb) { if (bb.location) locs[bb.location] = true; });
-        return '<li><a class="row" href="#/p/' + encodeURIComponent(x.product.product_id) + '"><span class="count-badge cat-wine">' + x.bottles.length + '</span>' +
-          '<span class="row-main"><span class="row-title serif">' + esc(L.productLabel(x.product)) + '</span>' +
-          '<span class="row-sub">' + esc((x.product.drink_from || '?') + ' to ' + (x.product.drink_to || '?')) + (Object.keys(locs).length ? ', ' + esc(Object.keys(locs).join(', ')) : '') + '</span></span>' + windowChip(x.product) + '</a></li>';
-      }).join('') + '</ul>' : '') +
+    if (cat === 'wine' && rows.length) {
+      var win = S.drinkWindows(app.state, year);
+      html += '<h2>Drinking windows</h2>' +
+        '<div class="windows">' +
+        winCell('ready', win.counts.ready, 'Ready') + winCell('young', win.counts.young, 'Too young') +
+        winCell('past', win.counts.past, 'Past window') + winCell('unknown', win.counts.unknown, 'No window set') +
+        '</div>' +
+        '<p class="footnote">Tap a number, a bar or a country to see those bottles.</p>' +
+        (win.next.length ? '<h3>Drink next</h3><ul class="list compact">' + win.next.slice(0, 8).map(function (x) {
+          var locs = {};
+          x.bottles.forEach(function (bb) { if (bb.location) locs[bb.location] = true; });
+          return '<li><a class="row" href="#/p/' + encodeURIComponent(x.product.product_id) + '"><span class="count-badge cat-wine">' + x.bottles.length + '</span>' +
+            '<span class="row-main"><span class="row-title serif">' + esc(L.productLabel(x.product)) + '</span>' +
+            '<span class="row-sub">' + esc((x.product.drink_from || '?') + ' to ' + (x.product.drink_to || '?')) + (Object.keys(locs).length ? ', ' + esc(Object.keys(locs).join(', ')) : '') + '</span></span>' + windowChip(x.product) + '</a></li>';
+        }).join('') + '</ul>' : '');
+    } else if (rows.length) {
+      html += '<p class="footnote">Tap a bar or a country to see those bottles.</p>';
+    }
 
-      '<h2>Bottles taken out per month</h2>' +
-      (anyOut ? '<div class="chart tall"><canvas id="chOut" role="img" aria-label="Bottles taken out per month, last 24 months, by category"></canvas></div>' : '<p class="empty">No bottles taken out yet.</p>') +
+    if (!rows.length) {
+      html += '<p class="empty">No ' + esc(noun) + ' in stock.</p>';
+    } else {
+      html += mapBlock(cat, rows) +
+        hBarBlock('chCountry', 'Stock by country', byCountry.slice(0, 12), 'Bottles of ' + noun + ' in stock by country') +
+        hBarBlock('chRegion', 'Stock by region', byRegion, 'Bottles of ' + noun + ' in stock by region');
+      if (cat === 'wine') {
+        var byGrape = S.stockByList(app.state, 'grapes').slice(0, 15);
+        var byGlass = stockByGlass();
+        var vint = S.vintageHistogram(app.state);
+        html += hBarBlock('chGrape', 'Stock by grape', byGrape, 'Wine bottles in stock by grape. A blend counts for each of its grapes.') +
+          (byGrape.length ? '<p class="footnote">A blend counts once for each of its grapes.</p>' : '') +
+          (ownedGlasses().length
+            ? hBarBlock('chGlass', 'Your glasses for wine in stock', byGlass, 'Wine bottles in stock by the glass from your set') +
+              (byGlass.length ? '<p class="footnote">"Not in your set" names the RIEDEL glass for those bottles.</p>' : '')
+            : hBarBlock('chGlass', 'Glasses for wine in stock', byGlass, 'Wine bottles in stock by recommended RIEDEL glass') +
+              (byGlass.length ? '<p class="footnote">Glass shape from the RIEDEL Wine Glass Guide, by the main grape or the wine style. <a href="#/settings">Add your glasses</a> to see which of them to use.</p>' : '')) +
+          (vint.length ? '<h2>Vintages in stock</h2><div class="chart"><canvas id="chVint" role="img" aria-label="Wine bottles in stock by vintage"></canvas></div>' : '');
+      }
+      if (cat === 'spirit') {
+        var byAge = DS.ages(rows);
+        var byCask = DS.tally(rows, 'cask');
+        html += (byAge.length ? '<h2>Age</h2><div class="chart"><canvas id="chAge" role="img" aria-label="Spirit bottles in stock by age in years"></canvas></div>' +
+            '<p class="footnote">Years from the age statement. NAS: no age statement.</p>' : '') +
+          hBarBlock('chCask', 'Cask', byCask, 'Spirit bottles in stock by cask type') +
+          (byCask.length ? '<p class="footnote">Cask types from the cask text: "PX Sherry" counts as Sherry, "Red Wine" as Wine. A bottle with two casks counts for each.</p>' : '');
+      }
+      html += hBarBlock('chType', 'Stock by type', byType, 'Bottles of ' + noun + ' in stock by type') +
+        hBarBlock('chLoc', 'Stock by location', byLoc, 'Bottles of ' + noun + ' in stock by location') +
+        hBarBlock('chTag', 'Stock by tag', byTag, 'Bottles of ' + noun + ' in stock by tag');
+      if (cat === 'spirit') {
+        var openList = S.openBottles(app.state).filter(function (x) { return L.categoryOf(x.product.type) === 'spirit'; });
+        html += openList.length ? '<h2>Open bottles</h2><ul class="list compact">' + openList.map(function (x) {
+          return '<li><a class="row" href="#/b/' + encodeURIComponent(x.bottle.bottle_id) + '"><span class="code-chip small">' + esc(x.bottle.bottle_id) + '</span>' +
+            '<span class="row-main"><span class="row-title serif">' + esc(L.productLabel(x.product)) + '</span>' +
+            '<span class="row-sub">Open ' + (x.days === '' ? '' : (x.days === 1 ? '1 day' : x.days + ' days') + ', since ' + esc(fmtDate(x.bottle.opened_at))) +
+            (x.bottle.location ? ', ' + esc(x.bottle.location) : '') + '</span></span></a></li>';
+        }).join('') + '</ul>' : '';
+      }
+    }
 
-      (byType.length ? hBarBlock('chType', 'Stock by type', byType, 'Bottles in stock by type') : '<h2>Stock</h2><p class="empty">No bottles in stock.</p>') +
-      hBarBlock('chLoc', 'Stock by location', byLoc, 'Bottles in stock by location') +
-      hBarBlock('chCountry', 'Stock by country', byCountry, 'Bottles in stock by country') +
-      hBarBlock('chGrape', 'Stock by grape', byGrape, 'Wine bottles in stock by grape. A blend counts for each of its grapes.') +
-      (byGrape.length ? '<p class="footnote">A blend counts once for each of its grapes.</p>' : '') +
-      (ownedGlasses().length
-        ? hBarBlock('chGlass', 'Your glasses for wine in stock', byGlass, 'Wine bottles in stock by the glass from your set') +
-          (byGlass.length ? '<p class="footnote">"Not in your set" names the RIEDEL glass for those bottles. Tap a bar to see the bottles.</p>' : '')
-        : hBarBlock('chGlass', 'Glasses for wine in stock', byGlass, 'Wine bottles in stock by recommended RIEDEL glass') +
-          (byGlass.length ? '<p class="footnote">Glass shape from the RIEDEL Wine Glass Guide, by the main grape or the wine style. Tap a bar to see the bottles. <a href="#/settings">Add your glasses</a> to see which of them to use.</p>' : '')) +
-      hBarBlock('chTag', 'Stock by tag', byTag, 'Bottles in stock by tag') +
-      (vint.length ? '<h2>Wine vintages in stock</h2><div class="chart"><canvas id="chVint" role="img" aria-label="Wine bottles in stock by vintage"></canvas></div>' : '') +
-
-      (openList.length ? '<h2>Open bottles</h2><ul class="list compact">' + openList.map(function (x) {
-        return '<li><a class="row" href="#/b/' + encodeURIComponent(x.bottle.bottle_id) + '"><span class="code-chip small">' + esc(x.bottle.bottle_id) + '</span>' +
-          '<span class="row-main"><span class="row-title serif">' + esc(L.productLabel(x.product)) + '</span>' +
-          '<span class="row-sub">Open ' + (x.days === '' ? '' : (x.days === 1 ? '1 day' : x.days + ' days') + ', since ' + esc(fmtDate(x.bottle.opened_at))) +
-          (x.bottle.location ? ', ' + esc(x.bottle.location) : '') + '</span></span></a></li>';
-      }).join('') + '</ul>' : '') +
-
+    html += '<h2>' + (cat === 'spirit' ? 'Bottles emptied or taken out per month' : 'Bottles taken out per month') + '</h2>' +
+      (anyOut ? '<div class="chart tall"><canvas id="chOut" role="img" aria-label="Bottles of ' + noun + ' taken out per month, last 24 months"></canvas></div>' : '<p class="empty">None in the last 24 months.</p>') +
       (users.length ? '<h2>Who added, opened and took out</h2><table class="table"><thead><tr><th>Person</th><th>Added</th><th>Opened</th><th>Taken out</th></tr></thead><tbody>' +
         users.map(function (u) { return '<tr><td>' + esc(u.user) + '</td><td>' + u.added + '</td><td>' + u.opened + '</td><td>' + u.out + '</td></tr>'; }).join('') +
-        '</tbody></table>' : '') +
-
+        '</tbody></table><p class="footnote">All categories.</p>' : '') +
       '<h2>Cellar climate</h2><div id="climate"></div>' +
       '<p class="footnote">Raw data: the Google Sheet. Load it in Python with analysis/load_drinkventory.py.</p>' +
       '</section>';
+    main.innerHTML = html;
 
     if (anyOut) {
       var labels = outs.labels.map(function (k) { var d = new Date(k + '-01T12:00:00'); return d.toLocaleDateString(undefined, { month: 'short', year: '2-digit' }); });
-      var ds = [
-        { label: 'Wine', data: outs.wine, backgroundColor: c.wine },
-        { label: 'Spirits', data: outs.spirit, backgroundColor: c.spirit }
-      ];
-      if (outs.other.some(function (x) { return x > 0; })) ds.push({ label: 'Other', data: outs.other, backgroundColor: c.other });
-      ds.forEach(function (d) { d.borderColor = c.surface; d.borderWidth = 1; d.borderRadius = 2; d.maxBarThickness = 14; });
       app.charts.push(new Chart($('#chOut'), {
         type: 'bar',
-        data: { labels: labels, datasets: ds },
-        options: {
-          scales: axes(c, false, true),
-          plugins: { legend: { display: true, position: 'top', align: 'start' }, tooltip: { mode: 'index', intersect: false } }
-        }
+        data: { labels: labels, datasets: [{ label: CAT_NOUN[cat], data: outSeries, backgroundColor: color, borderRadius: 2, maxBarThickness: 14 }] },
+        options: { scales: axes(c, false), plugins: { legend: { display: false } } }
       }));
     }
-    function keys(rows) { return rows.map(function (x) { return x.key; }); }
-    function counts(rows) { return rows.map(function (x) { return x.n; }); }
-    barChart('chType', keys(byType), counts(byType), c.other, true, 'type');
-    barChart('chLoc', keys(byLoc), counts(byLoc), c.other, true, 'location');
-    barChart('chCountry', keys(byCountry), counts(byCountry), c.other, true, 'country');
-    barChart('chGrape', keys(byGrape), counts(byGrape), c.wine, true, 'grape');
-    barChart('chGlass', keys(byGlass), counts(byGlass), keys(byGlass).map(function (k) {
-      return k === NO_GLASS || k.indexOf(NOT_OWNED) === 0 ? c.muted : c.wine;
-    }), true, 'glass');
-    barChart('chTag', keys(byTag), counts(byTag), c.other, true, 'tag');
-    barChart('chVint', vint.map(function (x) { return x.key; }), vint.map(function (x) { return x.n; }), c.wine, false);
+    function keys(list) { return list.map(function (x) { return x.key; }); }
+    function labelsOf(list) { return list.map(function (x) { return x.label; }); }
+    function nums(list) { return list.map(function (x) { return x.n; }); }
+    renderWorldMap();
+    var bc = byCountry.slice(0, 12);
+    barChart('chCountry', labelsOf(bc), nums(bc), color, true, 'ctry', null, keys(bc));
+    barChart('chRegion', labelsOf(byRegion), nums(byRegion), color, true, 'region', null, keys(byRegion));
+    barChart('chType', keys(byType), nums(byType), color, true, 'type');
+    barChart('chLoc', keys(byLoc), nums(byLoc), color, true, 'location');
+    barChart('chTag', keys(byTag), nums(byTag), color, true, 'tag');
+    if (cat === 'wine') {
+      var g = S.stockByList(app.state, 'grapes').slice(0, 15);
+      var gl = stockByGlass();
+      var v = S.vintageHistogram(app.state);
+      barChart('chGrape', keys(g), nums(g), c.wine, true, 'grape');
+      barChart('chGlass', keys(gl), nums(gl), keys(gl).map(function (k) {
+        return k === NO_GLASS || k.indexOf(NOT_OWNED) === 0 ? c.muted : c.wine;
+      }), true, 'glass');
+      barChart('chVint', keys(v), nums(v), c.wine, false);
+    }
+    if (cat === 'spirit') {
+      var a = DS.ages(rows);
+      var ck = DS.tally(rows, 'cask');
+      barChart('chAge', labelsOf(a), nums(a), c.spirit, false, 'age', null, keys(a));
+      barChart('chCask', labelsOf(ck), nums(ck), c.spirit, true, 'cask', null, keys(ck));
+    }
     renderClimate();
+  }
+
+  // ---------- world map ----------
+
+  function mapBlock(cat, rows) {
+    var title = cat === 'wine' ? 'Where your wine comes from' : (cat === 'spirit' ? 'Where your spirits come from' : 'Where they come from');
+    var tally = DS.tally(rows, 'ctry');
+    var onMap = tally.filter(function (x) { return x.key && WM.onMap(x.key); });
+    var max = onMap.reduce(function (m, x) { return Math.max(m, x.n); }, 0);
+    var unknown = DS.unknownCountries(app.state, cat);
+    var notSet = tally.filter(function (x) { return x.key === ''; })[0];
+    var view = function (v, label) {
+      return '<button type="button" class="seg-btn" data-act="map-view" data-view="' + v + '" aria-pressed="' + (app.stats.map === v) + '">' + label + '</button>';
+    };
+    return '<h2>' + esc(title) + '</h2>' +
+      '<div class="map-card cat-' + cat + '"><div id="worldMap"></div>' +
+      '<div class="map-foot">' +
+      (max ? '<div class="wm-legend"><span>Bottles</span>' + WM.legend(max).map(function (l) {
+        return '<span class="wm-key"><i class="wm-k' + l.cls + '"></i>' + esc(l.label) + '</span>';
+      }).join('') + '</div>' : '<div class="wm-legend">No country set yet.</div>') +
+      '<div class="seg map-view" role="group" aria-label="Map area">' + view('fit', 'Yours') + view('world', 'World') + '</div>' +
+      '</div></div>' +
+      (unknown.length || notSet ? '<div class="map-unknown">' +
+        (unknown.length ? '<p>Not on the map. Rename to the country name:</p><ul>' + unknown.map(function (u) {
+          return '<li><span>' + esc(u.text) + ', ' + plural(u.n, 'bottle') + '</span>' +
+            '<button type="button" class="btn small" data-act="country-rename" data-text="' + esc(u.text) + '">Rename</button></li>';
+        }).join('') + '</ul>' : '') +
+        (notSet ? '<p><button type="button" class="link-btn" data-act="facet" data-kind="ctry" data-value="">' + plural(notSet.n, 'bottle') + ' without a country</button></p>' : '') +
+        '</div>' : '');
+  }
+
+  function renderWorldMap() {
+    var el = $('#worldMap');
+    if (!el || !WM) return;
+    var rows = DS.tally(DS.stock(app.state, app.stats.cat), 'ctry').filter(function (x) { return x.key && WM.onMap(x.key); });
+    var desc = rows.map(function (x) { return x.label + ' ' + x.n; }).join(', ');
+    el.innerHTML = WM.render(rows.map(function (x) { return { key: x.key, n: x.n }; }), {
+      view: app.stats.map,
+      px: el.clientWidth || 340,
+      title: function (k, n) { return WM.nameOf(k) + ': ' + plural(n, 'bottle'); },
+      label: 'Map of ' + CAT_NOUN[app.stats.cat] + ' in stock by country' + (desc ? ': ' + desc : ', no countries yet')
+    });
+  }
+
+  function renameCountryDialog(text) {
+    var products = DS.productsWithCountry(app.state, text);
+    var suggestion = WM.suggest(text) || text;
+    var dlg = $('#dlg');
+    dlg.innerHTML = '<form method="dialog" class="dlg-form" autocomplete="off">' +
+      '<h2 id="dlgTitle">Rename country</h2>' +
+      field('to', 'New name for "' + text + '"', suggestion, 'required list="dl_country_r" autocapitalize="words"') +
+      datalist('dl_country_r', countryOptions()) +
+      '<p class="footnote">Changes ' + plural(products.length, 'product') + '. Both phones get the change with the next sync.</p>' +
+      '<div class="dlg-actions"><button value="cancel" class="btn" formnovalidate>Cancel</button>' +
+      '<button value="ok" class="btn primary">Rename</button></div></form>';
+    var form = $('form', dlg);
+    dlg.returnValue = '';
+    dlg.addEventListener('close', function () {
+      if (dlg.returnValue !== 'ok') return;
+      var to = form.to.value.replace(/\s+/g, ' ').trim();
+      if (!to || to === text || !products.length) return;
+      var ops = products.map(function (p) { return { kind: 'upsert_product', data: { product_id: p.product_id, country: to } }; });
+      commit(ops).then(function (ok) {
+        if (ok) { toast('Renamed ' + text + ' to ' + to + ' (' + plural(products.length, 'product') + ')'); render(); }
+      });
+    }, { once: true });
+    dlg.showModal();
   }
 
   function fig(value, label, sub) {
@@ -1916,6 +2093,13 @@
     'clear-facet': function () { app.cellar.facet = null; viewCellar($('#main')); },
     'tag-rename': function (el) { renameTagDialog(el.dataset.tag); },
     'tag-delete': function (el) { deleteTag(el.dataset.tag); },
+    'stats-cat': function (el) { app.stats.cat = el.dataset.cat; destroyCharts(); viewStats($('#main')); },
+    'map-view': function (el) {
+      app.stats.map = el.dataset.view;
+      Array.prototype.forEach.call(document.querySelectorAll('[data-act=map-view]'), function (b) { b.setAttribute('aria-pressed', String(b.dataset.view === app.stats.map)); });
+      renderWorldMap();
+    },
+    'country-rename': function (el) { renameCountryDialog(el.dataset.text); },
     'climate-days': function (el) { app.climate.days = Number(el.dataset.days); destroyClimateCharts(); renderClimate(); },
     'test-conn': function () {
       var form = $('#settingsForm');

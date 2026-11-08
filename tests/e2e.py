@@ -4,7 +4,7 @@ the Apps Script mock behind a local HTTP server, fake camera showing QR "000777"
 
 Usage: python3 tests/e2e.py <fake-camera.mjpeg> <screenshot-dir>
 """
-import json, subprocess, sys, time, os, urllib.request
+import json, re, subprocess, sys, time, os, urllib.request, uuid
 from playwright.sync_api import sync_playwright, expect
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -248,6 +248,46 @@ try:
         assert 'Veloce Riesling' in labels and 'Not in your set: Veloce Champagne Wine Glass' in labels, labels
         assert len(backend({'action': 'sync', 'ops': []})['snapshot']['settings']) == 1
         print('ok  stats: glasses for wine in stock', labels)
+
+        # ---------- stats: world map, spirits tab, country rename ----------
+        wine_keys = a.eval_on_selector_all('#worldMap .wm-b', 'els => els.map(e => e.dataset.value)')
+        assert {'DEU', 'ITA', 'FRA'} <= set(wine_keys) and 'SCT' not in wine_keys, wine_keys
+        a.click('#worldMap .wm-b[data-value=DEU]')
+        expect(a.locator('.facet-chip')).to_have_text('Country: Germany')
+        listed = a.eval_on_selector_all('#cellarList a.row', 'els => els.map(e => decodeURIComponent(e.getAttribute("href").split("/").pop()))')
+        country = {p['product_id']: p['country'] for p in backend({'action': 'sync', 'ops': []})['snapshot']['products']}
+        assert listed and all(country[x] == 'Germany' for x in listed), listed
+        print('ok  stats: wine map shows countries; tapping Germany lists the German wine')
+        # A typo in the country, as on the real Sheet: it must show under "Not on the map" with a rename.
+        backend({'action': 'sync', 'ops': [{'op_id': str(uuid.uuid4()), 'kind': 'upsert_product', 'ts': '2026-11-08T12:00:00Z',
+                                            'user': 'Stefan', 'data': {'product_id': 'p_spring', 'country': 'Scottland'}}]})
+        a.evaluate('DrinkventoryApp.syncNow(true)')
+        wait_synced(a, after_action=False)
+        a.goto(APP + '#/stats')
+        a.click('button[data-act=stats-cat][data-cat=spirit]')
+        a.wait_for_selector('#chAge', timeout=10000)
+        ages = a.evaluate("() => Chart.getChart('chAge').data.labels")
+        casks = a.evaluate("() => Chart.getChart('chCask').data.labels")
+        assert '15' in ages and 'NAS' in ages, ages
+        assert 'Sherry' in casks and 'Bourbon' in casks, casks
+        expect(a.locator('.map-unknown')).to_contain_text('Scottland')
+        assert a.locator('#worldMap .wm-b[data-value=SCT]').count() == 1, 'Ardbeg is still Scotland'
+        shot(a, '06a-stats-spirits', full=True)
+        a.click('button[data-act=country-rename][data-text=Scottland]')
+        assert a.input_value('#dlg input[name=to]') == 'Scotland'
+        a.click('#dlg button[value=ok]')
+        wait_synced(a)
+        snap = backend({'action': 'sync', 'ops': []})['snapshot']
+        assert [p['country'] for p in snap['products'] if p['product_id'] == 'p_spring'] == ['Scotland']
+        expect(a.locator('.map-unknown li')).to_have_count(0)
+        a.click('button[data-act=map-view][data-view=world]')
+        expect(a.locator('#worldMap svg')).to_have_attribute('viewBox', re.compile(r'^0 0 1000 '))
+        a.click('#worldMap .wm-b[data-value=SCT]')
+        expect(a.locator('.facet-chip')).to_have_text('Country: Scotland')
+        assert a.locator('#cellarList .row').count() == 2, 'Springbank and Ardbeg'
+        print('ok  stats: spirits tab with age and cask; "Scottland" renamed to Scotland on the backend; map tap filters')
+        a.goto(APP + '#/stats')
+        a.click('button[data-act=stats-cat][data-cat=wine]')
         a.wait_for_selector('#chTemp', timeout=15000)
         a.wait_for_timeout(800)
         shot(a, '06-stats', full=True)
