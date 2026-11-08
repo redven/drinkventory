@@ -135,7 +135,7 @@ test('Scotch whisky regions: names, shapes, Campbeltown as a point, Islands as a
   const svg = WM.renderScotland([{ key: 'Lowlands', n: 3 }, { key: 'Highlands', n: 2 }, { key: 'Skye', n: 1 }, { key: 'Speyside', n: 1 },
     { key: 'Islay', n: 1 }, { key: 'Orkney', n: 1 }, { key: 'Campbeltown', n: 1 }], { px: 358 });
   assert.match(svg, /<svg class="wm wm-sc"/);
-  assert.match(svg, /<circle class="wm-pt wm-k1"[^>]*data-kind="wregion" data-value="Campbeltown"/);
+  assert.match(svg, /<circle class="wm-pt wm-k1"[^>]*data-kind="mregion" data-value="SCT:Campbeltown"/);
   const { b, lines } = badgesOf(svg);
   assert.equal(b.length, 7);
   assert.equal(lines.length, 5, 'only Highlands and Lowlands keep the number inside');
@@ -143,7 +143,60 @@ test('Scotch whisky regions: names, shapes, Campbeltown as a point, Islands as a
     assert.ok(Math.hypot(b[i].x - b[j].x, b[i].y - b[j].y) >= b[i].r + b[j].r, b[i].key + '/' + b[j].key + ' overlap');
   }
   const grp = WM.renderScotland([{ key: 'Islands', n: 2 }], { px: 358 });
-  assert.equal((grp.match(/wm-u wm-k2"[^>]*data-value="Islands"/g) || []).length, 8, 'all island shapes except Islay');
+  assert.equal((grp.match(/wm-u wm-k2"[^>]*data-value="SCT:Islands"/g) || []).length, 8, 'all island shapes except Islay');
+});
+
+test('wine regions of Germany, France and Italy: names in English, German and local, places, shapes', () => {
+  const cases = [
+    ['DEU', 'Franconia', 'Franconia'], ['DEU', 'Franken', 'Franconia'], ['DEU', 'Mosel', 'Mosel'], ['DEU', 'Mosel-Saar-Ruwer', 'Mosel'],
+    ['DEU', 'Rheingau', 'Rheingau'], ['DEU', 'Wuerttemberg', 'Württemberg'], ['DEU', 'Saale-Unstrut', 'Saale-Unstrut'],
+    ['DEU', 'Hessische Bergstraße', 'Hessische Bergstraße'], ['DEU', 'Pfalz', 'Pfalz'], ['DEU', 'Palatinate', 'Pfalz'],
+    ['DEU', 'Kaiserstuhl', 'Baden'], ['DEU', 'Maustal', ''],
+    ['ITA', 'South Tyrol', 'South Tyrol'], ['ITA', 'Südtirol', 'South Tyrol'], ['ITA', 'Alto Adige', 'South Tyrol'], ['ITA', 'Trentino', 'Trentino'],
+    ['ITA', 'Lombardy', 'Lombardy'], ['ITA', 'Chianti Classico', 'Tuscany'], ['ITA', 'Barolo', 'Piedmont'], ['ITA', 'Sizilien', 'Sicily'],
+    ['FRA', 'Bordeaux', 'Bordeaux'], ['FRA', 'Bordeaux Supérieur', 'Bordeaux'], ['FRA', 'Bourgogne', 'Burgundy'], ['FRA', 'Côtes du Rhône', 'Rhône'],
+    ['FRA', 'Pouilly-Fumé', 'Loire'], ['FRA', 'Pouilly-Fuissé', 'Burgundy'], ['FRA', 'Elsass', 'Alsace'], ['FRA', 'Cava', ''],
+  ];
+  for (const [c, t, k] of cases) assert.equal(WM.regionOf(c, t), k, c + ' ' + t);
+  assert.equal(WM.regionOf('ESP', 'Rioja'), '', 'no region map for Spain');
+  assert.deepEqual(Object.keys(WM.regions).sort(), ['DEU', 'FRA', 'ITA', 'SCT']);
+  assert.equal(WM.regions.DEU.G.units.length, 13);
+  assert.equal(WM.regions.FRA.G.units.length, 13);
+  assert.equal(WM.regions.ITA.G.units.length, 21);
+  for (const c of ['DEU', 'FRA', 'ITA']) {
+    for (const u of WM.regions[c].G.units) assert.match(u.d, /^M[-\d.,]+l/, c + ' ' + u.k);
+    for (const [k] of WM.regions[c].G.aliases) assert.ok(WM.regions[c].G.units.some((u) => u.k === k), c + ' alias ' + k);
+  }
+  assert.match(WM.regionInfo('DEU').note, /EuroGeographics/, 'the licence asks for the notice with the map');
+  const svg = WM.renderRegions('DEU', [{ key: 'Mosel', n: 3 }, { key: 'Rheingau', n: 2 }, { key: 'Franconia', n: 2 }], { px: 358 });
+  assert.match(svg, /data-kind="mregion" data-value="DEU:Mosel"/);
+  const { b } = badgesOf(svg);
+  assert.equal(b.length, 3);
+  for (let i = 0; i < b.length; i++) for (let j = i + 1; j < b.length; j++) {
+    assert.ok(Math.hypot(b[i].x - b[j].x, b[i].y - b[j].y) >= b[i].r + b[j].r, b[i].key + '/' + b[j].key + ' overlap');
+  }
+});
+
+test('region facet for wine: country prefix, unknown text kept, not set', () => {
+  const st = {
+    products: [
+      { product_id: 'a', type: 'white', country: 'Germany', region: 'Franconia' },
+      { product_id: 'b', type: 'white', country: 'Deutschland', region: 'Maustal' },
+      { product_id: 'c', type: 'white', country: 'Italy', region: 'South Tyrol' },
+      { product_id: 'd', type: 'red', country: 'France', region: '' },
+      { product_id: 'e', type: 'sparkling', country: 'Spain', region: 'Cava' },
+    ],
+    bottles: ['a', 'a', 'b', 'c', 'd', 'e'].map((p, i) => ({ bottle_id: String(i), product_id: p, status: 'in_stock' })),
+    events: [], settings: [],
+  };
+  const rows = DS.stock(st, 'wine');
+  const t = DS.tally(rows, 'mregion');
+  assert.deepEqual(t.map((x) => [x.key, x.label, x.n]), [
+    ['DEU:Franconia', 'Franconia', 2], ['DEU:raw:maustal', 'Maustal', 1], ['ITA:South Tyrol', 'South Tyrol', 1], ['FRA:', '(not set)', 1]]);
+  for (const x of t) assert.equal(rows.filter((r) => DS.match('mregion', x.key, r.b, r.p)).length, x.n, x.key);
+  const cognac = { product_id: 'k', type: 'brandy', country: 'France', region: 'Grande Champagne' };
+  assert.deepEqual(DS.FACETS.mregion.keys({}, cognac), [], 'the French map is for wine: a Cognac gets no wine region');
+  assert.ok(WM.hasRegions('SCT', 'spirit') && !WM.hasRegions('SCT', 'wine') && WM.hasRegions('FRA', 'wine') && !WM.hasRegions('FRA', 'spirit'));
 });
 
 // ---------- per-category statistics ----------
@@ -225,9 +278,9 @@ test('facets match the same bottles that the charts count', () => {
     }
   }
   assert.ok(DS.match('region', 'kentucky', {}, { region: 'Kentucky' }), 'region ignores case');
-  const w = DS.tally(rows, 'wregion');
-  assert.deepEqual(w.map((x) => [x.key, x.n]), [['Islay', 1]], 'only bottles from Scotland; "Scottland" is not Scotland');
-  for (const t of w) assert.equal(rows.filter((r) => DS.match('wregion', t.key, r.b, r.p)).length, t.n, 'wregion ' + t.key);
+  const w = DS.tally(rows, 'mregion');
+  assert.deepEqual(w.map((x) => [x.key, x.n]), [['SCT:Islay', 1]], 'only bottles from Scotland; "Scottland" is not Scotland');
+  for (const t of w) assert.equal(rows.filter((r) => DS.match('mregion', t.key, r.b, r.p)).length, t.n, 'mregion ' + t.key);
 });
 
 console.log(passed + ' passed');

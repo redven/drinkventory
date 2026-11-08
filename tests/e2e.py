@@ -258,6 +258,17 @@ try:
         country = {p['product_id']: p['country'] for p in backend({'action': 'sync', 'ops': []})['snapshot']['products']}
         assert listed and all(country[x] == 'Germany' for x in listed), listed
         print('ok  stats: wine map shows countries; tapping Germany lists the German wine')
+        a.goto(APP + '#/stats')
+        a.click('button[data-act=map-view][data-view="r:DEU"]')
+        de = a.eval_on_selector_all('#worldMap .wm-b', 'els => els.map(e => e.dataset.value)')
+        assert de and set(de) <= {'DEU:Rheinhessen', 'DEU:Baden'}, de
+        expect(a.locator('#mapBox .footnote')).to_contain_text('EuroGeographics')
+        a.click('button[data-act=map-view][data-view="r:FRA"]')
+        fr = a.eval_on_selector_all('#worldMap .wm-b', 'els => els.map(e => e.dataset.value)')
+        assert fr and set(fr) <= {'FRA:Burgundy', 'FRA:Champagne'}, fr
+        a.click('#worldMap .wm-b[data-value="%s"]' % fr[0])
+        expect(a.locator('.facet-chip')).to_have_text('Wine region: ' + fr[0][4:])
+        print('ok  stats: wine region maps for Germany and France; tapping a region lists its bottles')
         # A typo in the country, as on the real Sheet: it must show under "Not on the map" with a rename.
         backend({'action': 'sync', 'ops': [{'op_id': str(uuid.uuid4()), 'kind': 'upsert_product', 'ts': '2026-11-08T12:00:00Z',
                                             'user': 'Stefan', 'data': {'product_id': 'p_spring', 'country': 'Scottland'}}]})
@@ -288,13 +299,14 @@ try:
         print('ok  stats: spirits tab with age and cask; "Scottland" renamed to Scotland on the backend; map tap filters')
         a.goto(APP + '#/stats')
         a.click('button[data-act=stats-cat][data-cat=spirit]')
-        a.click('button[data-act=map-view][data-view=scotland]')
+        assert a.locator('button[data-act=map-view][data-view="r:FRA"]').count() == 0, 'no wine map for the Cognac'
+        a.click('button[data-act=map-view][data-view="r:SCT"]')
         expect(a.locator('#worldMap svg.wm-sc')).to_have_count(1)
         regions = a.eval_on_selector_all('#worldMap .wm-b', 'els => els.map(e => e.dataset.value)')
-        assert sorted(regions) == ['Campbeltown', 'Islay'], regions
+        assert sorted(regions) == ['SCT:Campbeltown', 'SCT:Islay'], regions
         assert a.locator('#worldMap line.wm-lead').count() == 2, 'both numbers outside, with lines'
         shot(a, '06b-stats-scotland')
-        a.click('#worldMap .wm-b[data-value=Islay]')
+        a.click('#worldMap .wm-b[data-value="SCT:Islay"]')
         expect(a.locator('.facet-chip')).to_have_text('Whisky region: Islay')
         assert a.locator('#cellarList .row').count() == 1, 'Ardbeg'
         print('ok  stats: Scotland view with whisky regions; tapping Islay lists the Islay bottle')

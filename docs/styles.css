@@ -622,8 +622,8 @@ a.row:active, button.row:active { background: var(--surface-2); }
 }
 
 .map-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px 12px; flex-wrap: wrap; padding: 6px 2px 0; }
-.map-view { flex: none; }
-.map-view .seg-btn { font-size: 13px; min-height: 32px; padding: 0 12px; }
+.map-view { flex: 1 1 100%; display: flex; }
+.map-view .seg-btn { flex: 1 1 0; font-size: 13px; min-height: 32px; padding: 0 4px; white-space: nowrap; }
 .map-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 6px; overflow: hidden; }
 .wm { display: block; width: 100%; height: auto; border-radius: 9px; }
 .wm-sea { fill: var(--surface); }

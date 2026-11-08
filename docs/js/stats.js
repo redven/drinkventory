@@ -106,18 +106,22 @@ var DrinkStats = (function () {
     return f.map(function (x) { return { key: x, label: x }; });
   }
 
-  /** Whisky region of a bottle from Scotland: map key ('Islay', 'Skye', ...), else the region text. */
-  function wregionKeys(b, p) {
-    if (WM.resolve(p.country) !== 'SCT') return [];
+  /**
+   * Region on a region map (Scotch whisky regions; wine regions of Germany, France, Italy):
+   * key "<country>:<region>", or "<country>:raw:<text>" when the map does not know the region, "<country>:" when not set.
+   */
+  function mregionKeys(b, p) {
+    var c = WM.resolve(p.country);
+    if (!WM.hasRegions(c, L.categoryOf(p.type))) return [];
     var t = clean(p.region);
-    if (!t) return [{ key: '', label: NOT_SET }];
-    var k = WM.scotlandRegion(t);
-    return [k ? { key: k, label: k } : { key: 'raw:' + lower(t), label: t }];
+    if (!t) return [{ key: c + ':', label: NOT_SET }];
+    var k = WM.regionOf(c, t);
+    return [k ? { key: c + ':' + k, label: k } : { key: c + ':raw:' + lower(t), label: t }];
   }
 
   var FACETS = {
     ctry: { title: 'Country', keys: countryKeys },
-    wregion: { title: 'Whisky region', keys: wregionKeys },
+    mregion: { title: 'Region', keys: mregionKeys },
     region: { title: 'Region', keys: regionKeys },
     age: { title: 'Age', keys: ageKeys },
     cask: { title: 'Cask', keys: caskKeys }
@@ -139,8 +143,9 @@ var DrinkStats = (function () {
         m[x.key].n += 1;
       });
     });
+    var notSet = function (k) { return k === '' || k.charAt(k.length - 1) === ':'; };   // '' or '<country>:'
     return Object.keys(m).map(function (k) { return m[k]; }).sort(function (a, b) {
-      return (a.key === '') - (b.key === '') || b.n - a.n || a.label.localeCompare(b.label);
+      return notSet(a.key) - notSet(b.key) || b.n - a.n || a.label.localeCompare(b.label);
     });
   }
 

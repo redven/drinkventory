@@ -97,7 +97,16 @@ var WorldMap = (function () {
   var IX = indexOf(D);
   var SC = (typeof SCOTLAND_DATA !== 'undefined') ? SCOTLAND_DATA
     : (typeof require === 'function' ? require('./scotland-data.js') : null);
-  var SIX = SC ? indexOf(SC) : null;
+  var WR = (typeof WINE_REGIONS !== 'undefined') ? WINE_REGIONS
+    : (typeof require === 'function' ? require('./regions-data.js') : null);
+
+  // Region maps per country key: Scotch whisky regions, wine regions of Germany, France and Italy.
+  var REGIONS = {};
+  if (SC) {
+    SC.note = SC.note || 'Scotch whisky regions, drawn from council areas, so the borders are approximate. Speyside: Moray. Campbeltown: the town. Islands: each island on its own.';
+    REGIONS.SCT = { G: SC, ix: indexOf(SC), insidePx: 90, kind: 'Whisky region', cat: 'spirit' };
+  }
+  if (WR) Object.keys(WR).forEach(function (c) { REGIONS[c] = { G: WR[c], ix: indexOf(WR[c]), insidePx: 70, kind: 'Wine region', cat: 'wine' }; });
 
   function itemOf(G, ix, key) { return (G.groups && G.groups[key]) || ix.byKey[key] || ix.point[key] || null; }
   function onMap(key) { return !!itemOf(D, IX, key); }
@@ -217,10 +226,12 @@ var WorldMap = (function () {
    * with a leader line. Candidates lie on rings around the shape; the best one keeps clear of the
    * shapes with bottles (its own first), other badges, crossing lines and the map edge, and prefers sea.
    * items: [{ key, n, anchor:[x,y], box:[x0,y0,x1,y1], r, units:[unit keys] }] in map units.
-   * shapeAtFn(x, y): unit key, '' (other land) or null (sea). Adds x, y and outside to each item.
+   * shapeAtFn(x, y): unit key, '' (other land) or null (sea). landCost: cost of land without bottles (world 14,
+   * country maps 2, so numbers stay close). Adds x, y and outside to each item.
    */
-  function placeBadges(items, vb, unit, shapeAtFn, insidePx) {
+  function placeBadges(items, vb, unit, shapeAtFn, insidePx, landCost) {
     insidePx = insidePx || INSIDE_PX;
+    if (landCost === undefined) landCost = 14;
     var placed = [];
     var lines = [];
     var gap = 3 * unit;
@@ -259,7 +270,7 @@ var WorldMap = (function () {
               var hit = shapeAtFn(sx, sy);
               if (hit === null) continue;
               var o = owner[hit];
-              score += o === it ? 300 : (o ? 150 : 14);
+              score += o === it ? 300 : (o ? 150 : landCost);
             }
             // The line should not run across other countries with bottles.
             for (var t = 0.2; t < 0.9; t += 0.2) {
@@ -280,7 +291,8 @@ var WorldMap = (function () {
   /**
    * SVG text for a map.
    * G: geometry set; rows: [{ key, n }]; keys not in G are ignored.
-   * opts: { view: 'fit' | 'full', px: rendered width in CSS pixels, kind: facet kind for taps, insidePx, cls,
+   * opts: { view: 'fit' | 'full', px: rendered width in CSS pixels, kind: facet kind for taps, prefix: before each
+   *         tapped value, insidePx, cls,
    *         title: fn(key, n) -> tooltip text, name: fn(key) -> name, label: accessible description }
    * Shapes, points and badges with bottles carry data-act="facet" data-kind=<kind> data-value=<key>.
    */
@@ -292,7 +304,7 @@ var WorldMap = (function () {
     var unit = vb[2] / Math.max(120, opts.px || 360);   // map units per CSS pixel
     var name = opts.name || function (k) { var it = itemOf(G, ix, k); return it ? it.n : k; };
     var title = opts.title || function (k, n) { return name(k) + ': ' + n; };
-    var tap = function (key) { return ' data-act="facet" data-kind="' + opts.kind + '" data-value="' + esc(key) + '"'; };
+    var tap = function (key) { return ' data-act="facet" data-kind="' + opts.kind + '" data-value="' + esc((opts.prefix || '') + key) + '"'; };
 
     var context = (G.context || []).map(function (c) { return '<path class="wm-ctx" d="' + c.d + '"/>'; }).join('');
     var shapes = G.units.map(function (u) {
@@ -314,7 +326,7 @@ var WorldMap = (function () {
       return { key: k, n: count[k], anchor: it.c, box: it.b, r: (digits > 2 ? 13 : 10) * unit, units: units };
     });
     var land = landOf(G);
-    placeBadges(items, vb, unit, function (x, y) { return shapeAt(land, x, y); }, opts.insidePx);
+    placeBadges(items, vb, unit, function (x, y) { return shapeAt(land, x, y); }, opts.insidePx, opts.landCost);
 
     var lead = items.filter(function (p) { return p.outside; }).map(function (p) {
       return '<line class="wm-lead" x1="' + r1(p.anchor[0]) + '" y1="' + r1(p.anchor[1]) + '" x2="' + r1(p.x) + '" y2="' + r1(p.y) + '"/>' +
@@ -340,32 +352,46 @@ var WorldMap = (function () {
     });
   }
 
-  // ---------- Scotch whisky regions ----------
+  // ---------- region maps (Scotch whisky regions; wine regions of Germany, France, Italy) ----------
 
-  /** Region key ('Islay', 'Skye', 'Islands', ...) for a region as typed, or '' if none fits. */
-  function scotlandRegion(text) {
-    if (!SC) return '';
-    var t = ' ' + variants(text || '')[0] + ' ';
-    if (!t.trim()) return '';
-    for (var i = 0; i < SC.aliases.length; i++) {
-      var words = SC.aliases[i][1];
-      for (var j = 0; j < words.length; j++) if (t.indexOf(' ' + words[j] + ' ') >= 0) return SC.aliases[i][0];
+  /** Is there a region map for this country and category? Scotland: spirits. Germany, France, Italy: wine. */
+  function hasRegions(country, cat) { return !!REGIONS[country] && (!cat || REGIONS[country].cat === cat); }
+  function regionInfo(country) { var r = REGIONS[country]; return r ? { note: r.G.note || '', kind: r.kind } : null; }
+
+  /** Region key for a region as typed ('Isle of Skye' -> 'Skye', 'Franken' -> 'Franconia'), or '' if none fits. */
+  function regionOf(country, text) {
+    var r = REGIONS[country];
+    if (!r || !String(text || '').trim()) return '';
+    var vs = variants(text);
+    for (var i = 0; i < r.G.aliases.length; i++) {
+      var words = r.G.aliases[i][1];
+      for (var v = 0; v < vs.length; v++) {
+        var t = ' ' + vs[v] + ' ';
+        for (var j = 0; j < words.length; j++) if (t.indexOf(' ' + words[j] + ' ') >= 0) return r.G.aliases[i][0];
+      }
     }
     return '';
   }
 
-  /** Scotland map with whisky regions. Taps: kind "wregion". */
-  function renderScotland(rows, opts) {
+  /** Map of one country with its regions. rows: [{ key: region key, n }]. Taps: kind "mregion", value "<country>:<region>". */
+  function renderRegions(country, rows, opts) {
     opts = opts || {};
-    // Only Highlands and Lowlands are large enough to keep their number inside.
-    return draw(SC, SIX, rows, { view: 'full', px: opts.px, kind: 'wregion', title: opts.title, cls: 'wm-sc', insidePx: 90, label: opts.label || 'Map of Scotland' });
+    var r = REGIONS[country];
+    return draw(r.G, r.ix, rows, {
+      view: 'full', px: opts.px, kind: 'mregion', prefix: country + ':', title: opts.title, cls: 'wm-sc',
+      insidePx: r.insidePx, landCost: country === 'SCT' ? 14 : 2, label: opts.label || 'Map of ' + nameOf(country)
+    });
   }
+
+  function scotlandRegion(text) { return regionOf('SCT', text); }
+  function renderScotland(rows, opts) { return renderRegions('SCT', rows, opts); }
 
   function r1(v) { return Math.round(v * 100) / 100; }
 
   return {
     data: D, scotland: SC, resolve: resolve, suggest: suggest, nameOf: nameOf, onMap: onMap, classOf: classOf, legend: legend,
     fitBox: fitBox, render: render, renderScotland: renderScotland, scotlandRegion: scotlandRegion, placeBadges: placeBadges,
+    hasRegions: hasRegions, regionInfo: regionInfo, regionOf: regionOf, renderRegions: renderRegions, regions: REGIONS,
     variants: variants, CLASS_MIN: CLASS_MIN
   };
 })();

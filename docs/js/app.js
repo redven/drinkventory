@@ -1520,7 +1520,7 @@
 
   var FACET_TITLES = {
     win: '', grape: 'Grape', tag: 'Tag', type: 'Type', country: 'Country', location: 'Location', glass: 'Glass',
-    ctry: 'Country', region: 'Region', age: 'Age', cask: 'Cask', wregion: 'Whisky region'
+    ctry: 'Country', region: 'Region', age: 'Age', cask: 'Cask', mregion: 'Region'
   };
 
   /** Does a bottle belong to the Cellar filter that a tap in Stats set? */
@@ -1564,7 +1564,11 @@
   function showFacet(kind, value, title, shown) {
     if (shown === undefined) {
       if (kind === 'ctry') shown = value === '' ? DS.NOT_SET : (value.indexOf('raw:') === 0 ? value.slice(4) : WM.nameOf(value));
-      else if (kind === 'wregion') shown = value === '' ? DS.NOT_SET : (value.indexOf('raw:') === 0 ? value.slice(4) : value);
+      else if (kind === 'mregion') {
+        var rk = value.slice(value.indexOf(':') + 1);
+        shown = rk === '' ? DS.NOT_SET : (rk.indexOf('raw:') === 0 ? rk.slice(4) : rk);
+        title = title || (WM.regionInfo(value.slice(0, value.indexOf(':'))) || {}).kind;
+      }
       else if (kind === 'age' && /^\d+$/.test(value)) shown = value;
       else shown = value === '' ? DS.NOT_SET : value;
     }
@@ -1747,44 +1751,51 @@
     }).join('') + '</div>';
   }
 
-  /** Map card: world (your countries or all) or Scotland with its whisky regions, legend, view buttons, notes. */
+  /**
+   * Map card: the world (your countries or all) or one country with its regions (Scotland: whisky regions;
+   * Germany, France, Italy: wine regions), with legend, view buttons and notes.
+   */
   function renderMapBox() {
     var box = $('#mapBox');
     if (!box || !WM) return;
     var cat = app.stats.cat;
     var rows = DS.stock(app.state, cat);
     var tally = DS.tally(rows, 'ctry');
-    var scot = tally.filter(function (x) { return x.key === 'SCT'; })[0];
-    if (app.stats.map === 'scotland' && !scot) app.stats.map = 'fit';
+    var regionCountries = tally.filter(function (x) { return WM.hasRegions(x.key, cat); }).map(function (x) { return x.key; });
+    if (app.stats.map === 'scotland') app.stats.map = 'r:SCT';
     var mode = app.stats.map;
+    if (mode.indexOf('r:') === 0 && regionCountries.indexOf(mode.slice(2)) < 0) mode = app.stats.map = 'fit';
     var view = function (v, label) {
-      return '<button type="button" class="seg-btn" data-act="map-view" data-view="' + v + '" aria-pressed="' + (mode === v) + '">' + label + '</button>';
+      return '<button type="button" class="seg-btn" data-act="map-view" data-view="' + v + '" aria-pressed="' + (mode === v) + '">' + esc(label) + '</button>';
     };
     var buttons = '<div class="seg map-view" role="group" aria-label="Map area">' + view('fit', 'Yours') + view('world', 'World') +
-      (scot ? view('scotland', 'Scotland') : '') + '</div>';
+      regionCountries.map(function (c) { return view('r:' + c, WM.nameOf(c)); }).join('') + '</div>';
     var html;
-    if (mode === 'scotland') {
-      var reg = DS.tally(rows, 'wregion');
-      var onMap = reg.filter(function (x) { return x.key && x.key.indexOf('raw:') !== 0; });
-      var other = reg.filter(function (x) { return x.key.indexOf('raw:') === 0; });
-      var none = reg.filter(function (x) { return x.key === ''; })[0];
+    if (mode.indexOf('r:') === 0) {
+      var c = mode.slice(2);
+      var info = WM.regionInfo(c);
+      var reg = DS.tally(rows, 'mregion').filter(function (x) { return x.key.indexOf(c + ':') === 0; });
+      var onMap = reg.filter(function (x) { return x.key !== c + ':' && x.key.indexOf(c + ':raw:') !== 0; });
+      var other = reg.filter(function (x) { return x.key.indexOf(c + ':raw:') === 0; });
+      var none = reg.filter(function (x) { return x.key === c + ':'; })[0];
       var max = onMap.reduce(function (m, x) { return Math.max(m, x.n); }, 0);
       html = '<div class="map-card cat-' + cat + '"><div id="worldMap"></div><div class="map-foot">' +
-        legendHtml(max, 'No Scotch with a region yet.') + buttons + '</div></div>' +
-        '<p class="footnote">Scotch whisky regions, drawn from council areas, so the borders are approximate. Speyside: Moray. Campbeltown: the town. Islands: each island on its own.</p>' +
+        legendHtml(max, 'No bottle with a region on this map yet.') + buttons + '</div></div>' +
+        '<p class="footnote">' + esc(info.note) + '</p>' +
         (other.length || none ? '<div class="map-unknown">' +
           (other.length ? '<p>Region not on the map:</p><ul>' + other.map(function (x) {
-            return '<li><button type="button" class="link-btn" data-act="facet" data-kind="wregion" data-value="' + esc(x.key) + '">' + esc(x.label) + ', ' + plural(x.n, 'bottle') + '</button></li>';
+            return '<li><button type="button" class="link-btn" data-act="facet" data-kind="mregion" data-value="' + esc(x.key) + '">' + esc(x.label) + ', ' + plural(x.n, 'bottle') + '</button></li>';
           }).join('') + '</ul>' : '') +
-          (none ? '<p><button type="button" class="link-btn" data-act="facet" data-kind="wregion" data-value="">' + plural(none.n, 'bottle') + ' from Scotland without a region</button></p>' : '') +
+          (none ? '<p><button type="button" class="link-btn" data-act="facet" data-kind="mregion" data-value="' + esc(c + ':') + '">' +
+            plural(none.n, 'bottle') + ' from ' + esc(WM.nameOf(c)) + ' without a region</button></p>' : '') +
           '</div>' : '');
       box.innerHTML = html;
       var el = $('#worldMap');
       var desc = onMap.map(function (x) { return x.label + ' ' + x.n; }).join(', ');
-      el.innerHTML = WM.renderScotland(onMap.map(function (x) { return { key: x.key, n: x.n }; }), {
+      el.innerHTML = WM.renderRegions(c, onMap.map(function (x) { return { key: x.key.slice(c.length + 1), n: x.n }; }), {
         px: el.clientWidth || 340,
         title: function (k, n) { return k + ': ' + plural(n, 'bottle'); },
-        label: 'Map of Scotland with whisky regions of the bottles in stock' + (desc ? ': ' + desc : '')
+        label: 'Map of ' + WM.nameOf(c) + ' with the regions of the bottles in stock' + (desc ? ': ' + desc : '')
       });
       return;
     }

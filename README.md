@@ -32,6 +32,7 @@ Why this split: Google Drive cannot host web pages, and an Apps Script page cann
 | `docs/js/stats.js`, `docs/js/worldmap.js` | Statistics per category and the world map (app only, no backend change). |
 | `docs/js/worldmap-data.js`, `tools/build_worldmap.js` | Country shapes from Natural Earth and the script that builds them. |
 | `docs/js/scotland-data.js`, `tools/build_scotland.js` | Scotch whisky regions from Natural Earth council areas and the script that builds them. |
+| `docs/js/regions-data.js`, `tools/build_regions.js` | Wine regions of Germany, France and Italy and the script that builds them. |
 | `data/riedel_guide.json`, `tools/build_glasses.py` | RIEDEL guide data and the script that builds `docs/js/glasses-data.js` from it. |
 | `analysis/load_drinkventory.py` | Loads everything into pandas DataFrames. |
 | `tests/` | Backend tests, end-to-end browser test, sensor test. |
@@ -109,7 +110,8 @@ The app rejects a sticker that is already in use, so a duplicate from a re-order
 | Browse labels | **Cellar > Labels** shows the label photos as a grid. Tap a label to open that bottle (or the product, if there are several). |
 | Statistics | **Stats** has one tab for **Wine** and one for **Spirits** (and **Other**, if you have such bottles). Wine: drinking windows, country, region, grape, glasses, vintage. Spirits: country, region, age, cask, open bottles. Both: type, location, tag, bottles taken out per month. |
 | World map | **Stats** shows where the bottles in stock come from: darker colour for more bottles, and the number of bottles per country. A small country gets its number outside, connected by a line. **Yours** zooms to your countries, **World** shows all. Scotland, England, Wales and Northern Ireland have their own shapes. |
-| Scotland view | With bottles from Scotland, the map has a third view, **Scotland**: the whisky regions Highlands, Lowlands, Speyside, Islay and Campbeltown (a point at the town), and each island with a distillery (Skye, Orkney, Mull, Jura, Arran, Raasay, Lewis and Harris). The region comes from the product's **Region** field: "Isle of Skye", "Lowland" or "Speyside" work. The borders come from council areas and are approximate (Speyside: Moray). Tap a region to see its bottles. |
+| Wine region views | In the **Wine** tab, the map has one more view for each of Germany, Italy and France that you have wine from. Germany: the 13 Anbaugebiete. France: Alsace, Beaujolais, Bordeaux, Burgundy, Champagne, Corsica, Jura, Languedoc-Roussillon, Loire, Provence, Rhône, Savoie, South West. Italy: the 20 regions, with South Tyrol and Trentino apart. The region comes from the product's **Region** field, in English, German or the local language ("Franken", "Südtirol", "Bourgogne"); well-known places also work ("Chianti", "Barolo", "Pauillac", "Kaiserstuhl"). Germany and France use whole districts and départements, so the areas are approximate. A region the map does not know shows under the map; write it with the region first, for example "Franken, Maustal". |
+| Scotland view | With bottles from Scotland, the **Spirits** tab has the view **Scotland**: the whisky regions Highlands, Lowlands, Speyside, Islay and Campbeltown (a point at the town), and each island with a distillery (Skye, Orkney, Mull, Jura, Arran, Raasay, Lewis and Harris). The region comes from the product's **Region** field: "Isle of Skye", "Lowland" or "Speyside" work. The borders come from council areas and are approximate (Speyside: Moray). Tap a region to see its bottles. |
 | Fix a country name | A country the map does not know (for example a typo such as "Scottland") shows under the map with **Rename**. The app suggests the nearest country name and changes all products with that name at once. The product form also warns about unknown names. English and German names both work ("Schottland", "Frankreich"). |
 | From statistics to bottles | Tap a drinking-window number, a bar or a country on the map in **Stats** to list exactly those bottles. |
 | Look a product up | **Find online** opens a Google search for producer, name and vintage (or distillery, name and age). |
@@ -237,4 +239,5 @@ python3 tests/e2e.py <qr.mjpeg> <screenshot-dir> # two phones, fake camera, offl
 ```
 
 Third-party code in `docs/vendor/`: jsQR 1.4.0 (Apache-2.0), Chart.js 4.6.1 (MIT). Licence files are next to them.
-Map data: Natural Earth 1:50m Admin 0 map units and 1:10m Admin 1 v5.1.2 (public domain), simplified by `tools/build_worldmap.js` and `tools/build_scotland.js`.
+Map data: Natural Earth 1:50m Admin 0 map units and 1:10m Admin 1 v5.1.2 (public domain), simplified by `tools/build_worldmap.js`, `tools/build_scotland.js` and `tools/build_regions.js`.
+German wine regions: built from Eurostat GISCO NUTS 2021 districts, © EuroGeographics for the administrative boundaries. Eurostat allows non-commercial use with this notice; the app shows it under the Germany map. Ask EuroGeographics before any commercial use.
