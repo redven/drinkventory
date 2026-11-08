@@ -79,7 +79,10 @@ var DrinkStats = (function () {
     ['Cognac / brandy', /cognac|armagnac|brandy|calvados/],
     ['Beer', /\bbeer\b|\bbier\b|stout|\bipa\b/],
     ['Mizunara', /mizunara/],
-    ['Virgin / new oak', /virgin|new oak|\bstr\b|neue eiche/]
+    ['Virgin / new oak', /virgin|new oak|\bstr\b|neue eiche/],
+    ['American oak', /american oak|amerikanische eiche/],
+    ['European oak', /european oak|spanish oak|europäische eiche|spanische eiche/],
+    ['French oak', /french oak|französische eiche/]
   ];
   var CASK_OTHER = 'Other';
 

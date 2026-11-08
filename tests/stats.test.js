@@ -154,13 +154,15 @@ test('ages: numbers ascending, then NAS, then not set', () => {
 test('casks: families, several per bottle, fortified wine is not "Wine"', () => {
   assert.deepEqual(DS.caskFamilies({ cask: 'PX Sherry, Bourbon' }), ['Sherry', 'Bourbon']);
   assert.deepEqual(DS.caskFamilies({ cask: 'Bourbon, Sherry, Marsala' }), ['Bourbon', 'Sherry', 'Marsala']);
-  assert.deepEqual(DS.caskFamilies({ cask: 'American Oak Red Wine' }), ['Wine']);
+  assert.deepEqual(DS.caskFamilies({ cask: 'American Oak Red Wine' }), ['Wine', 'American oak']);
+  assert.deepEqual(DS.caskFamilies({ cask: 'European Oak, American Oak' }), ['European oak', 'American oak']);
+  assert.deepEqual(DS.caskFamilies({ cask: 'American Oak, French Oak' }), ['American oak', 'French oak']);
   assert.deepEqual(DS.caskFamilies({ cask: 'sherry and bourbon' }), ['Sherry', 'Bourbon']);
   assert.deepEqual(DS.caskFamilies({ cask: 'Tawny Port wine finish' }), ['Port']);
   assert.deepEqual(DS.caskFamilies({ cask: 'blend' }), ['Other']);
   assert.deepEqual(DS.caskFamilies({ cask: '' }), []);
   const c = DS.tally(DS.stock(state, 'spirit'), 'cask');
-  assert.deepEqual(c.map((x) => [x.key, x.n]), [['Bourbon', 4], ['Sherry', 3], ['Marsala', 1], ['Other', 1], ['Wine', 1]]);
+  assert.deepEqual(c.map((x) => [x.key, x.n]), [['Bourbon', 4], ['Sherry', 3], ['American oak', 1], ['Marsala', 1], ['Other', 1], ['Wine', 1]]);
 });
 
 test('facets match the same bottles that the charts count', () => {

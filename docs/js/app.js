@@ -1669,7 +1669,7 @@
         html += (byAge.length ? '<h2>Age</h2><div class="chart"><canvas id="chAge" role="img" aria-label="Spirit bottles in stock by age in years"></canvas></div>' +
             '<p class="footnote">Years from the age statement. NAS: no age statement.</p>' : '') +
           hBarBlock('chCask', 'Cask', byCask, 'Spirit bottles in stock by cask type') +
-          (byCask.length ? '<p class="footnote">Cask types from the cask text: "PX Sherry" counts as Sherry, "Red Wine" as Wine. A bottle with two casks counts for each.</p>' : '');
+          (byCask.length ? '<p class="footnote">Cask types from the cask text: "PX Sherry" counts as Sherry, "American Oak Red Wine" as Wine and American oak. A bottle with two casks counts for each.</p>' : '');
       }
       html += hBarBlock('chType', 'Stock by type', byType, 'Bottles of ' + noun + ' in stock by type') +
         hBarBlock('chLoc', 'Stock by location', byLoc, 'Bottles of ' + noun + ' in stock by location') +
