@@ -4,6 +4,10 @@ The sensor measures temperature and relative humidity every 10 minutes and sends
 
 ## Parts (about 15–25 €)
 
+No-solder set from one shop (Berrybase, November 2026): Adafruit QT Py ESP32-S2 with STEMMA QT, Adafruit SHT40 (or SHT45)
+sensor with STEMMA QT, STEMMA QT / Qwiic JST-SH 4-pin cable of 200 mm. Plug the cable into both boards and set
+`SDA_PIN = 41`, `SCL_PIN = 40` in `config.py`. Flash the generic ESP32-S2 MicroPython firmware.
+
 | Part | Example | Notes |
 |---|---|---|
 | ESP32 board with Wi-Fi | Seeed XIAO ESP32C3, or any ESP32-C3/C6/classic dev board | USB-C power. Small boards with low sleep current are better for battery use. |

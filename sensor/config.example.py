@@ -13,7 +13,9 @@ SENSOR_NAME = 'cellar'      # shows up in the app; use one name per sensor
 INTERVAL_S = 600            # 10 minutes; about 52,000 rows per year
 
 # I2C pins. Check the pinout of your board.
-# Seeed XIAO ESP32C3: SDA = GPIO6 (D4), SCL = GPIO7 (D5)
+# Seeed XIAO ESP32C3:                     SDA = GPIO6 (D4), SCL = GPIO7 (D5)
+# Adafruit QT Py ESP32-S2, STEMMA QT plug: SDA = GPIO41,     SCL = GPIO40
+# Adafruit QT Py ESP32-C3, STEMMA QT plug: SDA = GPIO5,      SCL = GPIO6
 SDA_PIN = 6
 SCL_PIN = 7
 
