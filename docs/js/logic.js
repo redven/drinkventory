@@ -18,16 +18,16 @@
 var DrinkventoryLogic = (function () {
   'use strict';
 
-  var VERSION = '2.3.0';
+  var VERSION = '2.4.0';
 
   var SCHEMA = {
     products: [
-      'product_id', 'type', 'producer', 'name', 'vintage', 'distillery', 'age', 'cask',
+      'product_id', 'type', 'producer', 'name', 'vintage', 'distillery', 'bottler', 'age', 'cask',
       'country', 'region', 'grapes', 'abv', 'volume_ml', 'drink_from', 'drink_to', 'tags', 'photo_id',
       'created_at', 'created_by', 'updated_at'
     ],
     bottles: [
-      'bottle_id', 'product_id', 'status', 'location', 'acquired_date', 'tags', 'out_at',
+      'bottle_id', 'product_id', 'status', 'location', 'acquired_date', 'tags', 'opened_at', 'out_at',
       'created_at', 'created_by', 'updated_at'
     ],
     events: ['event_id', 'ts', 'user', 'type', 'bottle_id', 'product_id', 'location'],
@@ -60,14 +60,16 @@ var DrinkventoryLogic = (function () {
     { id: 'other', label: 'Other', category: 'other' }
   ];
 
-  var STATUS_LABELS = { in_stock: 'In stock', out: 'Taken out', void: 'Removed' };
+  // Wine: in_stock -> out. Spirits: in_stock ("in storage") -> open -> out ("empty").
+  // An open bottle is still in stock (it is in the house); isOpen() tells it apart.
+  var STATUS_LABELS = { in_stock: 'In stock', open: 'Open', out: 'Taken out', void: 'Removed' };
 
   var EVENT_LABELS = {
-    intake: 'Added', move: 'Moved', out: 'Taken out', restore: 'Back in stock',
-    void: 'Removed', edit: 'Edited'
+    intake: 'Added', move: 'Moved', open: 'Opened', empty: 'Empty', out: 'Taken out',
+    restore: 'Back in stock', void: 'Removed', edit: 'Edited'
   };
 
-  var EVENT_TYPES = ['move', 'out', 'restore', 'void'];
+  var EVENT_TYPES = ['move', 'open', 'empty', 'out', 'restore', 'void'];
   var META_FIELDS = ['product_id', 'created_at', 'created_by', 'updated_at'];
   var PRODUCT_FIELDS = SCHEMA.products.filter(function (f) { return META_FIELDS.indexOf(f) < 0; });
   var BOTTLE_EDIT_FIELDS = ['product_id', 'location', 'acquired_date', 'tags'];
@@ -126,9 +128,11 @@ var DrinkventoryLogic = (function () {
     if (!Array.isArray(state.settings)) state.settings = [];
     (state.products || []).forEach(function (p) {
       if (p.tags === undefined) p.tags = '';
+      if (p.bottler === undefined) p.bottler = '';
     });
     (state.bottles || []).forEach(function (b) {
       if (b.tags === undefined) b.tags = normalizeList(b.source);
+      if (b.opened_at === undefined) b.opened_at = '';
       delete b.source;
     });
     return state;
@@ -159,7 +163,28 @@ var DrinkventoryLogic = (function () {
     return o;
   }
 
-  function isInStock(b) { return !!b && b.status === 'in_stock'; }
+  /** In the house: in storage or open. */
+  function isInStock(b) { return !!b && (b.status === 'in_stock' || b.status === 'open'); }
+
+  function isOpen(b) { return !!b && b.status === 'open'; }
+
+  /** Status as shown: spirits say "In storage" and "Empty" (after opening). */
+  function statusLabel(b, p) {
+    if (!b) return '';
+    var spirit = categoryOf(p && p.type) === 'spirit';
+    if (spirit && b.status === 'in_stock') return 'In storage';
+    if (spirit && b.status === 'out' && b.opened_at) return 'Empty';
+    return STATUS_LABELS[b.status] || b.status;
+  }
+
+  /** Bottler worth showing: not empty, not the distillery itself, not "official". */
+  function shownBottler(p) {
+    var bt = clean(p && p.bottler);
+    if (!bt) return '';
+    if (/^(official|ob|og|original|distillery|distillery bottling|originalabfullung|originalabfuellung)$/i.test(bt)) return '';
+    if (bt.toLowerCase() === clean(p.distillery).toLowerCase()) return '';
+    return bt;
+  }
 
   /** Turns any scanned or typed sticker payload into a bottle ID. */
   function normalizeCode(raw) {
@@ -196,6 +221,7 @@ var DrinkventoryLogic = (function () {
         if (!inName) parts.push(/^\d+$/.test(age) ? age + ' y' : age);
       }
       if (p.vintage) parts.push(String(p.vintage));
+      if (shownBottler(p)) parts.push('(' + shownBottler(p) + ')');
     } else {
       parts.push(p.producer);
       if (p.name) parts.push(p.name);
@@ -329,15 +355,32 @@ var DrinkventoryLogic = (function () {
         if (!clean(d.location)) fail('location missing');
         next.location = clean(d.location);
         break;
+      case 'open':
+        if (st !== 'in_stock') fail('bottle is not in storage');
+        next.status = 'open';
+        next.opened_at = ts;
+        break;
+      case 'empty':
+        if (st !== 'open') fail('bottle is not open');
+        next.status = 'out';
+        next.out_at = ts;
+        break;
       case 'out':
-        if (st !== 'in_stock') fail('bottle is not in stock');
+        if (st !== 'in_stock' && st !== 'open') fail('bottle is not in stock');
         next.status = 'out';
         next.out_at = ts;
         break;
       case 'restore':
-        if (st !== 'out') fail('bottle is not taken out');
-        next.status = 'in_stock';
-        next.out_at = '';
+        // Undo one step: out -> open (if it was opened) or in_stock; open -> in_stock.
+        if (st === 'out') {
+          next.status = b.opened_at ? 'open' : 'in_stock';
+          next.out_at = '';
+        } else if (st === 'open') {
+          next.status = 'in_stock';
+          next.opened_at = '';
+        } else {
+          fail('bottle is not taken out or open');
+        }
         break;
       case 'void':
         if (st === 'void') fail('bottle was already removed');
@@ -523,7 +566,7 @@ var DrinkventoryLogic = (function () {
     now = now || new Date();
     var pm = productMap(state);
     var stock = stockBottles(state);
-    var out = { wine: 0, spirit: 0, other: 0, total: stock.length, products: 0, out12m: 0, locations: 0 };
+    var out = { wine: 0, spirit: 0, other: 0, total: stock.length, open: 0, products: 0, out12m: 0, locations: 0 };
     var seenProducts = {};
     var seenLoc = {};
     stock.forEach(function (b) {
@@ -531,6 +574,7 @@ var DrinkventoryLogic = (function () {
       out[categoryOf(p ? p.type : '')] += 1;
       seenProducts[String(b.product_id)] = true;
       if (b.location) seenLoc[b.location] = true;
+      if (b.status === 'open') out.open += 1;
     });
     out.products = Object.keys(seenProducts).length;
     out.locations = Object.keys(seenLoc).length;
@@ -652,17 +696,59 @@ var DrinkventoryLogic = (function () {
     return { counts: out, next: next };
   }
 
+  /**
+   * Status after each event of each bottle, replayed from the history:
+   * { event_id: { before, after } }. Used for history labels and per-person counts.
+   */
+  function replayStatus(state) {
+    var cur = {};
+    var opened = {};
+    var out = {};
+    state.events.slice().sort(function (a, b) { return a.ts < b.ts ? -1 : (a.ts > b.ts ? 1 : 0); }).forEach(function (ev) {
+      var k = String(ev.bottle_id);
+      var before = cur[k] || '';
+      var after = before;
+      switch (ev.type) {
+        case 'intake': after = 'in_stock'; opened[k] = false; break;
+        case 'open': after = 'open'; opened[k] = true; break;
+        case 'empty': case 'out': after = 'out'; break;
+        case 'restore': after = before === 'out' ? (opened[k] ? 'open' : 'in_stock') : 'in_stock';
+          if (before === 'open') opened[k] = false; break;
+        case 'void': after = 'void'; break;
+      }
+      cur[k] = after;
+      out[ev.event_id] = { before: before, after: after };
+    });
+    return out;
+  }
+
   function perUser(state) {
     var m = {};
+    var rs = replayStatus(state);
     state.events.forEach(function (ev) {
-      if (ev.type !== 'intake' && ev.type !== 'out' && ev.type !== 'restore') return;
       var u = ev.user || '(unknown)';
-      if (!m[u]) m[u] = { user: u, added: 0, out: 0 };
-      if (ev.type === 'intake') m[u].added += 1;
-      if (ev.type === 'out') m[u].out += 1;
-      if (ev.type === 'restore') m[u].out -= 1;
+      var s = rs[ev.event_id] || {};
+      var row = m[u] || (m[u] = { user: u, added: 0, opened: 0, out: 0 });
+      if (ev.type === 'intake') row.added += 1;
+      if (ev.type === 'open') row.opened += 1;
+      if (ev.type === 'out' || ev.type === 'empty') row.out += 1;
+      if (ev.type === 'restore' && s.before === 'out') row.out -= 1;
+      if (ev.type === 'restore' && s.before === 'open') row.opened -= 1;
     });
-    return Object.keys(m).map(function (k) { return m[k]; }).sort(function (a, b) { return b.added - a.added; });
+    return Object.keys(m).map(function (k) { return m[k]; })
+      .filter(function (r) { return r.added || r.opened || r.out; })
+      .sort(function (a, b) { return b.added - a.added; });
+  }
+
+  /** Open bottles, longest open first: [{ bottle, product, days }]. */
+  function openBottles(state, now) {
+    now = now || new Date();
+    var pm = productMap(state);
+    return state.bottles.filter(isOpen).map(function (b) {
+      var d = b.opened_at ? new Date(b.opened_at) : null;
+      var days = d && !isNaN(d.getTime()) ? Math.floor((now - d) / 86400000) : '';
+      return { bottle: b, product: pm[String(b.product_id)] || null, days: days };
+    }).sort(function (a, b) { return String(a.bottle.opened_at).localeCompare(String(b.bottle.opened_at)); });
   }
 
   // ---------- backend version check ----------
@@ -710,6 +796,10 @@ var DrinkventoryLogic = (function () {
     toNumberOrBlank: toNumberOrBlank,
     isNumericField: isNumericField,
     isInStock: isInStock,
+    isOpen: isOpen,
+    statusLabel: statusLabel,
+    shownBottler: shownBottler,
+    replayStatus: replayStatus,
     find: find,
     typeInfo: typeInfo,
     categoryOf: categoryOf,
@@ -733,6 +823,7 @@ var DrinkventoryLogic = (function () {
       drinkWindowStatus: drinkWindowStatus,
       outByMonth: outByMonth,
       perUser: perUser,
+      openBottles: openBottles,
       countBy: countBy
     }
   };

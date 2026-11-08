@@ -16,7 +16,7 @@
  *   SENSOR_KEY  used by climate sensors (can only add climate readings)
  */
 
-var CODE_VERSION = '2.3.0';
+var CODE_VERSION = '2.4.0';
 
 var PHOTO_FOLDER_NAME = 'Drinkventory photos';
 var MAX_OPS_PER_REQUEST = 50;

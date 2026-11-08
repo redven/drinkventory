@@ -67,6 +67,7 @@ try:
         a.fill('input[name=distillery]', 'Glen Scotia')
         a.fill('input[name=name]', 'Victoriana')
         a.fill('input[name=age]', 'NAS')
+        a.fill('input[name=bottler]', 'Signatory Vintage')
         a.fill('input[name=abv]', '54,2')
         a.fill('#intakeForm input[name=location]', 'Cabinet')
         a.fill('#intakeForm .ptags .tag-input', 'Islay')
@@ -87,16 +88,28 @@ try:
 
         # ---------- phone A: take-out mode on the scan screen ----------
         a.click('button[data-act=scan-mode][data-mode=out]')
-        expect(a.locator('#toast')).to_contain_text('Taken out: Glen Scotia Victoriana', timeout=10000)
-        expect(a.locator('.banner.out')).to_contain_text('1 taken out so far')
+        expect(a.locator('#toast')).to_contain_text('Opened: Glen Scotia Victoriana NAS (Signatory Vintage)', timeout=10000)
+        expect(a.locator('.banner.out')).to_contain_text('1 scanned so far')
         shot(a, '01-scan-take-out')
-        print('ok  take-out mode removed the scanned bottle from stock')
+        # the sticker stays in view: no second step
+        expect(a.locator('#toast')).to_contain_text('Already done: Open', timeout=10000)
+        a.wait_for_timeout(3000)
+        assert a.evaluate("DrinkventoryApp.app.state.bottles.find(b => b.bottle_id === '000777').status") == 'open'
+        print('ok  take-out mode opens a whisky; the sticker in view does not empty it')
         a.goto(APP + '#/b/000777')
-        expect(a.locator('.necktag .tag-status')).to_contain_text('Taken out')
+        expect(a.locator('.necktag .tag-status')).to_have_text('Open, Cabinet')
+        expect(a.locator('.necktag .tag-open')).to_contain_text('Open since')
+        expect(a.locator('.label-producer, .facts')).to_contain_text(['Glen Scotia'])
+        a.click('button[data-act=step][data-type=empty]')
+        expect(a.locator('.necktag .tag-status')).to_contain_text('Empty')
         a.click('button[data-act=restore]')
-        expect(a.locator('.necktag .tag-status')).to_have_text('In stock, Cabinet')
+        expect(a.locator('.necktag .tag-status')).to_have_text('Open, Cabinet')
+        a.click('button[data-act=restore]')
+        expect(a.locator('.necktag .tag-status')).to_have_text('In storage, Cabinet')
+        expect(a.locator('.timeline .ev-title')).to_contain_text(['Back in storage', 'Back to open', 'Empty', 'Opened', 'Added'])
+        shot(a, '01b-whisky-history')
         wait_synced(a)
-        print('ok  back in stock')
+        print('ok  whisky: open, empty, back to open, back to storage, history labels')
 
         # ---------- phone A: bottle card, find online, take out ----------
         a.goto(APP + '#/b/000002')
@@ -104,7 +117,7 @@ try:
         href = a.get_attribute('.action-grid a:has-text("Find online")', 'href')
         assert href.startswith('https://www.google.com/search?q=Keller%20Riesling%20Kirchspiel%20GG%202019'), href
         shot(a, '03-bottle')
-        a.click('button[data-act=take-out]')
+        a.click('button[data-act=step][data-type=out]')
         expect(a.locator('.necktag .tag-status')).to_contain_text('Taken out', timeout=5000)
         wait_synced(a)
         print('ok  find-online link and take-out from the bottle card')
@@ -176,7 +189,7 @@ try:
 
         b_ctx.set_offline(True)
         b.goto(APP + '#/b/000005')
-        b.click('button[data-act=take-out]')
+        b.click('button[data-act=step][data-type=out]')
         expect(b.locator('#syncBadge')).to_contain_text('1 waiting', timeout=10000)
         print('ok  offline change queued on the phone')
         b_ctx.set_offline(False)
@@ -187,10 +200,10 @@ try:
         # ---------- conflict: both phones take out the same bottle while A is offline ----------
         a_ctx.set_offline(True)
         a.goto(APP + '#/b/000006')
-        a.click('button[data-act=take-out]')
+        a.click('button[data-act=step][data-type=out]')
         a.wait_for_function("() => DrinkventoryApp.app.pending.length === 1")
         b.goto(APP + '#/b/000006')
-        b.click('button[data-act=take-out]')
+        b.click('button[data-act=step][data-type=out]')
         wait_synced(b)
         a_ctx.set_offline(False)
         a.evaluate('DrinkventoryApp.syncNow(false)')
@@ -210,8 +223,9 @@ try:
         assert ('000005', 'out', 'Partner') in ev
         assert ('000006', 'out', 'Partner') in ev
         assert ('000006', 'out', 'Stefan') not in ev
-        assert [t for (bid, t, u) in ev if bid == '000777'] == ['intake', 'out', 'restore']
+        assert [t for (bid, t, u) in ev if bid == '000777'] == ['intake', 'open', 'empty', 'restore', 'restore']
         prod = [x for x in snap['products'] if x['name'] == 'Victoriana'][0]
+        assert prod['bottler'] == 'Signatory Vintage', prod
         assert prod['abv'] == 54.2 and prod['type'] == 'whisky'
         assert [x['tags'] for x in snap['bottles'] if x['bottle_id'] == '000777'] == ['Whisky fair Nuremberg']
         assert prod['tags'] == 'Islay', prod
@@ -219,7 +233,7 @@ try:
         assert keller['tags'] == 'Christmas', keller
         b3 = [x['tags'] for x in snap['bottles'] if x['bottle_id'] == '000003'][0]
         assert b3.endswith('for guests') and 'Christmas' not in b3, ('bottle keeps only its own tags', b3)
-        assert set(snap['bottles'][0].keys()) == {'bottle_id', 'product_id', 'status', 'location', 'acquired_date', 'tags', 'out_at', 'created_at', 'created_by', 'updated_at'}
+        assert set(snap['bottles'][0].keys()) == {'bottle_id', 'product_id', 'status', 'location', 'acquired_date', 'tags', 'opened_at', 'out_at', 'created_at', 'created_by', 'updated_at'}
         print('ok  Sheet contains the changes from both phones')
         assert a.evaluate('DrinkventoryApp.app.backendIssue') is None, 'version warning with matching backend'
         a.goto(APP + '#/settings')

@@ -96,7 +96,9 @@ The app rejects a sticker that is already in use, so a duplicate from a re-order
 |---|---|
 | Add a bottle | Scan an unused sticker. Choose an existing product or create a new one (photo optional). Set location and, optionally, tags (where it came from, an occasion, a trip). |
 | Add several identical bottles | Tick **Add more bottles of this product next**, then scan the stickers one after another. |
-| Take a bottle out | Scan, then **Take out** on the bottle card. Or switch the scan screen to **Take out**: every scanned bottle then leaves the stock immediately (with **Undo**). |
+| Take a wine out | Scan, then **Take out** on the bottle card. |
+| Open and finish a spirit | Spirits have three states: **In storage**, **Open**, **Empty**. Scan, then **Open**; later **Empty**. Open bottles stay in stock, show "Open since …" and are listed under **Cellar > Open** and **Stats > Open bottles**. **Take out unopened** is for a sealed bottle that leaves (a gift). |
+| Many bottles in a row | Switch the scan screen to **Take out**. A scanned wine leaves the stock; a scanned spirit moves one step (storage to open, open to empty). Each scan has **Undo**. |
 | Move | Scan, **Move**, pick or type the location. |
 | Tags for one bottle | On the bottle page, under **Only this bottle**, tap a suggested tag or type a new one; tap × to remove it. Separate several with commas. |
 | Tags for a whole product | On the product page (or in **Edit product**), add tags under **For every bottle of this product**. Every bottle of that product shows them, outlined, on its bottle page. Change them only on the product. |
@@ -104,7 +106,7 @@ The app rejects a sticker that is already in use, so a duplicate from a re-order
 | Browse labels | **Cellar > Labels** shows the label photos as a grid. Tap a label to open that bottle (or the product, if there are several). |
 | From statistics to bottles | Tap a drinking-window number or a bar in **Stats** to list exactly those bottles. |
 | Look a product up | **Find online** opens a Google search for producer, name and vintage (or distillery, name and age). |
-| Mistake | **Back in stock** reverses a take-out. **Remove** takes a wrongly labelled bottle out of all lists; the sticker can be used again. The history keeps every entry. |
+| Mistake | **Back in stock**, **Back to open** and **Back to storage** undo one step. **Remove** takes a wrongly labelled bottle out of all lists; the sticker can be used again. The history keeps every entry. |
 
 Offline: every change is stored on the phone first and sent when there is a connection. The sync badge in the header shows waiting changes. If both phones change the same bottle while one is offline, the first change that reaches the backend wins, and the other phone shows **rejected** in the badge with details in **Settings**.
 
@@ -183,8 +185,8 @@ You can also open the Sheet directly, connect it to Looker Studio, or read it wi
 
 | Tab | One row per | Notes |
 |---|---|---|
-| `products` | wine or spirit (producer, name, vintage, region, grapes or cask, drink window, tags) | Edit text fields freely. Do not change `product_id`. |
-| `bottles` | physical bottle (sticker ID, status, location, acquired date, tags, taken-out date) | Status: `in_stock`, `out`, `void` (removed by mistake). |
+| `products` | wine or spirit (producer, name, vintage, region, grapes; for spirits distillery, bottler, age, cask; drink window, tags) | Edit text fields freely. Do not change `product_id`. |
+| `bottles` | physical bottle (sticker ID, status, location, acquired date, tags, opened date, taken-out date) | Status: `in_stock`, `open` (spirits), `out`, `void` (removed by mistake). |
 | `events` | action: `intake`, `move`, `out`, `restore`, `void`, `edit` | Append-only history with user, time and location. |
 | `ops` | change received from a phone | Makes sync safe against duplicates. Do not edit. |
 | `climate` | sensor reading | Grows by about 52,000 rows per year at a 10-minute interval. |

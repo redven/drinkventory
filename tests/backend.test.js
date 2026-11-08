@@ -191,9 +191,80 @@ test('bottle lifecycle: move, take out, back in stock, remove, reuse sticker', (
   assert.equal(again.results[0].status, 'error');
   assert.match(again.results[0].error, /not in stock/);
   const back = post({ action: 'sync', key: KEY, ops: [op('event', { type: 'restore', bottle_id: '000124' })] });
-  assert.match(back.results[0].error, /not taken out/);
-  const old = post({ action: 'sync', key: KEY, ops: [op('event', { type: 'open', bottle_id: '000124' })] });
+  assert.match(back.results[0].error, /not taken out or open/);
+  const old = post({ action: 'sync', key: KEY, ops: [op('event', { type: 'pour', bottle_id: '000124' })] });
   assert.match(old.results[0].error, /unknown event type/);
+});
+
+test('spirits: in storage -> open -> empty, each step undoable, bottler stored', () => {
+  const ops = [
+    op('upsert_product', { product_id: 'pw', type: 'whisky', distillery: 'Ardbeg', bottler: 'Signatory Vintage', name: 'Un-chillfiltered', age: '10' }),
+    op('create_bottle', { bottle_id: 'W1', product_id: 'pw', location: 'Bar' }),
+    op('event', { type: 'open', bottle_id: 'W1' }),
+    op('event', { type: 'empty', bottle_id: 'W1' }, 'Partner'),
+    op('event', { type: 'restore', bottle_id: 'W1' }),
+    op('event', { type: 'empty', bottle_id: 'W1' })
+  ];
+  const res = post({ action: 'sync', key: KEY, ops });
+  assert.ok(res.results.every((r) => r.status === 'applied'), JSON.stringify(res.results));
+  ops.forEach((o) => { ClientLogic.applyOp(clientState, o); allOps.push(o); });
+  const p = res.snapshot.products.find((x) => x.product_id === 'pw');
+  assert.equal(p.bottler, 'Signatory Vintage');
+  assert.equal(ClientLogic.productLabel(p), 'Ardbeg Un-chillfiltered 10 y (Signatory Vintage)');
+  assert.equal(ClientLogic.productLabel(Object.assign({}, p, { bottler: 'Official' })), 'Ardbeg Un-chillfiltered 10 y', 'official bottling not shown');
+  let w = res.snapshot.bottles.find((x) => x.bottle_id === 'W1');
+  assert.equal(w.status, 'out');
+  assert.ok(w.opened_at && w.out_at);
+  assert.equal(ClientLogic.statusLabel(w, p), 'Empty');
+  // undo empty -> open; undo open -> in storage
+  const u1 = op('event', { type: 'restore', bottle_id: 'W1' });
+  let r = post({ action: 'sync', key: KEY, ops: [u1] });
+  ClientLogic.applyOp(clientState, u1); allOps.push(u1);
+  w = r.snapshot.bottles.find((x) => x.bottle_id === 'W1');
+  assert.equal(w.status, 'open');
+  assert.equal(w.out_at, '');
+  assert.ok(ClientLogic.isInStock(w) && ClientLogic.isOpen(w), 'open bottles are in stock');
+  assert.equal(ClientLogic.statusLabel(w, p), 'Open');
+  const u2 = op('event', { type: 'restore', bottle_id: 'W1' });
+  r = post({ action: 'sync', key: KEY, ops: [u2] });
+  ClientLogic.applyOp(clientState, u2); allOps.push(u2);
+  w = r.snapshot.bottles.find((x) => x.bottle_id === 'W1');
+  assert.deepEqual([w.status, w.opened_at], ['in_stock', '']);
+  assert.equal(ClientLogic.statusLabel(w, p), 'In storage');
+  // rules
+  const bad = post({ action: 'sync', key: KEY, ops: [op('event', { type: 'empty', bottle_id: 'W1' })] });
+  assert.match(bad.results[0].error, /not open/);
+  const o3 = op('event', { type: 'open', bottle_id: 'W1' });
+  const o4 = op('event', { type: 'out', bottle_id: 'W1' });
+  r = post({ action: 'sync', key: KEY, ops: [o3, o4] });
+  [o3, o4].forEach((o) => { ClientLogic.applyOp(clientState, o); allOps.push(o); });
+  assert.deepEqual(r.results.map((x) => x.status), ['applied', 'applied'], 'an open bottle can also be taken out');
+  // history replay and per-person counts
+  const rs = ClientLogic.replayStatus(r.snapshot);
+  const evs = r.snapshot.events.filter((e) => e.bottle_id === 'W1');
+  assert.deepEqual(evs.map((e) => e.type + ':' + rs[e.event_id].after),
+    ['intake:in_stock', 'open:open', 'empty:out', 'restore:open', 'empty:out', 'restore:open', 'restore:in_stock', 'open:open', 'out:out']);
+  const st = ClientLogic.stats;
+  const users = st.perUser({ events: evs });
+  assert.deepEqual(users.find((u) => u.user === 'Partner'), { user: 'Partner', added: 0, opened: 0, out: 1 });
+  const me = users.find((u) => u.user === 'Stefan');
+  assert.deepEqual([me.opened, me.out], [1, 0], 'undone steps do not count');
+});
+
+test('spirits: open bottles in the summary and the open list', () => {
+  const L = ClientLogic;
+  const s = { products: [{ product_id: 'x', type: 'rum', distillery: 'Hampden' }, { product_id: 'y', type: 'red', producer: 'Z' }], bottles: [], events: [] };
+  let k = 0;
+  const ap = (kind, data, ts) => assert.equal(L.applyOp(s, { op_id: 'q' + (++k), ts, kind, data }).status, 'applied');
+  ap('create_bottle', { bottle_id: '1', product_id: 'x' }, '2026-01-01T10:00:00Z');
+  ap('create_bottle', { bottle_id: '2', product_id: 'x' }, '2026-01-01T10:00:00Z');
+  ap('create_bottle', { bottle_id: '3', product_id: 'y' }, '2026-01-01T10:00:00Z');
+  ap('event', { type: 'open', bottle_id: '2' }, '2026-03-01T10:00:00Z');
+  ap('event', { type: 'open', bottle_id: '1' }, '2026-02-01T10:00:00Z');
+  const sum = L.stats.summary(s, new Date('2026-11-08T12:00:00Z'));
+  assert.deepEqual([sum.total, sum.open, sum.spirit], [3, 2, 2]);
+  const open = L.stats.openBottles(s, new Date('2026-11-08T12:00:00Z'));
+  assert.deepEqual(open.map((x) => [x.bottle.bottle_id, x.days]), [['1', 280], ['2', 252]]);
 });
 
 test('removed sticker can be reused for another product', () => {
@@ -355,7 +426,8 @@ test('stats: grapes and tags count per item, slices match bottles', () => {
   assert.deepEqual(pick({ kind: 'type', value: 'Whisky' }), ['4']);
   assert.deepEqual(pick({ kind: 'location', value: '(not set)' }), ['1', '3', '4']);
   const old = L.upgradeState({ products: [{ product_id: 'q' }], bottles: [{ bottle_id: '9', source: 'Winery' }], events: [] });
-  assert.deepEqual(old.bottles[0], { bottle_id: '9', tags: 'Winery' }, 'phone copy from an older version is upgraded');
+  assert.deepEqual(old.bottles[0], { bottle_id: '9', tags: 'Winery', opened_at: '' }, 'phone copy from an older version is upgraded');
+  assert.equal(old.products[0].bottler, '', 'products get an empty bottler field');
   assert.equal(old.products[0].tags, '', 'products get an empty tags field');
 });
 

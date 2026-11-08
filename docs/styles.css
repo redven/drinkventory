@@ -430,6 +430,9 @@ a.row:active, button.row:active { background: var(--surface-2); }
 }
 .tag-status { margin-top: 6px; font-size: 15px; color: var(--tag-ink-2); }
 .necktag.st-out { background: transparent; }
+.necktag.st-open { border-bottom: 5px solid var(--series-spirit); }
+.tag-open { margin-top: 4px; font-size: 14px; color: var(--tag-ink-2); }
+.chip.open-chip { background: var(--past-bg); color: var(--past-ink); }
 .necktag.st-void { background: transparent; border-style: dashed; }
 
 .label { margin: 18px 0 18px; }
@@ -472,7 +475,8 @@ a.row:active, button.row:active { background: var(--surface-2); }
   background: var(--bg); border: 2px solid var(--line-strong);
 }
 .ev-intake::before, .ev-restore::before { border-color: var(--series-other); }
-.ev-out::before { border-color: var(--accent-text); }
+.ev-out::before, .ev-empty::before { border-color: var(--accent-text); }
+.ev-open::before { border-color: var(--series-spirit); }
 .ev-void::before { border-color: var(--danger); }
 .ev-title { font-weight: 600; }
 .ev-meta { font-size: 14px; color: var(--muted); }

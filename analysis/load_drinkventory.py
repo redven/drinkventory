@@ -11,7 +11,7 @@ Command line:
 
 Tables returned (dict of DataFrames):
     products, bottles, events  as stored in the Sheet (typed)
-    stock                      bottles in stock, joined with their product
+    stock                      bottles in stock (in storage or open), joined with their product; is_open
     taken_out                  bottles taken out (one row per bottle, with out_at), joined with product
     In stock and taken_out: tags = bottle tags, tags_product = product tags,
     all_tags = list of both (product first, no case-insensitive duplicates).
@@ -27,7 +27,7 @@ import urllib.request
 import pandas as pd
 
 NUMERIC = ['abv', 'volume_ml', 'drink_from', 'drink_to']
-TIMES = ['ts', 'created_at', 'updated_at', 'out_at']
+TIMES = ['ts', 'created_at', 'updated_at', 'opened_at', 'out_at']
 CATEGORY = {
     'red': 'wine', 'white': 'wine', 'rose': 'wine', 'orange': 'wine', 'sparkling': 'wine',
     'sweet': 'wine', 'fortified': 'wine', 'whisky': 'spirit', 'rum': 'spirit', 'brandy': 'spirit',
@@ -86,7 +86,10 @@ def load(url: str | None = None, key: str | None = None, climate_days: int = 90,
         ptags = joined['tags_product'] if 'tags_product' in joined else blank
         btags = joined['tags'] if 'tags' in joined else blank
         joined['all_tags'] = [_tag_list(p, b) for p, b in zip(ptags, btags)]
-    stock = joined[joined['status'] == 'in_stock'].reset_index(drop=True) if not joined.empty else joined
+    # In stock = in the house: in storage or open (spirits). is_open marks the open ones.
+    stock = joined[joined['status'].isin(['in_stock', 'open'])].reset_index(drop=True) if not joined.empty else joined
+    if not stock.empty:
+        stock['is_open'] = stock['status'] == 'open'
     taken_out = joined[joined['status'] == 'out'].reset_index(drop=True) if not joined.empty else joined
 
     cl = _post(url, key, {'action': 'climate_get', 'days': climate_days, 'raw': raw_climate})

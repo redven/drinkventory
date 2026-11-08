@@ -80,6 +80,13 @@
     return d.toLocaleString(undefined, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   }
 
+  /** "12 days" / "1 day" / "today" since an ISO date. */
+  function daysSince(iso) {
+    var d = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+    if (isNaN(d) || d < 1) return 'today';
+    return d === 1 ? '1 day' : d + ' days';
+  }
+
   function fmtAgo(iso) {
     if (!iso) return 'never';
     var s = Math.round((Date.now() - new Date(iso).getTime()) / 1000);
@@ -554,12 +561,14 @@
         'Scan the next sticker. ' + app.batchCount + ' added so far.</p>' +
         '<button type="button" class="btn" data-act="batch-stop">Stop adding</button></div>';
     } else if (app.scanMode === 'out') {
-      slot.innerHTML = '<div class="banner out" role="status"><p><strong>Take-out mode.</strong> Every scanned bottle leaves the stock. ' +
-        (app.outCount ? app.outCount + ' taken out so far.' : '') + '</p></div>';
+      slot.innerHTML = '<div class="banner out" role="status"><p><strong>Take-out mode.</strong> A scanned wine leaves the stock. ' +
+        'A spirit moves one step: from storage to open, from open to empty. ' +
+        (app.outCount ? app.outCount + ' scanned so far.' : '') + '</p></div>';
     } else {
       slot.innerHTML = '';
     }
     var ev = app.state.events.slice().sort(function (a, b) { return a.ts < b.ts ? 1 : -1; }).slice(0, 6);
+    var recentRs = L.replayStatus(app.state);
     var act = $('#activitySlot');
     if (!ev.length) {
       act.innerHTML = '<p class="empty">No bottles yet. Stick a label on a bottle and scan it to add the first one.</p>';
@@ -567,7 +576,7 @@
     }
     act.innerHTML = '<h2>Recent</h2><ul class="list">' + ev.map(function (e) {
       return '<li><a href="#/b/' + encodeURIComponent(e.bottle_id) + '" class="row">' +
-        '<span class="row-main"><span class="row-title">' + esc(L.EVENT_LABELS[e.type] || e.type) + ': ' + esc(L.productLabel(product(e.product_id))) + '</span>' +
+        '<span class="row-main"><span class="row-title">' + esc(eventLabel(e, recentRs)) + ': ' + esc(L.productLabel(product(e.product_id))) + '</span>' +
         '<span class="row-sub">' + esc(e.bottle_id) + ', ' + esc(fmtAgo(e.ts)) + (e.user ? ', ' + esc(e.user) : '') + '</span></span></a></li>';
     }).join('') + '</ul>';
   }
@@ -597,8 +606,18 @@
         toast('Sticker ' + code + ' is not in the cellar.', { action: 'Add', onAction: function () { go('new/' + encodeURIComponent(code)); } });
         return;
       }
-      if (b.status !== 'in_stock') { toast('Already taken out: ' + code); return; }
-      takeOut(code, function () { app.outCount += 1; updateScanSide(); });
+      // The camera reports a sticker again every few seconds while it stays in view.
+      // One step per sticker and 30 s, so a spirit does not jump from open to empty.
+      if (app.lastStep && app.lastStep.code === code && Date.now() - app.lastStep.t < 30000) {
+        if (Date.now() - (app.lastStep.noticed || 0) > 5000) {
+          app.lastStep.noticed = Date.now();
+          toast('Already done: ' + L.statusLabel(b, product(b.product_id)) + '. For the next step, open the bottle card.');
+        }
+        return;
+      }
+      if (!L.isInStock(b)) { toast('Already taken out: ' + code); return; }
+      app.lastStep = { code: code, t: Date.now() };
+      step(code, nextStep(b), function () { app.outCount += 1; updateScanSide(); });
       return;
     }
     if (known) { go('b/' + encodeURIComponent(code)); return; }
@@ -625,11 +644,22 @@
   // Bottle actions
   // ==================================================================
 
-  function takeOut(code, after) {
+  function isSpiritBottle(b) { return L.categoryOf((product(b && b.product_id) || {}).type) === 'spirit'; }
+
+  /** Next step for a scan in take-out mode: spirits storage -> open -> empty; everything else out. */
+  function nextStep(b) {
+    if (isSpiritBottle(b)) return b.status === 'open' ? 'empty' : 'open';
+    return 'out';
+  }
+
+  var STEP_DONE = { open: 'Opened', empty: 'Empty', out: 'Taken out' };
+
+  /** Applies one step (open, empty or out) with an Undo in the toast. */
+  function step(code, type, after) {
     var p = product((bottle(code) || {}).product_id);
-    commit([{ kind: 'event', data: { type: 'out', bottle_id: code } }]).then(function (ok) {
+    commit([{ kind: 'event', data: { type: type, bottle_id: code } }]).then(function (ok) {
       if (!ok) return;
-      toast('Taken out: ' + L.productLabel(p), { action: 'Undo', onAction: function () {
+      toast(STEP_DONE[type] + ': ' + L.productLabel(p), { action: 'Undo', onAction: function () {
         commit([{ kind: 'event', data: { type: 'restore', bottle_id: code } }]).then(function (r) {
           if (!r) return;
           if (app.scanMode === 'out' && app.outCount) { app.outCount -= 1; }
@@ -642,8 +672,23 @@
 
   function backInStock(code) {
     commit([{ kind: 'event', data: { type: 'restore', bottle_id: code } }]).then(function (ok) {
-      if (ok) { toast('Back in stock: ' + code); render(); }
+      if (ok) { toast(L.statusLabel(bottle(code), product((bottle(code) || {}).product_id)) + ': ' + code); render(); }
     });
+  }
+
+  /**
+   * History label of an event; rs = L.replayStatus(...). Spirits say "storage" and "empty",
+   * and an undo names the state it returned to.
+   */
+  function eventLabel(e, rs) {
+    var spirit = L.categoryOf((product(e.product_id) || {}).type) === 'spirit';
+    var s = (rs && rs[e.event_id]) || {};
+    if (e.type === 'restore') {
+      if (s.after === 'open') return 'Back to open';
+      return spirit ? 'Back in storage' : 'Back in stock';
+    }
+    if (e.type === 'out' && spirit && s.before === 'open') return 'Taken out (open)';
+    return L.EVENT_LABELS[e.type] || e.type;
   }
 
   function moveDialog(code) {
@@ -790,7 +835,10 @@
     return '<div class="pf" data-cat="' + (p.type ? cat : 'none') + '">' +
       '<label class="field"><span>Type</span>' + typeSelect(p.type) + '</label>' +
       field('producer', 'Producer or winery', p.producer, 'autocapitalize="words" list="dl_producer"') +
-      '<div class="only-spirit">' + field('distillery', 'Distillery', p.distillery, 'autocapitalize="words" list="dl_distillery"') + '</div>' +
+      '<div class="only-spirit"><div class="grid2">' +
+      field('distillery', 'Distillery', p.distillery, 'autocapitalize="words" list="dl_distillery"') +
+      field('bottler', 'Bottler', p.bottler, 'autocapitalize="words" list="dl_bottler" placeholder="Official or e.g. Signatory"') +
+      '</div></div>' +
       field('name', 'Name of the wine or bottling', p.name, 'autocapitalize="words"') +
       '<div class="grid2">' +
       field('vintage', 'Vintage', p.vintage, 'placeholder="2019 or NV" autocapitalize="characters"') +
@@ -818,6 +866,7 @@
       '<input type="hidden" name="photo_data">' +
       '</div>' +
       datalist('dl_producer', distinct('producer')) + datalist('dl_distillery', distinct('distillery')) +
+      datalist('dl_bottler', ['Official'].concat(distinct('bottler').filter(function (x) { return x !== 'Official'; }))) +
       datalist('dl_country', distinct('country')) + datalist('dl_region', distinct('region')) +
       '</div>';
   }
@@ -855,7 +904,7 @@
     });
     // Keep fields of the other category empty so the Sheet stays clean.
     var cat = L.categoryOf(out.type);
-    if (cat !== 'spirit') { out.distillery = ''; out.age = ''; out.cask = ''; }
+    if (cat !== 'spirit') { out.distillery = ''; out.bottler = ''; out.age = ''; out.cask = ''; }
     if (cat !== 'wine') { out.grapes = ''; out.drink_from = ''; out.drink_to = ''; }
     out.tags = $('input[name=p_tags]', pf).value;
     delete out.photo_id;
@@ -875,7 +924,7 @@
   function productSearch(q) {
     var tokens = q.toLowerCase().split(/\s+/).filter(Boolean);
     var list = app.state.products.map(function (p) {
-      var hay = [p.producer, p.distillery, p.name, p.vintage, p.region, p.country, p.age, p.tags].join(' ').toLowerCase();
+      var hay = [p.producer, p.distillery, p.bottler, p.name, p.vintage, p.region, p.country, p.age, p.tags].join(' ').toLowerCase();
       return { p: p, hay: hay };
     }).filter(function (x) { return tokens.every(function (t) { return x.hay.indexOf(t) >= 0; }); });
     list.sort(function (a, b) { return a.p.updated_at < b.p.updated_at ? 1 : -1; });
@@ -1006,6 +1055,7 @@
     }
     if (cat === 'spirit') {
       add('Distillery', p.distillery);
+      add('Bottler', p.bottler);
       add('Age', p.age);
       add('Cask', p.cask);
     }
@@ -1020,9 +1070,9 @@
     return map[s] ? '<span class="chip win-' + s + '">' + map[s] + '</span>' : '';
   }
 
-  function eventLine(e) {
+  function eventLine(e, rs) {
     var where = (e.type === 'move' || e.type === 'intake') && e.location ? ' to ' + esc(e.location) : '';
-    return '<li class="ev ev-' + esc(e.type) + '"><p class="ev-title">' + esc(L.EVENT_LABELS[e.type] || e.type) + where + '</p>' +
+    return '<li class="ev ev-' + esc(e.type) + '"><p class="ev-title">' + esc(eventLabel(e, rs)) + where + '</p>' +
       '<p class="ev-meta">' + esc(fmtDateTime(e.ts)) + (e.user ? ', ' + esc(e.user) : '') + '</p></li>';
   }
 
@@ -1099,26 +1149,39 @@
     var st = b.status;
     var events = app.state.events.filter(function (e) { return e.bottle_id === code; }).sort(function (a, c) { return a.ts < c.ts ? 1 : -1; });
     var others = app.state.bottles.filter(function (x) { return x.product_id === b.product_id && x.bottle_id !== code && L.isInStock(x); }).length;
+    var rs = L.replayStatus({ events: events });
 
+    var spirit = L.categoryOf(p.type) === 'spirit';
+    var stepBtn = function (type, label, primary) {
+      return '<button type="button" class="btn' + (primary ? ' primary' : '') + '" data-act="step" data-type="' + type + '" data-code="' + esc(code) + '">' + label + '</button>';
+    };
+    var moveBtn = '<button type="button" class="btn" data-act="move" data-code="' + esc(code) + '">Move</button>';
     var actions = '';
-    if (st === 'in_stock') {
-      actions = '<button type="button" class="btn primary" data-act="take-out" data-code="' + esc(code) + '">Take out</button>' +
-        '<button type="button" class="btn" data-act="move" data-code="' + esc(code) + '">Move</button>' + findOnlineLink(p);
+    if (st === 'in_stock' && spirit) {
+      actions = stepBtn('open', 'Open', true) + moveBtn + findOnlineLink(p) + stepBtn('out', 'Take out unopened');
+    } else if (st === 'in_stock') {
+      actions = stepBtn('out', 'Take out', true) + moveBtn + findOnlineLink(p);
+    } else if (st === 'open') {
+      actions = stepBtn('empty', 'Empty', true) + moveBtn + findOnlineLink(p) +
+        '<button type="button" class="btn" data-act="restore" data-code="' + esc(code) + '">Back to storage</button>';
     } else if (st === 'out') {
-      actions = '<button type="button" class="btn primary" data-act="restore" data-code="' + esc(code) + '">Back in stock</button>' +
+      actions = '<button type="button" class="btn primary" data-act="restore" data-code="' + esc(code) + '">' +
+        (b.opened_at ? 'Back to open' : (spirit ? 'Back in storage' : 'Back in stock')) + '</button>' +
         findOnlineLink(p) + '<a class="btn" href="#/p/' + encodeURIComponent(b.product_id) + '">Product</a>';
     } else {
       actions = '<a class="btn primary" href="#/new/' + encodeURIComponent(code) + '">Use sticker for a new bottle</a>';
     }
 
-    var tagLine = L.STATUS_LABELS[st] + (st === 'in_stock' && b.location ? ', ' + b.location : '') +
+    var tagLine = L.statusLabel(b, p) + (L.isInStock(b) && b.location ? ', ' + b.location : '') +
       (st === 'out' && b.out_at ? ' ' + fmtDate(b.out_at) : '');
+    var openLine = st === 'open' && b.opened_at
+      ? '<p class="tag-open">Open since ' + esc(fmtDate(b.opened_at)) + ', ' + daysSince(b.opened_at) + '</p>' : '';
     main.innerHTML =
       '<section class="page bottle">' +
       '<div class="tag-hang"><div class="necktag st-' + esc(st) + '">' +
       '<span class="hole" aria-hidden="true"></span>' +
       '<p class="tag-code">' + esc(code) + '</p>' +
-      '<p class="tag-status">' + esc(tagLine) + '</p>' +
+      '<p class="tag-status">' + esc(tagLine) + '</p>' + openLine +
       '</div></div>' +
       labelBlock(p) +
       '<div class="action-grid">' + actions + '</div>' +
@@ -1132,7 +1195,7 @@
       '<details class="more"><summary>Details</summary>' + facts(p) +
       (b.acquired_date ? '<dl class="facts"><dt>Acquired</dt><dd>' + esc(fmtDate(b.acquired_date)) + '</dd></dl>' : '') +
       '</details>' +
-      '<h2>History</h2><ol class="timeline">' + events.map(eventLine).join('') + '</ol>' +
+      '<h2>History</h2><ol class="timeline">' + events.map(function (e) { return eventLine(e, rs); }).join('') + '</ol>' +
       '<div class="quiet-actions">' +
       '<a class="btn quiet" href="#/p/' + encodeURIComponent(b.product_id) + '/edit">Edit product</a>' +
       (st !== 'void' ? '<a class="btn quiet" href="#/b/' + encodeURIComponent(code) + '/edit">Edit bottle</a>' : '') +
@@ -1162,7 +1225,9 @@
 
     function bottleRow(b) {
       return '<li><a class="row" href="#/b/' + encodeURIComponent(b.bottle_id) + '"><span class="code-chip small">' + esc(b.bottle_id) + '</span>' +
-        '<span class="row-main"><span class="row-title">' + (b.status === 'in_stock' ? esc(b.location || 'No location') : 'Taken out ' + esc(fmtDate(b.out_at))) + '</span>' +
+        '<span class="row-main"><span class="row-title">' + (L.isInStock(b)
+          ? (b.status === 'open' ? '<span class="chip open-chip">Open</span> ' : '') + esc(b.location || 'No location')
+          : esc(L.statusLabel(b, p)) + ' ' + esc(fmtDate(b.out_at))) + '</span>' +
         ((b.acquired_date || b.tags) ? '<span class="row-sub">' + [b.acquired_date ? 'Acquired ' + esc(fmtDate(b.acquired_date)) : '', esc(b.tags)].filter(Boolean).join(', ') + '</span>' : '') + '</span></a></li>';
     }
 
@@ -1255,7 +1320,7 @@
         '<button type="button" class="btn quiet" data-act="clear-facet">Show all</button></p>' : '') +
       '<input type="search" id="cellarSearch" placeholder="Search" aria-label="Search producer, name, grapes, region, location, tags or sticker" value="' + esc(f.q) + '" autocomplete="off">' +
       '<div class="seg" role="group" aria-label="Category">' + seg('cat', 'all', 'All') + seg('cat', 'wine', 'Wine') + seg('cat', 'spirit', 'Spirits') + '</div>' +
-      '<div class="seg" role="group" aria-label="Status">' + seg('status', 'stock', 'In stock') + seg('status', 'out', 'Taken out') + '</div>' +
+      '<div class="seg" role="group" aria-label="Status">' + seg('status', 'stock', 'In stock') + seg('status', 'open', 'Open') + seg('status', 'out', 'Taken out') + '</div>' +
       '<label class="field inline-field"><span>Sort</span><select id="cellarSort">' +
       [['name', 'Name'], ['location', 'Location'], ['vintage', 'Vintage'], ['window', 'Drink by'], ['recent', 'Most recent'], ['count', 'Most bottles']].map(function (o) {
         return '<option value="' + o[0] + '"' + (f.sort === o[0] ? ' selected' : '') + '>' + o[1] + '</option>';
@@ -1274,22 +1339,28 @@
     var tokens = f.q.toLowerCase().split(/\s+/).filter(Boolean);
     var year = new Date().getFullYear();
     var bottles = app.state.bottles.filter(function (b) {
-      if (f.status === 'stock' ? b.status !== 'in_stock' : b.status !== 'out') return false;
+      if (f.status === 'stock' && !L.isInStock(b)) return false;
+      if (f.status === 'open' && !L.isOpen(b)) return false;
+      if (f.status === 'out' && b.status !== 'out') return false;
       var p = pm[b.product_id] || {};
       if (f.cat !== 'all' && L.categoryOf(p.type) !== f.cat) return false;
       if (f.facet && !(f.facet.kind === 'glass' ? glassFacet(p) === f.facet.value : S.matchFacet(f.facet, b, p, year))) return false;
       if (tokens.length) {
-        var hay = [p.producer, p.distillery, p.name, p.vintage, p.region, p.country, p.grapes, p.age, b.location, p.tags, b.tags, b.bottle_id, typeLabel(p.type)].join(' ').toLowerCase();
+        var hay = [p.producer, p.distillery, p.bottler, p.name, p.vintage, p.region, p.country, p.grapes, p.age, b.location, p.tags, b.tags, b.bottle_id, typeLabel(p.type)].join(' ').toLowerCase();
         if (!tokens.every(function (t) { return hay.indexOf(t) >= 0; })) return false;
       }
       return true;
     });
     var groups = {};
     bottles.forEach(function (b) {
-      var g = groups[b.product_id] || (groups[b.product_id] = { p: pm[b.product_id] || L.blankRecord('products'), bottles: [], locs: {}, latest: '' });
+      var g = groups[b.product_id] || (groups[b.product_id] = { p: pm[b.product_id] || L.blankRecord('products'), bottles: [], locs: {}, latest: '', open: 0, firstOpen: '' });
       g.bottles.push(b);
       if (b.location) g.locs[b.location] = true;
-      var t = f.status === 'out' ? b.out_at : b.created_at;
+      if (L.isOpen(b)) {
+        g.open += 1;
+        if (!g.firstOpen || b.opened_at < g.firstOpen) g.firstOpen = b.opened_at;
+      }
+      var t = f.status === 'out' ? b.out_at : (f.status === 'open' ? b.opened_at : b.created_at);
       if (t > g.latest) g.latest = t;
     });
     var list = Object.keys(groups).map(function (k) { return groups[k]; });
@@ -1321,7 +1392,9 @@
     el.innerHTML = countLine + '<ul class="list products">' + list.map(function (g) {
       var p = g.p; var cat = L.categoryOf(p.type);
       var sub = [typeLabel(p.type), p.region].filter(Boolean).join(', ');
-      var tail = f.status === 'out' ? (g.latest ? 'Last ' + fmtDate(g.latest) : '') : Object.keys(g.locs).sort().slice(0, 3).join(', ');
+      var tail = f.status === 'out' ? (g.latest ? 'Last ' + fmtDate(g.latest) : '')
+        : f.status === 'open' ? (g.firstOpen ? 'Open since ' + fmtDate(g.firstOpen) : '')
+        : Object.keys(g.locs).sort().slice(0, 3).join(', ') + (g.open ? (Object.keys(g.locs).length ? ', ' : '') + g.open + ' open' : '');
       return '<li><a class="row" href="#/p/' + encodeURIComponent(p.product_id) + '">' +
         '<span class="count-badge cat-' + cat + '">' + g.bottles.length + '</span>' +
         '<span class="row-main"><span class="row-kicker">' + esc(cat === 'spirit' ? (p.distillery || p.producer) : p.producer) + '</span>' +
@@ -1451,6 +1524,7 @@
     var c = chartBase();
     var year = new Date().getFullYear();
     var sum = S.summary(app.state);
+    var openList = S.openBottles(app.state);
     var win = S.drinkWindows(app.state, year);
     var outs = S.outByMonth(app.state, 24);
     var byType = S.stockBy(app.state, 'type');
@@ -1470,6 +1544,7 @@
       fig(sum.total, 'bottles in stock', sum.wine + ' wine, ' + sum.spirit + ' spirits' + (sum.other ? ', ' + sum.other + ' other' : '')) +
       fig(sum.products, 'different products', sum.locations + ' locations') +
       fig(sum.out12m, 'taken out in 12 months', '') +
+      (sum.open ? fig(sum.open, 'open bottles', openList.length ? 'longest open ' + (openList[0].days === '' ? '' : openList[0].days + ' days') : '') : '') +
       '</div>' +
 
       '<h2>Drinking windows</h2>' +
@@ -1502,8 +1577,15 @@
       hBarBlock('chTag', 'Stock by tag', byTag, 'Bottles in stock by tag') +
       (vint.length ? '<h2>Wine vintages in stock</h2><div class="chart"><canvas id="chVint" role="img" aria-label="Wine bottles in stock by vintage"></canvas></div>' : '') +
 
-      (users.length ? '<h2>Who added and took out</h2><table class="table"><thead><tr><th>Person</th><th>Added</th><th>Taken out</th></tr></thead><tbody>' +
-        users.map(function (u) { return '<tr><td>' + esc(u.user) + '</td><td>' + u.added + '</td><td>' + u.out + '</td></tr>'; }).join('') +
+      (openList.length ? '<h2>Open bottles</h2><ul class="list compact">' + openList.map(function (x) {
+        return '<li><a class="row" href="#/b/' + encodeURIComponent(x.bottle.bottle_id) + '"><span class="code-chip small">' + esc(x.bottle.bottle_id) + '</span>' +
+          '<span class="row-main"><span class="row-title serif">' + esc(L.productLabel(x.product)) + '</span>' +
+          '<span class="row-sub">Open ' + (x.days === '' ? '' : (x.days === 1 ? '1 day' : x.days + ' days') + ', since ' + esc(fmtDate(x.bottle.opened_at))) +
+          (x.bottle.location ? ', ' + esc(x.bottle.location) : '') + '</span></span></a></li>';
+      }).join('') + '</ul>' : '') +
+
+      (users.length ? '<h2>Who added, opened and took out</h2><table class="table"><thead><tr><th>Person</th><th>Added</th><th>Opened</th><th>Taken out</th></tr></thead><tbody>' +
+        users.map(function (u) { return '<tr><td>' + esc(u.user) + '</td><td>' + u.added + '</td><td>' + u.opened + '</td><td>' + u.out + '</td></tr>'; }).join('') +
         '</tbody></table>' : '') +
 
       '<h2>Cellar climate</h2><div id="climate"></div>' +
@@ -1799,7 +1881,7 @@
   // ==================================================================
 
   var ACTIONS = {
-    'take-out': function (el) { takeOut(el.dataset.code, function () { render(); }); },
+    step: function (el) { step(el.dataset.code, el.dataset.type, function () { render(); }); },
     restore: function (el) { backInStock(el.dataset.code); },
     move: function (el) { moveDialog(el.dataset.code); },
     remove: function (el) { removeBottle(el.dataset.code); },
