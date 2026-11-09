@@ -1476,7 +1476,12 @@
     Chart.defaults.font.size = 12;
     Chart.defaults.color = c.muted;
     Chart.defaults.borderColor = c.grid;
-    Chart.defaults.animation = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? false : { duration: 250 };
+    // Change only the duration. Replacing the whole animation object breaks Chart.js's hover animation: after a tap on
+    // a bar, leaving Stats then threw "this._fn is not a function" in the shared animation loop, and the loop stopped,
+    // so all charts drawn later stayed empty.
+    var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (Chart.defaults.animation && typeof Chart.defaults.animation === 'object') Chart.defaults.animation.duration = still ? 0 : 250;
+    Chart.defaults.transitions.active.animation.duration = still ? 0 : 150;
     Chart.defaults.plugins.tooltip.backgroundColor = c.ink;
     Chart.defaults.plugins.tooltip.titleColor = c.surface;
     Chart.defaults.plugins.tooltip.bodyColor = c.surface;

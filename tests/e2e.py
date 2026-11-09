@@ -28,9 +28,9 @@ def backend(body):
     return json.loads(urllib.request.urlopen(req).read())
 
 
-def phone(browser, user, scheme='light'):
+def phone(browser, user, scheme='light', motion='reduce'):
     ctx = browser.new_context(viewport={'width': 390, 'height': 844}, device_scale_factor=2, is_mobile=True,
-                              has_touch=True, color_scheme=scheme, reduced_motion='reduce', permissions=['camera'])
+                              has_touch=True, color_scheme=scheme, reduced_motion=motion, permissions=['camera'])
     ctx.add_init_script("localStorage.setItem('drinkventory.settings', JSON.stringify(%s));" % json.dumps(
         {'apiUrl': API, 'apiKey': keys['apiKey'], 'user': user}))
     page = ctx.new_page()
@@ -332,6 +332,29 @@ try:
         shot(c, '10-stats-dark', full=True)
         c.goto(APP + '#/b/000002')
         shot(c, '11-taken-out-dark')
+
+        # ---------- regression: charts stay drawn after a tap on a bar and back (animations on, as on the iPhone) ----------
+        m_ctx, m = phone(browser, 'Stefan', motion='no-preference')
+        m.goto(APP + '#/scan')
+        wait_synced(m, after_action=False)
+        bars = """() => DrinkventoryApp.app.charts.filter(c => /^ch(Country|Type|Tag)$/.test(c.canvas.id))
+          .map(c => { const e = c.getDatasetMeta(0).data[0]; return Math.abs(e.x - e.base); })"""
+        m.goto(APP + '#/stats')
+        m.click('button[data-act=stats-cat][data-cat=wine]')
+        for cycle in range(2):
+            m.wait_for_timeout(700)
+            m.locator('#chTag').scroll_into_view_if_needed()
+            m.wait_for_timeout(300)
+            el = m.evaluate("() => { const e = Chart.getChart('chTag').getDatasetMeta(0).data[0]; return { x: (e.x + e.base) / 2, y: e.y }; }")
+            box = m.locator('#chTag').bounding_box()
+            m.mouse.click(box['x'] + el['x'], box['y'] + el['y'])
+            expect(m.locator('.facet-chip')).to_contain_text('Tag:')
+            m.go_back()
+            m.wait_for_selector('#chTag', timeout=10000)
+            m.wait_for_timeout(900)
+            lengths = m.evaluate(bars)
+            assert len(lengths) == 3 and all(x > 20 for x in lengths), (cycle, lengths)
+        print('ok  stats: charts are drawn again after a tap on a bar and back (twice, with animations)')
         browser.close()
 finally:
     srv.terminate()
